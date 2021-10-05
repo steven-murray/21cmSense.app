@@ -2,5 +2,15 @@ language: python
 python:
     - "3.9"
 install:
+    - pwd
     - pip install -r requirements.txt
+    - git clone https://github.com/steven-murray/21cmSense
+
+    # activate our virtual env - need to do this in Travis as it's automatically done
+    # - source venv/bin/activate
+
+    # we now have our virtual env version of python
+    # install py21cmsense library egg into our venv site-packages
+    - cd 21cmSense && python ./setup.py install && cd ..
+
 script: pytest
