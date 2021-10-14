@@ -2,10 +2,21 @@ import React, { useState } from "react"
 import "./App.css"
 
 function App() {
-  const [firstmeasurment, setFmeasure] = useState("")
+  const [antenna, setAntenna] = useState("")
+  const [beam, setBeam] = useState("")
+  const [latitude, setLat] = useState("")
+
   
-  const handleChange = e => {
-    setFmeasure(e.target.value)
+  const handleAntChange = e => {
+    setAntenna(e.target.value)
+  }
+
+  const handleBeamChange = e => {
+    setBeam(e.target.value)
+  }
+
+  const handleLatChange = e => {
+    setLat(e.target.value)
   }
 
   return (
@@ -13,11 +24,21 @@ function App() {
       <h1>Basic Input Form</h1>
       <form>
         <label>
-          Measurement:{" "} 
-          <input type="text" value={firstmeasurment} onChange={handleChange} />
+          Antenna Measurement:{" "} 
+          <input type="text" value={antenna} onChange={handleAntChange} />
         </label>
       </form>
-      <h5>Measurement: {firstmeasurment}</h5>
+      <h5>Antenna: {antenna}</h5>
+      <label>
+          Beam Measurement:{" "} 
+          <input type="text" value={beam} onChange={handleBeamChange} />
+        </label>
+      <h5>Beam: {beam}</h5>
+        <label>
+          Latitute Measurement:{" "} 
+          <input type="text" value={latitude} onChange={handleLatChange} />
+      </label>
+      <h5>Latitude: {latitude}</h5>
     </div>
   )
 }
