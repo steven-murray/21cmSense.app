@@ -1,7 +1,6 @@
 ### Requirements
 # unstated reqs for 21cmSense
 pyuvdata
-tqdm
 
 # 21cmSense reqs
 numpy

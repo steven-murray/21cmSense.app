@@ -1,3 +1,17 @@
+from app import create_app
+
+# from mod_main import mod_main as main_blueprint
+# app.register_blueprint(main_blueprint)
+
+# from . import views, errors
+
+app=create_app('default')
+
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8080, debug=True)
+
+"""
 from flask import Flask
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 import numpy as np
@@ -36,3 +50,5 @@ def to_cm_if():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+"""
