@@ -12,6 +12,7 @@
 
 ```json
 {
+  "schema": "schema_name",
   "antenna": {
     "hex_num : int
     "separation" : float
@@ -20,20 +21,22 @@
     "dl_units": string
     # since we will not pass a Quantity, need separate units for separation and dl (default is the same)
     # "units" : string code for astropy.units.Unit
-  }
+  },
   "beam": {
-    "class": string ("GaussianBeam", )
-    "frequency": float (units: MHz)
-    "dish_size": float (units: m)
-  }
-  {
-    "latitude": float (units: none (radians): northern hemisphere=positive)
-  }
+    "class": string # ("GaussianBeam", )
+    "frequency": float # (units: MHz)
+    "dish_size": float # (units: m)
+  },
+  "latitude": float (units: none (radians): northern hemisphere=positive)
 }
 ```
 
+# Schemas
+- default
+  - the default and only schema we have right now
+  - default is assumed if no schema is supplied in /api-1.0/schema request
 
-
+# Data fields
 ## Antenna
 
 ```json

@@ -1,4 +1,5 @@
 from flask import Flask
+from flask import request
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 import numpy as np
 
@@ -9,13 +10,19 @@ from . import api
 def welcome():  # put application's code here
     return 'Welcome to Project 43!'
 
+@api.route('/ping')
+def ping():
+    return {
+        "pong":"",
+    }
 
-@api.route("/apireturn")
+@api.route("/schema")
 def api_return():
     # return a dict as JSON
-    return {
-        "code": "json encoded return",
-    }
+    # return {"id" : "1", }
+
+    # the schema we want
+    return { "id": request.args.get('id'), }
 
 
 @api.route("/21cm", methods=['GET', 'POST'])
