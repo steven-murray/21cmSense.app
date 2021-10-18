@@ -1,12 +1,12 @@
 import React from 'react';
 import '../../App.css';
 
-function Edward() {
+function DECODE() {
 	return (
 		<div>
-		<h5>Hello World</h5>
+		<h1>DECODE JSON to display front end</h1>
 	   </div>
 	);
 }
 
-export default Edward;
+export default DECODE;
