@@ -1,3 +1,14 @@
 ### Requirements
+# unstated reqs for 21cmSense
+pyuvdata
+
+# 21cmSense reqs
+numpy
+scipy
+pyyaml
+astropy
+matplotlib
+
+# project reqs
 pytest
 Flask
