@@ -1,4 +1,6 @@
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
+import json
+import sys
 import numpy as np
 
 def to_cm_if():
@@ -26,12 +28,24 @@ def to_cm_if():
     dd=dict(z)
 #    print(dd)
 #    print dict(zip([v.value for v in sensitivity.k1d], [v.value for v in power_std]))
-    z=zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
+#    z=zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
+#    z=zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
     print(dict(z))
 
 
+def test1():
+    n=[np.float64(3.3)]
+    m=[np.float64(9.9)]
+    i=[np.float64('inf')]
+    print(n,m,i)
+    z=zip(n,i)
+    d=dict(z)
+    print("json=",json.dumps(d))
+    sys.exit(0)
+
 def run():
-    to_cm_if();
+    test1()
+    to_cm_if()
 
 if __name__ == '__main__':
     run()
