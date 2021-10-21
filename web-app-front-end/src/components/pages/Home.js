@@ -63,7 +63,7 @@ class Home extends Component {
 	  let data = this.state.data.map(d => {
 	    return (
 		 <tr key={d.antenna_hex_number}>
-		   <td>{d.separation}</td>
+		   <tr>{d.separation}</tr>
 		   <td>{d.separation_units}</td>
 		   <td>{d.dl}</td>
 		   <td>{d.beam}</td>
@@ -89,7 +89,7 @@ class Home extends Component {
 		 {
 		   key: "separtion_units",
 		   label: "Separtion Units",
-		   type: "radio",
+		   type: "select",
 		   options: [
 		
 			{key: "Mhz", lable: "Mhz", name: "separtion_units", value: "Mhz"},
@@ -102,7 +102,7 @@ class Home extends Component {
 		 {
 		   key: "frequency_units",
 		   label: "Frequency Units",
-		   type: "radio",
+		   type: "select",
 		   options: [
 			{key: "Mhz", lable: "Mhz", name: "frequency_units", value: "Mhz"},
 			{key: "Hz", lable: "Hz", name: "frequency_units", value: "Hz"}
@@ -113,7 +113,7 @@ class Home extends Component {
 		 {
 		   key: "dish_size_units",
 		   label: "Dish Size Units",
-		   type: "radio",
+		   type: "select",
 		   options: [
 			
 			{key: "mm", lable: "mm", name: "dish_size_units", value: "mm"},
