@@ -38,11 +38,11 @@ function Navbar() {
 			</li>
 			<li className='nav-item'>
 			  <Link
-			    to='/DECODE'
+			    to='/DecodeJSON'
 			    className='nav-links'
 			    onClick={closeMobileMenu}
 			  >
-			    DECODE
+			    DecodeJSON
 			  </Link>
 			</li>
 		   </ul>
