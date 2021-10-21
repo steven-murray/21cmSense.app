@@ -1,0 +1,29 @@
+[
+    {
+        "page_label": "Dynamic Form",
+        "fields": [
+            {
+                "id": "Antena",
+                "label": "Antena Measurement",
+                "mandatory": "yes",
+                "placeholder": "Enter Measurement",
+                "type": "text",
+                "value": ""
+            },
+            {
+                "id": "Beam",
+                "label": "Beam Measurement",
+                "mandatory": "yes",
+                "placeholder": "Enter Measurement",
+                "type": "text"
+            },
+            {
+                "id": "Latitute",
+                "label": "Latitute Measurement",
+                "mandatory": "yes",
+                "placeholder": "Enter Measurement",
+                "type": "text"
+            }
+        ]
+    }
+]
