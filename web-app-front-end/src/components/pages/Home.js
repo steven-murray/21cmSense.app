@@ -134,7 +134,6 @@ class Home extends Component {
 	    <tbody>{data}</tbody>
 	  </table>
 	</div>
-
 	);
 }
 }
