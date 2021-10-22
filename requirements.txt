@@ -10,5 +10,6 @@ astropy
 matplotlib
 
 # project reqs
+jsonschema
 pytest
 Flask
