@@ -85,7 +85,7 @@ class Home extends Component {
 	    defaultValues={this.state.current}
 	    model={[
 		 { key: "antenna_hex_number", label: "Antena Hex Number", props: { required: true, min: 0} },
-		 { key: "separation", label: "Separation", type: "number", props: { required: true, min: 0}},
+		 { key: "separation", label: "Separation", type: "float", props: { required: true, min: 0}},
 		 {
 		   key: "separtion_units",
 		   label: "Separtion Units",
@@ -97,8 +97,8 @@ class Home extends Component {
 		   ],
 		   props: { required: true }
 		 },
-		 { key: "dl", label: "DL", type: "number", props: { required: true, min: 0}},
-		 { key: "frequency", label: "Frequency", type: "number", props: { required: true, min: -180, max: 180}},
+		 { key: "dl", label: "DL", type: "float", props: { required: true, min: 0}},
+		 { key: "frequency", label: "Frequency", type: "float", props: { required: true, min: -180, max: 180}},
 		 {
 		   key: "frequency_units",
 		   label: "Frequency Units",
@@ -109,7 +109,7 @@ class Home extends Component {
 		   ],
 		   props: { required: true }
 		 },
-		 { key: "dish_size", label: "Dish Size", type: "number", props: { required: true, min: 0}},
+		 { key: "dish_size", label: "Dish Size", type: "float", props: { required: true, min: 0}},
 		 {
 		   key: "dish_size_units",
 		   label: "Dish Size Units",
