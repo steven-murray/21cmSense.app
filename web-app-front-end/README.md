@@ -1,33 +1,10 @@
-# SER401-Project43
+# Getting Started with Create React App
 
-**Summary**
-	Project 43 is a web application targeted to the scientific and educational communities of radio astronomers and radio astronomer educators.  
-The Project 43 sponsors wish to provide a more user-friendly interface to existing scientific code, 21cmSense - proven Python code that generates 
-estimates of the sensitivity of different radio telescope configurations to signals coming from the very early Universe -  to broaden the potential 
-audience for the software.  Project 43's web-based interface will run on commodity hosting platforms and/or ASU servers and will provide a pipeline 
-with a user-friendly interface on the front end and API-driven integration with legacy code on the back end.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Resources
+## Available Scripts
 
-**GitHub Repos**
-		https://github.com/bpape1usa/SER401-Project43.git
-		
-**TravisCI**
-		https://app.travis-ci.com/github/bpape1usa/SER401-Project43
-		
-**Taiga Board**
-		https://tree.taiga.io/project/lclindbe-team43/backlog
-		
-## Pre-requisite
-**21cmSense**
-		proven Python code that generates estimates of the sensitivity of different radio telescope configurations to signals coming from the very early Universe.
-		
-## Implementation Strategy
-
-## Post-requisite
-
-## How to run the application
-
+In the project directory, you can run:
 
 ### `yarn start`
 
@@ -62,3 +39,32 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `yarn build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
