@@ -1,0 +1,10 @@
+{
+  "schema": "2D-sensitivity",
+  "group": "calculations",
+  "description": "2D Sensitivity",
+  "depends": [
+    "antenna",
+    "beam",
+    "location"
+  ]
+}

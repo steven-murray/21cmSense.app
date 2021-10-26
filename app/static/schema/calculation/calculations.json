@@ -1,11 +1,3 @@
-{
-  "antenna-positions": "Antenna Positions",
-  "baselines-distributions": "Baselines Distributions",
-  "2D-sensitivity": "2D Sensitivity",
-  "2D-sensitivity-vs-k": "2D Sensitivity vs k",
-  "2D-sensitivity-vs-z": "2D Sensitivity vs z",
-  "1D-cut-of-2D-sensitivity": "1D cut of 2D sensitivity",
-  "1D-noise-cut-of-2D-sensitivity": "1D noise cut of 2D sensitivity",
-  "1D-sample-variance-cut-of-2D-sensitivity": "1D sample variance cut of 2D sensitivity",
-  "k-vs-redshift-plot", "k vs Redshift plot",
-}
+"schema": "1D-noise-cut-of-2D-sensitivity",
+"group": "calculations",
+"description": "1D noise cut of 2D sensitivity","depends": ["antenna", "beam", "location"]

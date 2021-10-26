@@ -1,0 +1,10 @@
+{
+  "schema": "k-vs-redshift-plot",
+  "group": "calculations",
+  "description": "k vs Redshift plot",
+  "depends": [
+    "antenna",
+    "beam",
+    "location"
+  ]
+}

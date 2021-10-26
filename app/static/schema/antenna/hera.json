@@ -1,88 +1,56 @@
 {
   "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
   "schema": "hera",
-  "groups": [
-    {
-      "antenna": {
-        "hex_num": {
-          "type": "integer",
-          "minimum": 0,
-          "help": "Number of antennas per side of hexagonal array"
-        },
-        "separation": {
-          "type": "number",
-          "minimum": 0,
-          "help": "The distance between antennas along a side",
-          "units": {
-            "default": "m",
-            "enum": [
-              "m",
-              "s"
-            ]
-          }
-        },
-        "dl": {
-          "type": "float",
-          "minimum": 0,
-          "help": "The distance between rows of antennas",
-          "units": {
-            "default": "m",
-            "enum": [
-              "m",
-              "s"
-            ]
-          }
-        }
-      }
-    },
-    {
-      "beam": {
-        "class": {
-          "type": "string",
-          "help": "The beam class",
-          "default": "GaussianBeam"
-        },
-        "frequency": {
-          "type": "number",
-          "minimum": 0,
-          "help": "The beam frequency",
-          "units": {
-            "default": "Mhz",
-            "enum": [
-              "Hz",
-              "Mhz"
-            ]
-          }
-        },
-        "dish_size": {
-          "type": "number",
-          "minimum": 0
-        },
-        "dish_size_units": {
-          "type": "string",
-          "default": "m",
-          "help": "The dish size",
-          "enum": [
-            "m"
-          ]
-        }
-      }
-    },
-    {
-      "location": {
-        "latitude": {
-          "type": "number",
-          "help": "Terrestrial antenna latitude",
-          "units": {
-            "default": "rad",
-            "enum": [
-              "rad"
-            ]
-          },
-          "__minimum": -180.0,
-          "__maximum": 180.0
-        }
-      }
+  "group": "antenna",
+  "data": {
+    "antenna": {
+      "hex_num": {
+        "type": "integer",
+        "minimum": 3,
+        "help": "Number of antennas per side of hexagonal array"
+      },
+      "separation": {
+        "type": "number",
+        "minimum": 0,
+        "help": "The distance between antennas along a side"
+      },
+      "dl": {
+        "type": "float",
+        "minimum": 0,
+        "help": "The distance between rows of antennas"
+      },
+      "required": [
+        "hex_num",
+        "separation",
+        "dl"
+      ]
     }
-  ]
+  },
+  "units": {
+    "antenna": {
+      "separation": {
+        "type": "string",
+        "default": "m",
+        "enum": [
+          "m",
+          "s"
+        ]
+      },
+      "dl": {
+        "type": "string",
+        "default": "m",
+        "enum": [
+          "m",
+          "s"
+        ]
+      },
+      "required": [
+        "separation",
+        "dl"
+      ]
+    }
+  }
 }
+
+
+

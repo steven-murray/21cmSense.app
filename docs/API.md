@@ -12,7 +12,7 @@ Response:
 ``200 OK``
 
 ``
-{ groups: ['group1', 'group2', 'group3'] }
+{ required: ['group1', 'group2', 'group3'] }
 ``
 
 
