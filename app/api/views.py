@@ -1,8 +1,9 @@
-from flask import Flask
+from flask import current_app
+from flask import jsonify
 from flask import request
-from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
-import numpy as np
 import json
+import numpy as np
+from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from . import models
 from . import api
 from flask import current_app
@@ -17,12 +18,6 @@ def welcome():  # put application's code here
 def ping():
     return {
         "pong":"",
-    }
-
-@api.route('/ping')
-def ping():
-    return {
-        "pong": "",
     }
 
 
@@ -43,18 +38,22 @@ def api_return(schemagroup, schemaname):
         # we should be posted something like:
         # { "location": "location.json", "beam": "GaussianBeam.json", "antenna": "hera.json" }
         for schema_group in lst:
-            print("json return for component %s=" % schema_group, j[schema_group]);
-        pass
+            if schema_group in j:
+                print("json return for component %s=" % schema_group, j[schema_group]);
+        return jsonify("blah")
+        # return current_app.send_static_file('schema/an
     if not schemagroup:
         lst = models.get_schema_groups()
+        # return lst
         return jsonify(lst)
     else:
         if not schemaname:
             lst = models.get_schema_names(schemagroup)
+            # return lst
             return jsonify(lst)
         else:
             # the schema we want
-            return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname)
+            return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname + '.json')
 
 
 @api.route("/test", methods=['GET', 'POST'])

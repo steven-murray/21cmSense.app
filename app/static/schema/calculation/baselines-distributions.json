@@ -1,0 +1,11 @@
+{
+  "schema": "baselines-distributions",
+  "group": "calculations",
+  "description": "Baselines Distributions",
+  "depends": [
+    "antenna",
+    "beam",
+    "location"
+  ]
+}
+

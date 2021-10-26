@@ -1,6 +1,12 @@
 import numpy as np
 import os
 from flask import current_app
+from flask import jsonify
+
+from ..ant2.ant2 import ant
+from .. import ant2
+
+
 # from . import utils
 
 import json
@@ -14,7 +20,6 @@ class Hera:
 
 class BeamFactoryManager:
     def __init__(self):
-        self.d = {}
         self.d['GaussianBeam'] = GaussianBeamDispatcher
 
     def get(self, beam_type):
@@ -26,7 +31,6 @@ class BeamFactoryManager:
 
 class AntennaFactoryManager:
     def __init__(self):
-        self.d = {}
         self.d['hera'] = HeraAntennaDispatcher
 
     def get(self, antenna_type):
@@ -124,19 +128,30 @@ class Factory:
 
 
 def get_schema_names(schemagroup):
-    d=os.listdir(current_app.root_path+'/static/schema/'+schemagroup)
-    print("schema names")
-    for dd in d:
-        print(dd)
-    return list(d)
+    dirs=os.listdir(current_app.root_path+'/static/schema/'+schemagroup)
+    # print("schema names")
+    schemas=[dir.replace('.json', '') for dir in dirs]
+    # for dd in dirs:
+    #     dd=dd.replace('.json','')
+    #     print(dd)
+    # j={}
+    # j['required']=list(dirs)
+    # return jsonify(j)
+    return schemas
 
 def get_schema_groups():
-    d=os.listdir(current_app.root_path+'/static/schema')
-    print("schema groups")
-    for dd in d:
-        print(dd)
-    return list(d)
+    dirs=os.listdir(current_app.root_path+'/static/schema')
+    # print("schema groups")
+    # for dd in d:
+    #     print(dd)
+    return dirs
 
+
+def get_schema_groups_json():
+    d=get_schema_groups()
+    j={}
+    j['required']=list(d)
+    return jsonify(j)
 
 class Validator:
 

@@ -1,0 +1,10 @@
+{
+  "schema": "2D-sensitivity-vs-z",
+  "group": "calculations",
+  "description": "2D Sensitivity vs z",
+  "depends": [
+    "antenna",
+    "beam",
+    "location"
+  ]
+}
