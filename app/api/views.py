@@ -29,7 +29,9 @@ def api_all_schema():
 
 @api.route('/schema', defaults={'schemagroup': '', 'schemaname': ''}, methods=['GET', 'POST'])
 @api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
-@api.route('/schema/<schemagroup>/<schemaname>')
+# @api.route('/schema/<schemagroup>/<schemaname>')
+@api.route('/schema/<schemagroup>/descriptions')
+@api.route('/schema/<schemagroup>/get/<schemaname>')
 def api_return(schemagroup, schemaname):
     if request.method == 'POST':
         j = request.get_json()

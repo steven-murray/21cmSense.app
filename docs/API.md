@@ -1,12 +1,51 @@
-# GET
+# API
+
+## schema
+
+### Get a list of schema groups
+
+**GET** `/api-1.0/schema`
+
+Example:
+
+`http://localhost:5000/api-1.0/schema`
+
+Return:
+
+``
+[
+    "location",
+    "calculation",
+    "beam",
+    "antenna"
+]
+``
+
+### Get a list of schemas in a group
+
+**GET** `/api-1.0/schema/{group}`
+
+Example:
+`http://localhost:5000/api-1.0/schema/antenna`
+
+Return:
+
+``http://localhost:5000/api-1.0/schema
+``
+
+
+### Get a specific schema from a group
+
+**GET** `/api-1.0/schema/{group}/{schema_name}`
+**GET** `/api-1.0/schema/{group}/get/{schema_name}`
+**GET** `/api-1.0/schema/{group}/descriptions`
 
 ## get an acknowledgement from server
 
-`/api-1.0/ping`
+**GET** `/api-1.0/ping`
 
 ## get schema for function with id
 
-**GET** `/api-1.0/schema`
 
 Response:
 ``200 OK``

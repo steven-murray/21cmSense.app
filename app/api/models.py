@@ -23,7 +23,7 @@ class FactoryManager:
         self.d = {}
 
     def add(self, key, f):
-        if not key in d:
+        if key not in self.d:
             self.d[key] = f
         return self
 
@@ -43,9 +43,8 @@ class Dispatcher:
 class BeamDispatcher:
 
     def gauss_beam_disp(self):
-        beam = GaussianBeam(frequency=super.data_json['frequency'], dish_size=self.data_json['dish_size'])
+        beam = GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
         return beam
-
 
 
 class GaussianBeamDispatcher(Dispatcher):
@@ -62,38 +61,58 @@ class HeraAntennaDispatcher(Dispatcher):
 
 def one_d_cut():
     pass
+
+
 def one_d_noise_cut():
     pass
+
+
 def one_d_sample_var():
     pass
+
+
 def two_d_sens():
     pass
+
+
 def two_d_sens_k():
     pass
+
+
 def two_d_sens_z():
     pass
+
+
 def ant_pos():
     pass
+
+
 def baselines_dist():
     pass
+
+
 def calcs():
     pass
+
+
 def k_vs_redshift():
     pass
 
 
-
 class CalculationFactory:
-    calcs=None
+    calcs = None
 
     def __init__(self):
-        CalculationFactory.calcs = FactoryManager().add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add('2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add('baselines-distributions', one_d_cut).add('calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut)
-
+        CalculationFactory.calcs = FactoryManager().add('1D-cut-of-2D-sensitivity', one_d_cut).add(
+            '1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
+            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z',
+                                                                                   one_d_cut).add('antenna-positions',
+                                                                                                  one_d_cut).add(
+            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut)
 
         """
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
         """
-
 
 
 class BeamFactory:
