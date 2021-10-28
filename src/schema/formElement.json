@@ -1,115 +1,89 @@
 {
-  "$schema": "http://json-schema.org/schema#",
-  "type": "object",
-  "properties": {
-
-    "schema": {
-      "type": "string"
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "hex_num": {
-              "type": "integer"
-            },
-            "separation": {
-              "type": "number"
-            },
-            "dl": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "dl",
-            "hex_num",
-            "separation"
-          ]
-        },
-        "beam": {
-          "type": "object",
-          "properties": {
-            "class": {
-              "type": "string"
-            },
-            "frequency": {
-              "type": "number"
-            },
-            "dish_size": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "class",
-            "dish_size",
-            "frequency"
-          ]
-        },
-        "latitude": {
-          "type": "number"
-        }
+   "page_label":"21cmSense Dynamic HTML Form",
+   "fields":[
+      {
+         "id":"antenna_hex_number",
+         "label":"Antena Hex Number",
+         "value":"",
+         "mandatory":"yes",
+         "placeholder":"Enter value greater than 0",
+         "type":"text"
       },
-      "required": [
-        "antenna",
-        "beam",
-        "latitude"
-      ]
-    },
-    "units": {
-      "type": "object",
-      "properties": {
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "separation": {
-              "type": "string"
-            },
-            "dl": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "dl",
-            "separation"
-          ]
-        },
-        "beam": {
-          "type": "object",
-          "properties": {
-            "frequency": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "frequency"
-          ]
-        },
-        "location": {
-          "type": "object",
-          "properties": {
-            "latitude": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "latitude"
-          ]
-        }
+      {
+         "id":"separation",
+         "label":"Separation",
+         "value":"",
+         "mandatory":"yes",
+         "placeholder":"Enter value greater than 0",
+         "type":"text"
       },
-      "required": [
-        "antenna",
-        "beam",
-        "location"
-      ]
-    }
-
-  },
-  "required": [
-    "data",
-    "schema",
-    "units"
-  ]
-
+      {
+         "id":"separtion_units",
+         "label":"Separtion Units",
+         "value":"",
+         "mandatory":"yes",
+         "options":[
+            {
+               "option_label":"Mhz"
+            },
+            {
+               "option_label":"Hz"
+            }
+         ],
+         "type":"select"
+      },
+      {
+         "id":"separation",
+         "label":"Separation",
+         "value":"",
+         "mandatory":"yes",
+         "placeholder":"Enter value greater than 0",
+         "type":"text"
+      },
+      {
+         "id":"dl",
+         "label":"DL",
+         "value":"",
+         "mandatory":"yes",
+         "placeholder":"Enter value greater than 0",
+         "type":"text"
+      },
+      {
+         "id":"frequency",
+         "label":"Frequency",
+         "value":"",
+         "mandatory":"yes",
+         "placeholder":"Value must be between -180 and 180",
+         "options":[
+            {
+               "option_label":"Mhz"
+            },
+            {
+               "option_label":"Hz"
+            }
+         ],
+         "type":"select"
+      },
+      {
+         "id":"dish_size",
+         "label":"Dish Size",
+         "mandatory":"yes",
+         "placeholder":"Enter value greater than 0",
+         "options":[
+            {
+               "option_label":"mm"
+            },
+            {
+               "option_label":"cm"
+            },
+			{
+               "option_label":"m"
+            },
+            {
+               "option_label":"km"
+            }
+         ],
+         "type":"select"
+      }
+   ]
 }

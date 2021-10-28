@@ -6,7 +6,7 @@ import { FormContext } from '../../FormContext';
 function DynamicForm() {
   const [elements, setElements] = useState(null);
   useEffect(() => {
-    setElements(formJSON[0])
+    setElements(formJSON)
 
   }, [])
   const { fields, page_label } = elements ?? {}
@@ -18,15 +18,15 @@ function DynamicForm() {
   const handleChange = (id, event) => {
     const newElements = { ...elements }
     newElements.fields.forEach(field => {
-      const { field_type, field_id } = field;
-      if (id === field_id) {
+      const { field_type, key } = field;
+      if (id === key) {
         switch (field_type) {
           case 'checkbox':
-            field['field_value'] = event.target.checked;
+            field['value'] = event.target.checked;
             break;
 
           default:
-            field['field_value'] = event.target.value;
+            field['value'] = event.target.value;
             break;
         }
 
