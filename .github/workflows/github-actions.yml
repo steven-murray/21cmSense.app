@@ -39,6 +39,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pytest
+        pip install flake8 pytest pytest-cov
         pip install -r requirements.txt
     
 #     - name: Lint with flake8
@@ -49,7 +50,13 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-
+    - name: Build Coverage File 
+      run: |
+        pytest --cache-clear --cov=app test/ > pytest-coverage.txt
+    - name: pytest-coverage-commentator
+      uses: coroo/pytest-coverage-commentator@v1.0.2
+      with:
+        pytest-coverage: pytest-coverage.txt
     - name: Upload artifact for deployment jobs
       uses: actions/upload-artifact@v2
       with:
