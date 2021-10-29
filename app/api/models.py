@@ -26,7 +26,6 @@ class FactoryManager:
         return self
 
     def knows(self, key):
-        print("in knows: key=" + key)
         if key in self.d:
             return True
         else:
@@ -191,7 +190,6 @@ def get_schema_descriptions_json(schemagroup):
         return json_error("error", "schema " + schemagroup + " not found.")
 
     for schema_name in get_schema_names(schemagroup):
-        print("checking file:", schema_name)
         try:
             f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
             sch = json.load(f)
