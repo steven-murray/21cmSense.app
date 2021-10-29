@@ -1,3 +1,5 @@
+from json import JSONDecodeError
+
 import numpy as np
 import os
 from flask import current_app
@@ -194,14 +196,24 @@ def get_schema_descriptions(schemagroup):
     d = {}
     for schema_name in get_schema_names(schemagroup):
         print("checking file:", schema_name)
-        f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
-        sch = json.load(f)
-        f.close()
-        print("got schema=", sch)
-        # d[sch] = sch['description']
-    print("going to return these schema descriptions:", d)
-    return None
-    # return d
+        try:
+            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
+            sch = json.load(f)
+            f.close()
+            d[schema_name] = sch['description']
+
+        # issue with json.load()
+        except JSONDecodeError:
+            pass
+
+        # issue with f.open()
+        except OSError:
+            pass
+
+        # issue with finding 'description' key in json
+        except KeyError:
+            pass
+    return d
 
 
 def get_schema_groups():
