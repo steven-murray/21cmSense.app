@@ -1,6 +1,7 @@
 {
   "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
   "schema": "GaussianBeam",
+  "description": "GaussianBeam type beam",
   "group": "beam",
   "data": {
     "beam": {

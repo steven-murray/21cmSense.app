@@ -1,6 +1,7 @@
 {
   "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
   "schema": "location",
+  "description": "Terrestrial latitude-only coordinate",
   "groups": "location",
   "data": {
     "location": {

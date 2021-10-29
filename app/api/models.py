@@ -1,13 +1,11 @@
-import numpy as np
+from json import JSONDecodeError
+
 import os
 from flask import current_app
 from flask import jsonify
 
-# from ..ant2.ant2 import ant
-# from .. import ant2
-
-
-# from . import utils
+from .json_util import json_error
+# from app.api.errors import error
 
 import json
 import jsonschema
@@ -18,73 +16,122 @@ class Hera:
     pass
 
 
-class BeamFactoryManager:
+class FactoryManager:
     def __init__(self):
-        self.d['GaussianBeam'] = GaussianBeamDispatcher
+        self.d = {}
 
-    def get(self, beam_type):
-        if beam_type in self.d:
-            return self.d[beam_type]
+    def add(self, key, f):
+        if key not in self.d:
+            self.d[key] = f
+        return self
+
+    def knows(self, key):
+        print("in knows: key=" + key)
+        if key in self.d:
+            return True
+        else:
+            return False
+
+    def get(self, key):
+        if self.knows(key):
+            return self.d[key]
         else:
             return None
 
 
-class AntennaFactoryManager:
-    def __init__(self):
-        self.d['hera'] = HeraAntennaDispatcher
-
-    def get(self, antenna_type):
-        if antenna_type in self.d:
-            return self.d[antenna_type]
-        else:
-            return None
-
-
-class BeamDispatcher:
-    def __init__(self, beam_json, units_json):
-        self.beam_json = beam_json
+class Dispatcher:
+    def __init__(self, data_json, units_json):
+        self.data_json = data_json
         self.units_json = units_json
 
 
-class GaussianBeamDispatcher(BeamDispatcher):
-    def __init__(self, beam_json, units_json):
-        super().__init__(beam_json, units_json)
-
+class GaussianBeamDispatcher(Dispatcher):
     def get(self):
-        beam = GaussianBeam(frequency=self.beam_json['frequency'], dish_size=self.beam_json['dish_size'])
-        return beam
+        return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
 
-class AntennaDispatcher:
-    def __init__(self, antenna_json, units_json):
-        self.antenna_json = antenna_json
-        self.units_json = units_json
-
-
-class HeraAntennaDispatcher(AntennaDispatcher):
-    def __init__(self, antenna_json, units_json):
-        super().__init__(antenna_json, units_json)
-
+class HeraAntennaDispatcher(Dispatcher):
     def get(self):
-        j = self.antenna_json
-        antpos = hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
-        return antpos
+        j = self.data_json
+        return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
 
 
-class BeamFactory:
+class CalculationDispatcher(Dispatcher):
+    pass
+
+
+def one_d_cut():
+    pass
+
+
+def one_d_noise_cut():
+    pass
+
+
+def one_d_sample_var():
+    pass
+
+
+def two_d_sens():
+    pass
+
+
+def two_d_sens_k():
+    pass
+
+
+def two_d_sens_z():
+    pass
+
+
+def ant_pos():
+    pass
+
+
+def baselines_dist():
+    pass
+
+
+def calcs():
+    pass
+
+
+def k_vs_redshift():
+    pass
+
+
+def handle_output(calculation):
+    return jsonify({"key": "value"})
+
+
+class CalculationFactory(FactoryManager):
     def __init__(self):
-        pass
+        super().__init__()
+        # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
+        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
+            '1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
+            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z',
+                                                                                   one_d_cut).add('antenna-positions',
+                                                                                                  one_d_cut).add(
+            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut)
 
-    def get(self, beam_type):
-        return BeamFactoryManager().get(beam_type)
+        """
+        1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
+        """
 
 
-class AntennaFactory:
+class BeamFactory(FactoryManager):
     def __init__(self):
-        pass
+        super().__init__()
+        self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
 
-    def get(self, antenna_type):
-        return AntennaFactoryManager().get(antenna_type)
+
+class AntennaFactory(FactoryManager):
+    antennas = None
+
+    def __init__(self):
+        super().__init__()
+        AntennaFactory.antennas = self.add('hera', HeraAntennaDispatcher)
 
 
 class Factory:
@@ -119,7 +166,8 @@ class Factory:
                     antpos=antenna.get(), beam=beam.get(),
                     # antpos=hera(hex_num=7, separation=14, dl=12.12, units="m"),
                     # beam=GaussianBeam(frequency=135.0, dish_size=14),
-                    latitude=38 * np.pi / 180.0
+                    # latitude=38 * np.pi / 180.0
+                    latitude=thejson['data']['location']['latitude']
                 )
             )
         )
@@ -128,19 +176,44 @@ class Factory:
 
 
 def get_schema_names(schemagroup):
-    dirs=os.listdir(current_app.root_path+'/static/schema/'+schemagroup)
-    # print("schema names")
-    schemas=[dir.replace('.json', '') for dir in dirs]
-    # for dd in dirs:
-    #     dd=dd.replace('.json','')
-    #     print(dd)
-    # j={}
-    # j['required']=list(dirs)
-    # return jsonify(j)
+    try:
+        dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
+    except FileNotFoundError:
+        return None
+    schemas = [dir.replace('.json', '') for dir in dirs]
     return schemas
 
+
+def get_schema_descriptions_json(schemagroup):
+    d = {}
+    schema_names=get_schema_names(schemagroup)
+    if schema_names is None:
+        return json_error("error", "schema " + schemagroup + " not found.")
+
+    for schema_name in get_schema_names(schemagroup):
+        print("checking file:", schema_name)
+        try:
+            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
+            sch = json.load(f)
+            f.close()
+            d[schema_name] = sch['description']
+
+        # issue with json.load()
+        except JSONDecodeError:
+            pass
+
+        # issue with f.open()
+        except OSError:
+            pass
+
+        # issue with finding 'description' key in json
+        except KeyError:
+            pass
+    return jsonify(d)
+
+
 def get_schema_groups():
-    dirs=os.listdir(current_app.root_path+'/static/schema')
+    dirs = os.listdir(current_app.root_path + '/static/schema')
     # print("schema groups")
     # for dd in d:
     #     print(dd)
@@ -148,10 +221,11 @@ def get_schema_groups():
 
 
 def get_schema_groups_json():
-    d=get_schema_groups()
-    j={}
-    j['required']=list(d)
+    d = get_schema_groups()
+    j = {}
+    j['required'] = list(d)
     return jsonify(j)
+
 
 class Validator:
 
@@ -163,7 +237,7 @@ class Validator:
         # sch=json.loads(schema)
         # print("Schema=",sch)
         # sch=json.loads(schema)
-#        f = open("app/static/schema/hera-validation.json", 'r')
+        #        f = open("app/static/schema/hera-validation.json", 'r')
         f = open("app/static/validation-schema/hera-validation.json", 'r')
         sch = json.load(f)
         print("We got this json:", suppliedjson)

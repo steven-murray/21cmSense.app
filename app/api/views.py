@@ -9,15 +9,20 @@ from . import api
 from flask import current_app
 from flask import jsonify
 
+from .models import CalculationFactory, handle_output, get_schema_descriptions_json
+from . import errors
+from .json_util import json_error
+
 
 @api.route('/')
 def welcome():  # put application's code here
     return 'Welcome to Project 43!'
 
+
 @api.route('/ping')
 def ping():
     return {
-        "pong":"",
+        "pong": "",
     }
 
 
@@ -27,9 +32,15 @@ def api_all_schema():
     return jsonify({'list': 'here'})
 
 
-@api.route('/schema', defaults={'schemagroup': '', 'schemaname': ''}, methods=['GET', 'POST'])
-@api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
-@api.route('/schema/<schemagroup>/<schemaname>')
+# @api.route('/schema', defaults={'schemagroup': '', 'schemaname': ''}, methods=['GET', 'POST'])
+# @api.route('/schema/<schemagroup>/<schemaname>')
+# @api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
+@api.route('/schema/<schemagroup>/descriptions')
+def schema_descriptions(schemagroup):
+    return get_schema_descriptions_json(schemagroup)
+
+
+@api.route('/schema/snork')
 def api_return(schemagroup, schemaname):
     if request.method == 'POST':
         j = request.get_json()
@@ -42,18 +53,24 @@ def api_return(schemagroup, schemaname):
                 print("json return for component %s=" % schema_group, j[schema_group]);
         return jsonify("blah")
         # return current_app.send_static_file('schema/an
-    if not schemagroup:
-        lst = models.get_schema_groups()
-        # return lst
-        return jsonify(lst)
-    else:
-        if not schemaname:
-            lst = models.get_schema_names(schemagroup)
-            # return lst
-            return jsonify(lst)
-        else:
-            # the schema we want
-            return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname + '.json')
+
+
+@api.route('/schema/<schemagroup>/get/<schemaname>')
+def get_schema(schemagroup, schemaname):
+    # the schema we want
+    return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname + '.json')
+
+
+@api.route('/schema/<schemagroup>')
+def get_schema_group(schemagroup):
+    lst = models.get_schema_names(schemagroup)
+    return jsonify(lst)
+
+
+@api.route('/schema', methods=['GET'])
+def list_all_schema():
+    lst = models.get_schema_groups()
+    return jsonify(lst)
 
 
 @api.route("/test", methods=['GET', 'POST'])
@@ -214,7 +231,24 @@ def testtest():
     return jsonify("nothing")
 
 
-@api.route("/21cm", methods=['GET', 'POST'])
+@api.route("/21cm", methods=['POST'])
+def call_21cm():
+    if request.is_json and request.json:
+        req = request.get_json()
+        if 'calculation' not in req:
+            return json_error("error", "no calculation key found in json")
+        else:
+            key = req['calculation']
+        calculation_factory = CalculationFactory()
+        if calculation_factory.knows(key):
+            calc = calculation_factory.get(key)
+            return_json = handle_output(calc)
+            return return_json
+        else:
+            return json_error("error", "unknown calculation type: " + key)
+
+
+@api.route("/21cm_default", methods=['GET', 'POST'])
 def to_cm_if():
     sensitivity = PowerSpectrum(
         observation=Observation(

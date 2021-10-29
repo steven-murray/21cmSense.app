@@ -2,7 +2,6 @@
   "schema": "antenna-positions",
   "group": "calculations",
   "description": "Antenna Positions",
-  ,
   "depends": [
     "antenna",
     "beam",
