@@ -10,16 +10,19 @@ Example:
 
 `http://localhost:5000/api-1.0/schema`
 
+Response:
+``200 OK``
+
 Return:
 
-``
+```json
 [
     "location",
     "calculation",
     "beam",
     "antenna"
 ]
-``
+```
 
 ### Get a list of schemas in a group
 
@@ -28,19 +31,41 @@ Return:
 Example:
 `http://localhost:5000/api-1.0/schema/antenna`
 
+Response:
+``200 OK``
+
 Return:
-``
+```json
 [
     "hera"
-]``
+]
+```
 
 ### Get descriptions for all schemas in a group
 
 **GET** `http://localhost:5000/api-1.0/schema/{group}/descriptions`
 
-Example:
+Example: `http://localhost:5000/api-1.0/schema/calculation/descriptions`
+
+Response:
+``200 OK``
 
 Return:
+
+```json
+{
+    "1D-cut-of-2D-sensitivity": "1D cut of 2D sensitivity",
+    "1D-noise-cut-of-2D-sensitivity": "1D noise of 2D sensitivity",
+    "1D-sample-variance-cut-of-2D-sensitivity": "1D sample variance cut of 2D sensitivity",
+    "2D-sensitivity": "2D Sensitivity",
+    "2D-sensitivity-vs-k": "2D Sensitivity vs k",
+    "2D-sensitivity-vs-z": "2D Sensitivity vs z",
+    "antenna-positions": "Antenna Positions",
+    "baselines-distributions": "Baselines Distributions",
+    "calculations": "1D noise cut of 2D sensitivity",
+    "k-vs-redshift-plot": "k vs Redshift plot"
+}
+```
 
 
 ``http://localhost:5000/api-1.0/schema
@@ -49,26 +74,87 @@ Return:
 
 ### Get a specific schema from a group
 
-**GET** `/api-1.0/schema/{group}/{schema_name}`
 **GET** `/api-1.0/schema/{group}/get/{schema_name}`
-**GET** `/api-1.0/schema/{group}/descriptions`
+
+Example: `http://localhost:5000/api-1.0/schema/antenna/get/hera`
+
+Response:
+``200 OK``
+
+Return:
+
+```json
+{
+    "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+    "schema": "hera",
+    "description": "Hera-class antenna array",
+    "group": "antenna",
+    "data": {
+        "antenna": {
+            "hex_num": {
+                "type": "integer",
+                "minimum": 3,
+                "help": "Number of antennas per side of hexagonal array"
+            },
+            "separation": {
+                "type": "number",
+                "minimum": 0,
+                "help": "The distance between antennas along a side"
+            },
+            "dl": {
+                "type": "float",
+                "minimum": 0,
+                "help": "The distance between rows of antennas"
+            },
+            "required": [
+                "hex_num",
+                "separation",
+                "dl"
+            ]
+        }
+    },
+    "units": {
+        "antenna": {
+            "separation": {
+                "type": "string",
+                "default": "m",
+                "enum": [
+                    "m",
+                    "s"
+                ]
+            },
+            "dl": {
+                "type": "string",
+                "default": "m",
+                "enum": [
+                    "m",
+                    "s"
+                ]
+            },
+            "required": [
+                "separation",
+                "dl"
+            ]
+        }
+    }
+}
+```
 
 ## get an acknowledgement from server
 
 **GET** `/api-1.0/ping`
 
-## get schema for function with id
-
-
 Response:
 ``200 OK``
 
-``
-{ required: ['group1', 'group2', 'group3'] }
-``
+Return:
 
+```json
+{
+    "pong": ""
+}
+```
 
-**GET** `/api-1.0/schema/group`
 
 # PUT
 
