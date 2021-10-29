@@ -27,8 +27,15 @@ class FactoryManager:
             self.d[key] = f
         return self
 
-    def get(self, key):
+    def knows(self, key):
+        print("in knows: key=" + key)
         if key in self.d:
+            return True
+        else:
+            return False
+
+    def get(self, key):
+        if self.knows(key):
             return self.d[key]
         else:
             return None
@@ -40,23 +47,19 @@ class Dispatcher:
         self.units_json = units_json
 
 
-class BeamDispatcher:
-
-    def gauss_beam_disp(self):
-        beam = GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
-        return beam
-
-
 class GaussianBeamDispatcher(Dispatcher):
     def get(self):
-        pass
+        return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
 
 class HeraAntennaDispatcher(Dispatcher):
     def get(self):
         j = self.data_json
-        antpos = hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
-        return antpos
+        return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
+
+
+class CalculationDispatcher(Dispatcher):
+    pass
 
 
 def one_d_cut():
@@ -99,11 +102,15 @@ def k_vs_redshift():
     pass
 
 
-class CalculationFactory:
-    calcs = None
+def handle_output(calculation):
+    return jsonify({"key": "value"})
 
+
+class CalculationFactory(FactoryManager):
     def __init__(self):
-        CalculationFactory.calcs = FactoryManager().add('1D-cut-of-2D-sensitivity', one_d_cut).add(
+        super().__init__()
+        # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
+        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
             '1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
             '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z',
                                                                                    one_d_cut).add('antenna-positions',
@@ -115,25 +122,18 @@ class CalculationFactory:
         """
 
 
-class BeamFactory:
-    beams = None
-
+class BeamFactory(FactoryManager):
     def __init__(self):
-        BeamFactory.beams = FactoryManager().add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam',
-                                                                                             GaussianBeamDispatcher)
-
-    def get(self, beam_type):
-        return BeamFactory.beams.get(beam_type)
+        super().__init__()
+        self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
 
 
-class AntennaFactory:
+class AntennaFactory(FactoryManager):
     antennas = None
 
     def __init__(self):
-        AntennaFactory.antennas = FactoryManager().add('hera', HeraAntennaDispatcher)
-
-    def get(self, antenna_type):
-        return AntennaFactory.antennas.get(antenna_type)
+        super().__init__()
+        AntennaFactory.antennas = self.add('hera', HeraAntennaDispatcher)
 
 
 class Factory:
@@ -168,7 +168,8 @@ class Factory:
                     antpos=antenna.get(), beam=beam.get(),
                     # antpos=hera(hex_num=7, separation=14, dl=12.12, units="m"),
                     # beam=GaussianBeam(frequency=135.0, dish_size=14),
-                    latitude=38 * np.pi / 180.0
+                    # latitude=38 * np.pi / 180.0
+                    latitude=thejson['data']['location']['latitude']
                 )
             )
         )
@@ -187,6 +188,20 @@ def get_schema_names(schemagroup):
     # j['required']=list(dirs)
     # return jsonify(j)
     return schemas
+
+
+def get_schema_descriptions(schemagroup):
+    d = {}
+    for schema_name in get_schema_names(schemagroup):
+        print("checking file:", schema_name)
+        f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
+        sch = json.load(f)
+        f.close()
+        print("got schema=", sch)
+        # d[sch] = sch['description']
+    print("going to return these schema descriptions:", d)
+    return None
+    # return d
 
 
 def get_schema_groups():
