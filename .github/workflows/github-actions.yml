@@ -5,12 +5,10 @@ on:
     branches: 
       - master
       - dev
-      - github-actions-lclindbe
-      - task_57_lclindbe
+      - github_actions_new_workflow
 
 env:
-  WEBAPP_NAME: 'web-app-front-end'            # Replace with the name of your Azure web app
-  #RESOURCE_GROUP: '<your-resource-group>'   # Replace with the name of your Resource Group
+  WEBAPP_NAME: 'web-app-front-end'
 
 jobs:
   build-and-test:
@@ -29,7 +27,7 @@ jobs:
       with:
         node-version: 12
 
-    - name: Install and build Vue.js project
+    - name: Install and build project
       run: |
         npm install
         #npm run build # don't have build set up yet
@@ -38,10 +36,17 @@ jobs:
         python3 -m venv venv
         source venv/bin/activate
     - name: Install dependencies
-      run: pip install -r requirements.txt
-
-    #- name: test with PyTest
-      #run: pytest --cov=myproject --cov-report=xml
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pytest
+        pip install -r requirements.txt
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: Test with pytest
+      run: |
+        pytest
 
     - name: Upload artifact for deployment jobs
       uses: actions/upload-artifact@v2
@@ -61,21 +66,3 @@ jobs:
         with:
           name: python-app
           path: .
-    
-    #  - name: Log in to Azure CLI
-     #   uses: azure/login@v1
-     #   with:
-       #   creds: ${{ secrets.AZURE_SERVICE_PRINCIPAL }}
-    
-    #  - name: Configure deployment and runtime settings on the webapp
-     #   run: |
-      #    az configure --defaults ${{ env.RESOURCE_GROUP }}
-       #   az webapp config appsettings --name ${{ env.WEBAPP_NAME }} --settings \
-        #      SCM_DO_BUILD_DURING_DEPLOYMENT=true \
-          #    FLASK_ENV=production 
-         # az webapp config set --name ${{ env.WEBAPP_NAME }} \
-           # --startup-file "gunicorn --bind=0.0.0.0 --timeout 600 app:app"
-    #  - name: Deploy to App Service
-        #uses: azure/webapps-deploy@v2
-       #with:
-#          app-name: ${{ env.WEBAPP_NAME}}
