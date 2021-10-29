@@ -29,6 +29,19 @@ Example:
 `http://localhost:5000/api-1.0/schema/antenna`
 
 Return:
+``
+[
+    "hera"
+]``
+
+### Get descriptions for all schemas in a group
+
+**GET** `http://localhost:5000/api-1.0/schema/{group}/descriptions`
+
+Example:
+
+Return:
+
 
 ``http://localhost:5000/api-1.0/schema
 ``

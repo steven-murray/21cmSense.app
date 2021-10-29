@@ -8,6 +8,3 @@ def not_found_418(err):
     return render_template('418.html'), 404
 
 
-def error(errorcode, msg):
-    return jsonify({errorcode: msg})
-

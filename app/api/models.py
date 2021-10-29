@@ -1,15 +1,11 @@
 from json import JSONDecodeError
 
-import numpy as np
 import os
 from flask import current_app
 from flask import jsonify
 
-# from ..ant2.ant2 import ant
-# from .. import ant2
-
-
-# from . import utils
+from .json_util import json_error
+# from app.api.errors import error
 
 import json
 import jsonschema
@@ -180,20 +176,20 @@ class Factory:
 
 
 def get_schema_names(schemagroup):
-    dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
-    # print("schema names")
+    try:
+        dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
+    except FileNotFoundError:
+        return None
     schemas = [dir.replace('.json', '') for dir in dirs]
-    # for dd in dirs:
-    #     dd=dd.replace('.json','')
-    #     print(dd)
-    # j={}
-    # j['required']=list(dirs)
-    # return jsonify(j)
     return schemas
 
 
-def get_schema_descriptions(schemagroup):
+def get_schema_descriptions_json(schemagroup):
     d = {}
+    schema_names=get_schema_names(schemagroup)
+    if schema_names is None:
+        return json_error("error", "schema " + schemagroup + " not found.")
+
     for schema_name in get_schema_names(schemagroup):
         print("checking file:", schema_name)
         try:
@@ -213,7 +209,7 @@ def get_schema_descriptions(schemagroup):
         # issue with finding 'description' key in json
         except KeyError:
             pass
-    return d
+    return jsonify(d)
 
 
 def get_schema_groups():

@@ -9,8 +9,9 @@ from . import api
 from flask import current_app
 from flask import jsonify
 
-from .models import CalculationFactory, handle_output, get_schema_descriptions
-from .errors import error
+from .models import CalculationFactory, handle_output, get_schema_descriptions_json
+from . import errors
+from .json_util import json_error
 
 
 @api.route('/')
@@ -36,7 +37,7 @@ def api_all_schema():
 # @api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
-    return jsonify(get_schema_descriptions(schemagroup))
+    return get_schema_descriptions_json(schemagroup)
 
 
 @api.route('/schema/snork')
@@ -235,7 +236,7 @@ def call_21cm():
     if request.is_json and request.json:
         req = request.get_json()
         if 'calculation' not in req:
-            return error("error", "no calculation key found in json")
+            return json_error("error", "no calculation key found in json")
         else:
             key = req['calculation']
         calculation_factory = CalculationFactory()
@@ -244,7 +245,7 @@ def call_21cm():
             return_json = handle_output(calc)
             return return_json
         else:
-            return error("error", "unknown calculation type: " + key)
+            return json_error("error", "unknown calculation type: " + key)
 
 
 @api.route("/21cm_default", methods=['GET', 'POST'])
