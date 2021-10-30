@@ -1,4 +1,4 @@
-from json import JSONDecodeError
+from json import JSONDecodeError, JSONDecoder
 
 import os
 from flask import current_app
@@ -61,6 +61,23 @@ class CalculationDispatcher(Dispatcher):
 
 def one_d_cut():
     pass
+    # antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
+    # beam_obj = BeamFactory().get(self.get_beam_type(thejson))
+    # print("antenna obj=", antenna_obj)
+    # print("beam_obj=", beam_obj)
+    #
+    # antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    # beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+    #
+    # sensitivity = PowerSpectrum(
+    #     observation=Observation(
+    #         observatory=Observatory(
+    #             antpos=antenna.get(), beam=beam.get(),
+    #             latitude=thejson['data']['location']['latitude']
+    #         )
+    #     )
+    # )
+    # plt.plot(sensitivity.k1d, power_std)
 
 
 def one_d_noise_cut():
@@ -89,6 +106,30 @@ def ant_pos():
 
 def baselines_dist():
     pass
+    # antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
+    # beam_obj = BeamFactory().get(self.get_beam_type(thejson))
+    # print("antenna obj=", antenna_obj)
+    # print("beam_obj=", beam_obj)
+    #
+    # antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    # beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+    #
+    # sensitivity = PowerSpectrum(
+    #     observation=Observation(
+    #         observatory=Observatory(
+    #             antpos=antenna.get(), beam=beam.get(),
+    #             latitude=thejson['data']['location']['latitude']
+    #         )
+    #     )
+    # )
+    # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
+    # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
+    #
+    # plt.figure(figsize=(7, 5))
+    # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
+    # cbar = plt.colorbar();
+    # cbar.set_label("Number of baselines in group", fontsize=15)
+    # plt.tight_layout();
 
 
 def calcs():
@@ -185,7 +226,7 @@ def get_schema_names(schemagroup):
 
 def get_schema_descriptions_json(schemagroup):
     d = {}
-    schema_names=get_schema_names(schemagroup)
+    schema_names = get_schema_names(schemagroup)
     if schema_names is None:
         return json_error("error", "schema " + schemagroup + " not found.")
 
@@ -223,6 +264,73 @@ def get_schema_groups_json():
     j = {}
     j['required'] = list(d)
     return jsonify(j)
+
+
+def load_schema(schemagroup: str, schemaname: str):
+    try:
+        f = open("app/static/schema/" + schemagroup + "/" + schemaname + ".json", 'r')
+        schema = json.load(f)
+        f.close()
+    except (JSONDecodeError, IOError):
+        return None
+    else:
+        return schema
+
+
+# load a validation schema.  It must either have the same name as the schema that is to be validated, or
+# be "default"
+def load_validation_schema(schemagroup: str, schemaname: str):
+    schema = load_schema(schemagroup, schemaname)
+    if not schema:
+        schema = load_schema(schemagroup, "default")
+        if not schema:
+            print("DEBUG: Cannot locate schema for %s/%s", (schemagroup, schemaname))
+            return None
+    print("DEBUG: returning validation schema:", schema)
+    return schema
+
+
+def build_schema_for_validation(data_json, units_json):
+    d={}
+    d['data']=data_json
+    d['units']=units_json
+    return d
+
+
+# pass a dict such as:
+# { group: schema, [...] }
+# ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
+# schema should already be a json object
+def build_composite_schema(schema: JSONDecoder):
+    # get calculation type
+    if 'calculation' not in schema:
+        return json_error("error", "specified schema missing 'calculation' key")
+
+    calculation_type = schema['calculation']
+    print("Going to load schema for calculation ", calculation_type)
+
+    calc_schema = load_schema('calculation', calculation_type)
+    if not calc_schema:
+        return json_error("error", "Cannot find requested calculation schema " + calculation_type)
+
+    # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
+    #     return json_error("error", "Schema failed validation")
+    for component in calc_schema['required']:
+        if component not in schema['data']:
+            return json_error("error", "Missing required data component " + component)
+        if 'schema' not in schema['data'][component]:
+            return json_error("error", "Missing schema identifier in data component " + component)
+        else:
+            comp_schema_name = schema['data'][component]['schema']
+
+        cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
+        print("Going to validate schema: ", cs)
+        if not jsonschema.validate(cs, load_validation_schema(component, comp_schema_name)):
+            return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
+        print("Going to load component schema %s/%s" % (component, comp_schema_name))
+
+    return jsonify("nothing", "yet")
+    # d[schema_name] = sch['description']
 
 
 class Validator:

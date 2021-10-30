@@ -10,8 +10,10 @@ from flask import current_app
 from flask import jsonify
 
 from .models import CalculationFactory, handle_output, get_schema_descriptions_json
+from .models import *
 from . import errors
 from .json_util import json_error
+# from .
 
 
 @api.route('/')
@@ -235,17 +237,18 @@ def testtest():
 def call_21cm():
     if request.is_json and request.json:
         req = request.get_json()
-        if 'calculation' not in req:
-            return json_error("error", "no calculation key found in json")
-        else:
-            key = req['calculation']
-        calculation_factory = CalculationFactory()
-        if calculation_factory.knows(key):
-            calc = calculation_factory.get(key)
-            return_json = handle_output(calc)
-            return return_json
-        else:
-            return json_error("error", "unknown calculation type: " + key)
+        return build_composite_schema(req)
+        # if 'calculation' not in req:
+        #     return json_error("error", "no calculation key found in json")
+        # else:
+            # key = req['calculation']
+        # calculation_factory = CalculationFactory()
+        # if calculation_factory.knows(key):
+        #     calc = calculation_factory.get(key)
+        #     return_json = handle_output(calc)
+        #     return return_json
+        # else:
+        #     return json_error("error", "unknown calculation type: " + key)
 
 
 @api.route("/21cm_default", methods=['GET', 'POST'])

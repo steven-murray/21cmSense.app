@@ -237,29 +237,35 @@ HTTP POST to http://backend.server/api-1.0/21cm
 
 ```json
 {
-  "schema": "hera",
-  "data": {
-    "antenna": {
-      "hex_num": 7,
+  "calculation": "baselines-distributions",
+  "data":{
+    "antenna":{
+      "schema": "hera",
+      "hex_num": 3,
       "separation": 1.2,
-      "dl": 3
+      "dl": 1.02
     },
-    "beam": {
-      "class": "GaussianBeam",
+    "beam":{
+      "schema":"GaussianBeam",
       "frequency": 100,
-      "dish_size": 12
+      "dish_size": 7
     },
-    "latitude": 180
+    "location":{
+      "schema": "latitude",
+      "latitude": 38.382
+    }
   },
-  "units": {
-    "antenna": {
+  "units":{
+    "antenna":{
+      "hex_num": "m",
       "separation": "m",
       "dl": "m"
     },
-    "beam": {
-      "frequency": "MHz"
+    "beam":{
+      "frequency": "MHz",
+      "dish_size": "m"
     },
-    "location": {
+    "location":{
       "latitude": "deg"
     }
   }
