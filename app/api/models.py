@@ -9,7 +9,11 @@ from .json_util import json_error
 
 import json
 import jsonschema
+from jsonschema import ValidationError
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
+from .util import DebugPrint
+
+debug = DebugPrint(9).debug_print
 
 
 class Hera:
@@ -267,11 +271,21 @@ def get_schema_groups_json():
 
 
 def load_schema(schemagroup: str, schemaname: str):
+    l = load_schema_generic('schema', schemagroup, schemaname)
+    print("loaded schema=", l)
+    return l
+
+
+def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     try:
-        f = open("app/static/schema/" + schemagroup + "/" + schemaname + ".json", 'r')
+
+        p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
+        print("going to load schema from path: ", p)
+        f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
         schema = json.load(f)
         f.close()
-    except (JSONDecodeError, IOError):
+    except (JSONDecodeError, IOError) as e:
+        print("error=", e)
         return None
     else:
         return schema
@@ -280,21 +294,19 @@ def load_schema(schemagroup: str, schemaname: str):
 # load a validation schema.  It must either have the same name as the schema that is to be validated, or
 # be "default"
 def load_validation_schema(schemagroup: str, schemaname: str):
-    schema = load_schema(schemagroup, schemaname)
+    schema = load_schema_generic('validation-schema', schemagroup, schemaname)
     if not schema:
-        schema = load_schema(schemagroup, "default")
+        schema = load_schema_generic('validation-schema', schemagroup, "default")
         if not schema:
-            print("DEBUG: Cannot locate schema for %s/%s", (schemagroup, schemaname))
+            debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
             return None
     print("DEBUG: returning validation schema:", schema)
     return schema
 
 
-def build_schema_for_validation(data_json, units_json):
-    d={}
-    d['data']=data_json
-    d['units']=units_json
-    return d
+def build_schema_for_validation(component, data_json, units_json):
+    return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
+    # return d
 
 
 # pass a dict such as:
@@ -323,9 +335,16 @@ def build_composite_schema(schema: JSONDecoder):
         else:
             comp_schema_name = schema['data'][component]['schema']
 
-        cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
+        # cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
+        cs = build_schema_for_validation(component, schema['data'], schema['units'])
         print("Going to validate schema: ", cs)
-        if not jsonschema.validate(cs, load_validation_schema(component, comp_schema_name)):
+        validation_schema = load_validation_schema(component, comp_schema_name)
+        if not validation_schema:
+            return json_error("error",
+                              "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
+        try:
+            jsonschema.validate(cs, validation_schema)
+        except ValidationError:
             return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
         print("Going to load component schema %s/%s" % (component, comp_schema_name))
 

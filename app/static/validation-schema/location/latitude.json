@@ -1,0 +1,39 @@
+{
+  "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+  "schema": "location",
+  "description": "Terrestrial latitude-only coordinate",
+  "groups": "location",
+  "data": {
+    "location": {
+      "latitude": {
+        "type": "number",
+        "help": "Terrestrial antenna latitude",
+        "units": {
+          "default": "rad",
+          "enum": [
+            "rad"
+          ]
+        },
+        "__minimum": -180.0,
+        "__maximum": 180.0
+      }
+    },
+    "required": [
+      "latitude"
+    ]
+  },
+  "units": {
+    "location": {
+      "latitude": {
+        "type": "string",
+        "default": "rad",
+        "enum": [
+          "rad"
+        ]
+      }
+    },
+    "required": [
+      "latitude"
+    ]
+  }
+}
