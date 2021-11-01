@@ -1,89 +1,54 @@
 {
-   "page_label":"21cmSense Dynamic HTML Form",
-   "fields":[
-      {
-         "id":"antenna_hex_number",
-         "label":"Antena Hex Number",
-         "value":"",
-         "mandatory":"yes",
-         "placeholder":"Enter value greater than 0",
-         "type":"text"
-      },
-      {
-         "id":"separation",
-         "label":"Separation",
-         "value":"",
-         "mandatory":"yes",
-         "placeholder":"Enter value greater than 0",
-         "type":"text"
-      },
-      {
-         "id":"separtion_units",
-         "label":"Separtion Units",
-         "value":"",
-         "mandatory":"yes",
-         "options":[
-            {
-               "option_label":"Mhz"
+    "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+    "schema": "hera",
+    "description": "Hera-class antenna array",
+    "group": "antenna",
+    "data": {
+        "antenna": {
+            "hex_num": {
+                "type": "integer",
+                "minimum": 3,
+                "help": "Number of antennas per side of hexagonal array"
             },
-            {
-               "option_label":"Hz"
-            }
-         ],
-         "type":"select"
-      },
-      {
-         "id":"separation",
-         "label":"Separation",
-         "value":"",
-         "mandatory":"yes",
-         "placeholder":"Enter value greater than 0",
-         "type":"text"
-      },
-      {
-         "id":"dl",
-         "label":"DL",
-         "value":"",
-         "mandatory":"yes",
-         "placeholder":"Enter value greater than 0",
-         "type":"text"
-      },
-      {
-         "id":"frequency",
-         "label":"Frequency",
-         "value":"",
-         "mandatory":"yes",
-         "placeholder":"Value must be between -180 and 180",
-         "options":[
-            {
-               "option_label":"Mhz"
+            "separation": {
+                "type": "number",
+                "minimum": 0,
+                "help": "The distance between antennas along a side"
             },
-            {
-               "option_label":"Hz"
-            }
-         ],
-         "type":"select"
-      },
-      {
-         "id":"dish_size",
-         "label":"Dish Size",
-         "mandatory":"yes",
-         "placeholder":"Enter value greater than 0",
-         "options":[
-            {
-               "option_label":"mm"
+            "dl": {
+                "type": "float",
+                "minimum": 0,
+                "help": "The distance between rows of antennas"
             },
-            {
-               "option_label":"cm"
+            "required": [
+                "hex_num",
+                "separation",
+                "dl"
+            ]
+        }
+    },
+    "units": {
+        "antenna": {
+            "separation": {
+                "type": "string",
+                "default": "m",
+                "enum": [
+                    "m",
+                    "s"
+                ]
             },
-			{
-               "option_label":"m"
+            "dl": {
+                "type": "string",
+                "default": "m",
+                "enum": [
+                    "m",
+                    "s"
+                ]
             },
-            {
-               "option_label":"km"
-            }
-         ],
-         "type":"select"
-      }
-   ]
+            "required": [
+                "separation",
+                "dl"
+            ]
+        }
+    }
 }
