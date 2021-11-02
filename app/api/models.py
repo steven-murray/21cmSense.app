@@ -53,6 +53,10 @@ class GaussianBeamDispatcher(Dispatcher):
         return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
 
+class LatitudeDispatcher(Dispatcher):
+    def get(self):
+        return self.data_json['location']['latitude']
+
 class HeraAntennaDispatcher(Dispatcher):
     def get(self):
         j = self.data_json
@@ -63,25 +67,26 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
-def one_d_cut():
-    pass
-    # antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
-    # beam_obj = BeamFactory().get(self.get_beam_type(thejson))
-    # print("antenna obj=", antenna_obj)
-    # print("beam_obj=", beam_obj)
-    #
-    # antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    # beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-    #
-    # sensitivity = PowerSpectrum(
-    #     observation=Observation(
-    #         observatory=Observatory(
-    #             antpos=antenna.get(), beam=beam.get(),
-    #             latitude=thejson['data']['location']['latitude']
-    #         )
-    #     )
-    # )
-    # plt.plot(sensitivity.k1d, power_std)
+def one_d_cut(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
 def one_d_noise_cut():
@@ -163,6 +168,11 @@ class CalculationFactory(FactoryManager):
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
         """
 
+
+class LocationFactory(FactoryManager):
+    def __init__(self):
+        super().__init__()
+        self.add('Latitude', LatitudeDispatcher)
 
 class BeamFactory(FactoryManager):
     def __init__(self):
@@ -325,6 +335,8 @@ def build_composite_schema(schema: JSONDecoder):
     if not calc_schema:
         return json_error("error", "Cannot find requested calculation schema " + calculation_type)
 
+
+    newschema={ "calculation": calculation_type, "data": { }, "units": { } }
     # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
     #     return json_error("error", "Schema failed validation")
     for component in calc_schema['required']:
@@ -347,8 +359,10 @@ def build_composite_schema(schema: JSONDecoder):
         except ValidationError:
             return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
         print("Going to load component schema %s/%s" % (component, comp_schema_name))
+        newschema['data'][component]=load_schema(component, comp_schema_name)
+        newschema['units'][component]={}
 
-    return jsonify("nothing", "yet")
+    return jsonify(newschema)
     # d[schema_name] = sch['description']
 
 
