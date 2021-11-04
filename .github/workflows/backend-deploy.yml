@@ -2,8 +2,11 @@ name: execute remote ssh to pull updates from master
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-
     branches:
+      - master
+      - dev
+  pull_request:
+    branches: 
       - master
       - dev
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -16,7 +19,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: appleboy/ssh-action@master
+      - uses: bpape1usa/SER401-Project43@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
@@ -25,3 +28,4 @@ jobs:
           script: |
             cd /srv/shiny-server/${{ secrets.APPNAME }}
             git pull
+  
