@@ -10,22 +10,27 @@ import { FormContext } from '../../FormContext';
 function DynamicForms() {
 
   const myUrl = "http://localhost:8080/api-1.0/schema"; 
-  const schemas = ["antenna", "beam", "calculation", "location"]
+  
+  window.onload = () => {
+        var select = document.getElementById("selectSchema");
 
-  for (var i = 0; i<= schemas.length; i++) {
-  
-    document.write(schemas[i]);
-  
-    document.write("<br />");
+        var options = ["antenna", "beam", "calculation", "location"];
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
   }
-
-
   return (
     <FormContext.Provider>
       <div className="App container">
         <h3>"21cmsense Dynamic Form"</h3>
         <form>
-                     
+              <select id="selectSchema">
+                <option>Choose a Schema</option>
+              </select> 
         </form>
 
       </div>
