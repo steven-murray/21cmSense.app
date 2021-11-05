@@ -3,51 +3,37 @@ import formJSON from '../../schema/formElement.json';
 import React,{ useState, useEffect } from 'react';
 import Element from '../Element';
 import { FormContext } from '../../FormContext';
-function DynamicForm() {
-  const [elements, setElements] = useState(null);
-  useEffect(() => {
-    setElements(formJSON)
 
-  }, [])
-  const { fields, page_label } = elements ?? {}
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    console.log(elements)
+
+
+function DynamicForms() {
+
+  const myUrl = "http://localhost:8080/api-1.0/schema"; 
+  const schemas = ["antenna", "beam", "calculation", "location"]
+
+  for (var i = 0; i<= schemas.length; i++) {
+  
+    document.write(schemas[i]);
+  
+    document.write("<br />");
   }
-  const handleChange = (id, event) => {
-    const newElements = { ...elements }
-    newElements.fields.forEach(field => {
-      const { field_type, key } = field;
-      if (id === key) {
-        switch (field_type) {
-          case 'checkbox':
-            field['value'] = event.target.checked;
-            break;
-
-          default:
-            field['value'] = event.target.value;
-            break;
-        }
 
 
-      }
-      setElements(newElements)
-    });
-    console.log(elements)
-  }
   return (
-    <FormContext.Provider value={{ handleChange }}>
+    <FormContext.Provider>
       <div className="App container">
-        <h3>{page_label}</h3>
+        <h3>"21cmsense Dynamic Form"</h3>
         <form>
-          {fields ? fields.map((field, i) => <Element key={i} field={field} />) : null}
-          <button type="submit" className="btn btn-primary" onClick={(e) => handleSubmit(e)}>Submit</button>
+                     
         </form>
 
       </div>
     </FormContext.Provider>
+    
   );
 }
 
-export default DynamicForm;
+
+
+export default DynamicForms;
