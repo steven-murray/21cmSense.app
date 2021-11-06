@@ -13,3 +13,4 @@ matplotlib
 jsonschema
 pytest
 Flask
+cryptography==3.4.7
