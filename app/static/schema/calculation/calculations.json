@@ -2,7 +2,7 @@
   "schema": "1D-noise-cut-of-2D-sensitivity",
   "group": "calculations",
   "description": "1D noise cut of 2D sensitivity",
-  "depends": [
+  "requires": [
     "antenna",
     "beam",
     "location"

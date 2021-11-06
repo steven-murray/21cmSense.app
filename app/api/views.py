@@ -10,6 +10,7 @@ from flask import current_app
 from flask import jsonify
 
 from .models import CalculationFactory, handle_output, get_schema_descriptions_json
+from .models import *
 from . import errors
 from .json_util import json_error
 
@@ -32,26 +33,26 @@ def api_all_schema():
     return jsonify({'list': 'here'})
 
 
-# @api.route('/schema', defaults={'schemagroup': '', 'schemaname': ''}, methods=['GET', 'POST'])
-# @api.route('/schema/<schemagroup>/<schemaname>')
-# @api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
 
 
-@api.route('/schema/snork')
-def api_return(schemagroup, schemaname):
+@api.route('/customschema', methods=['POST'])
+def api_return():
     if request.method == 'POST':
-        j = request.get_json()
         lst = models.get_schema_groups()
 
         # we should be posted something like:
         # { "location": "location.json", "beam": "GaussianBeam.json", "antenna": "hera.json" }
-        for schema_group in lst:
-            if schema_group in j:
-                print("json return for component %s=" % schema_group, j[schema_group]);
-        return jsonify("blah")
+
+        if request.is_json and request.json:
+            req = request.get_json()
+            for schema_group in lst:
+                if schema_group in req:
+                    print("json return for component %s=" % schema_group, req[schema_group]);
+            return build_composite_schema(req)
+        # return jsonify("blah")
         # return current_app.send_static_file('schema/an
 
 
@@ -233,19 +234,25 @@ def testtest():
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
+
     if request.is_json and request.json:
         req = request.get_json()
-        if 'calculation' not in req:
-            return json_error("error", "no calculation key found in json")
-        else:
-            key = req['calculation']
-        calculation_factory = CalculationFactory()
-        if calculation_factory.knows(key):
-            calc = calculation_factory.get(key)
-            return_json = handle_output(calc)
-            return return_json
-        else:
-            return json_error("error", "unknown calculation type: " + key)
+        return calculate(req)
+
+    # if request.is_json and request.json:
+    #     req = request.get_json()
+    #     return build_composite_schema(req)
+    # if 'calculation' not in req:
+    #     return json_error("error", "no calculation key found in json")
+    # else:
+    # key = req['calculation']
+    # calculation_factory = CalculationFactory()
+    # if calculation_factory.knows(key):
+    #     calc = calculation_factory.get(key)
+    #     return_json = handle_output(calc)
+    #     return return_json
+    # else:
+    #     return json_error("error", "unknown calculation type: " + key)
 
 
 @api.route("/21cm_default", methods=['GET', 'POST'])
