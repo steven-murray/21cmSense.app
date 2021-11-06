@@ -2,7 +2,7 @@
   "schema": "1D-cut-of-2D-sensitivity",
   "group": "calculations",
   "description": "1D cut of 2D sensitivity",
-  "depends": [
+  "required": [
     "antenna",
     "beam",
     "location"

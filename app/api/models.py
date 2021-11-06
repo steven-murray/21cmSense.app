@@ -57,6 +57,7 @@ class LatitudeDispatcher(Dispatcher):
     def get(self):
         return self.data_json['location']['latitude']
 
+
 class HeraAntennaDispatcher(Dispatcher):
     def get(self):
         j = self.data_json
@@ -67,12 +68,12 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
-def one_d_cut(thejson):
+def getSensitivity(thejson):
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
     # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
+    # print("antenna obj=", antenna_obj)
+    # print("beam_obj=", beam_obj)
 
     antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
     beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
@@ -85,160 +86,46 @@ def one_d_cut(thejson):
             )
         )
     )
+    return sensitivity
 
-    #plt.plot(sensitivity.k1d, power_std)
+    # plt.plot(sensitivity.k1d, power_std)
+
+
+def one_d_cut(thejson):
+    sensitivity = getSensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    d = {{"x": sensitivity.k1d, "y": power_std, "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+          "xscale": "log", "yscale": "log"}}
+    return jsonify(d)
 
 
 def one_d_noise_cut(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def one_d_sample_var(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def two_d_sens(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def two_d_sens_k(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def two_d_sens_z(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def ant_pos(thejson):
-    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
-    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
-    print("antenna obj=", antenna_obj)
-    print("beam_obj=", beam_obj)
-
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
-            )
-        )
-    )
-
-    #plt.plot(sensitivity.k1d, power_std)
+    sensitivity = getSensitivity(thejson)
 
 
 def baselines_dist(thejson):
-    pass
-    # antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
-    # beam_obj = BeamFactory().get(self.get_beam_type(thejson))
-    # print("antenna obj=", antenna_obj)
-    # print("beam_obj=", beam_obj)
-    #
-    # antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    # beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-    #
-    # sensitivity = PowerSpectrum(
-    #     observation=Observation(
-    #         observatory=Observatory(
-    #             antpos=antenna.get(), beam=beam.get(),
-    #             latitude=thejson['data']['location']['latitude']
-    #         )
-    #     )
-    # )
+    sensitivity = getSensitivity(thejson)
+
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
     #
@@ -282,6 +169,7 @@ class LocationFactory(FactoryManager):
         super().__init__()
         self.add('Latitude', LatitudeDispatcher)
 
+
 class BeamFactory(FactoryManager):
     def __init__(self):
         super().__init__()
@@ -318,6 +206,8 @@ class Factory:
         beam_obj = BeamFactory().get(self.get_beam_type(thejson))
         print("antenna obj=", antenna_obj)
         print("beam_obj=", beam_obj)
+
+        calculation_obj = CalculationFactory().get(self.get_cal)
 
         antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
         beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
@@ -396,7 +286,6 @@ def load_schema(schemagroup: str, schemaname: str):
 
 def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     try:
-
         p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
         print("going to load schema from path: ", p)
         f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
@@ -443,32 +332,39 @@ def build_composite_schema(schema: JSONDecoder):
     if not calc_schema:
         return json_error("error", "Cannot find requested calculation schema " + calculation_type)
 
-
-    newschema={ "calculation": calculation_type, "data": { }, "units": { } }
+    newschema = {"calculation": calculation_type, "data": {}, "units": {}}
     # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
     #     return json_error("error", "Schema failed validation")
     for component in calc_schema['required']:
-        if component not in schema['data']:
+        if component not in schema:
             return json_error("error", "Missing required data component " + component)
-        if 'schema' not in schema['data'][component]:
-            return json_error("error", "Missing schema identifier in data component " + component)
         else:
-            comp_schema_name = schema['data'][component]['schema']
+            comp_schema_name = schema[component]
+        # if component not in schema['data']:
+        #     return json_error("error", "Missing required data component " + component)
+        # if 'schema' not in schema['data'][component]:
+        #     return json_error("error", "Missing schema identifier in data component " + component)
+        # else:
+        #     comp_schema_name = schema['data'][component]['schema']
 
         # cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
-        cs = build_schema_for_validation(component, schema['data'], schema['units'])
-        print("Going to validate schema: ", cs)
-        validation_schema = load_validation_schema(component, comp_schema_name)
-        if not validation_schema:
-            return json_error("error",
-                              "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
-        try:
-            jsonschema.validate(cs, validation_schema)
-        except ValidationError:
-            return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
+
+        #
+        #
+        # Validation, save for later
+        # cs = build_schema_for_validation(component, schema['data'], schema['units'])
+        # print("Going to validate schema: ", cs)
+        # validation_schema = load_validation_schema(component, comp_schema_name)
+        # if not validation_schema:
+        #     return json_error("error",
+        #                       "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
+        # try:
+        #     jsonschema.validate(cs, validation_schema)
+        # except ValidationError:
+        #     return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
         print("Going to load component schema %s/%s" % (component, comp_schema_name))
-        newschema['data'][component]=load_schema(component, comp_schema_name)
-        newschema['units'][component]={}
+        newschema['data'][component] = load_schema(component, comp_schema_name)
+        newschema['units'][component] = {}
 
     return jsonify(newschema)
     # d[schema_name] = sch['description']

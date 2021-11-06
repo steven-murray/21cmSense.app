@@ -15,6 +15,7 @@ from . import errors
 from .json_util import json_error
 
 
+
 @api.route('/')
 def welcome():  # put application's code here
     return 'Welcome to Project 43!'
@@ -38,18 +39,21 @@ def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
 
 
-@api.route('/schema/snork', methods=['POST'])
+@api.route('/customschema', methods=['POST'])
 def api_return():
     if request.method == 'POST':
-        j = request.get_json()
         lst = models.get_schema_groups()
 
         # we should be posted something like:
         # { "location": "location.json", "beam": "GaussianBeam.json", "antenna": "hera.json" }
-        for schema_group in lst:
-            if schema_group in j:
-                print("json return for component %s=" % schema_group, j[schema_group]);
-        return jsonify("blah")
+
+        if request.is_json and request.json:
+            req = request.get_json()
+            for schema_group in lst:
+                if schema_group in req:
+                    print("json return for component %s=" % schema_group, req[schema_group]);
+            return build_composite_schema(req)
+        # return jsonify("blah")
         # return current_app.send_static_file('schema/an
 
 
