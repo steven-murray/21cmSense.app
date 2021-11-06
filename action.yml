@@ -28,16 +28,14 @@ inputs:
   fingerprint:
     description: 'sha256 fingerprint of the host public key'
   proxy_host:
-    description: 'ssh proxy host'
+    description: 'galileo.sese.asu.edu'
   proxy_port:
-    description: 'ssh proxy port'
+    description: '22'
     default: 22
    proxy_username:
-    description: 'ssh proxy username'
+    description: 't43-capstone'
   proxy_password:
-    description: 'ssh proxy password'
-  proxy_passphrase:
-    description: 'ssh proxy key passphrase'
+    description: '${{ GALILEO_DEPLOY }}'
   proxy_timeout:
     description: 'timeout for ssh to proxy host'
     default: "30s"
