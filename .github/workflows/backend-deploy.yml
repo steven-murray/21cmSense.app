@@ -17,15 +17,22 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: bpape1usa/SER401-Project43@github_actions_new_workflow
+      - name: DeployServer
+        uses: appleboy/ssh-actions@master
         with:
-          username: t43-capstone
-          SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
-          REMOTE_HOST: galileo.sese.asu.edu 
-          port: 22
+          debug: true
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.GALILEO_DEPLOY }}
+          port: ${{ secrets.PORT }}
           script: |
-            ls -al
-            cd /srv/shiny-server/${{ secrets.APPNAME }}
-            git pull
-  
+            export FLASK_RUN_HOST=0.0.0.0
+            export FLASK_RUN_PORT=8010
+            export FLASK_KEY=${{ secrets.FLASK_KEY }}
+            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            git clone git@github.com:bpape1usa/SER401-Project43.git
+            git fetch origin -a
+            git status 
+            ls 
+            docker-compose up --build --remove-orphans -d
