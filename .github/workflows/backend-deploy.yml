@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - dev
+      - github_actions_new_workflow
   pull_request:
     branches: 
       - master
