@@ -15,7 +15,6 @@ from . import errors
 from .json_util import json_error
 
 
-
 @api.route('/')
 def welcome():  # put application's code here
     return 'Welcome to Project 43!'
@@ -235,20 +234,25 @@ def testtest():
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
+
     if request.is_json and request.json:
         req = request.get_json()
-        return build_composite_schema(req)
-        # if 'calculation' not in req:
-        #     return json_error("error", "no calculation key found in json")
-        # else:
-        # key = req['calculation']
-        # calculation_factory = CalculationFactory()
-        # if calculation_factory.knows(key):
-        #     calc = calculation_factory.get(key)
-        #     return_json = handle_output(calc)
-        #     return return_json
-        # else:
-        #     return json_error("error", "unknown calculation type: " + key)
+        return calculate(req)
+
+    # if request.is_json and request.json:
+    #     req = request.get_json()
+    #     return build_composite_schema(req)
+    # if 'calculation' not in req:
+    #     return json_error("error", "no calculation key found in json")
+    # else:
+    # key = req['calculation']
+    # calculation_factory = CalculationFactory()
+    # if calculation_factory.knows(key):
+    #     calc = calculation_factory.get(key)
+    #     return_json = handle_output(calc)
+    #     return return_json
+    # else:
+    #     return json_error("error", "unknown calculation type: " + key)
 
 
 @api.route("/21cm_default", methods=['GET', 'POST'])

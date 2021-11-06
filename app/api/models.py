@@ -1,5 +1,7 @@
 from json import JSONDecodeError, JSONDecoder
 
+import pprint
+
 import os
 from flask import current_app
 from flask import jsonify
@@ -69,12 +71,14 @@ class CalculationDispatcher(Dispatcher):
 
 
 def getSensitivity(thejson):
+    # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
     # location_obj = Loc
     # print("antenna obj=", antenna_obj)
     # print("beam_obj=", beam_obj)
 
+    # create an antenna object and calculate antenna parameters based on submitted data
     antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
     beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
 
@@ -91,12 +95,33 @@ def getSensitivity(thejson):
     # plt.plot(sensitivity.k1d, power_std)
 
 
+def calculate(thejson):
+    print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
+    calculator = CalculationFactory().get(thejson['calculation'])
+    return calculator(thejson)
+
+
 def one_d_cut(thejson):
+    print("in one_d_cut")
     sensitivity = getSensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
-    d = {{"x": sensitivity.k1d, "y": power_std, "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
-          "xscale": "log", "yscale": "log"}}
+    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(), "xlabel": "k [h/Mpc]",
+         "ylabel": r"$\delta \Delta^2_{21}$",
+         "xscale": "log", "yscale": "log", "xunit": sensitivity.k1d.unit.to_string(),
+         "yunit": power_std.unit.to_string()}
+
+    print(pprint.pprint(d))
+
+    print("Astropy quantity breakdown:")
+    print("type of k1d=", type(sensitivity.k1d))
+    print("value=", sensitivity.k1d.value)
+    print("unit=", sensitivity.k1d.unit)
+
+    print("type of power=", type(power_std))
+    print("value=", power_std.value)
+    print("unit=", power_std.unit)
     return jsonify(d)
+    # return jsonify({"a": "b"})
 
 
 def one_d_noise_cut(thejson):
