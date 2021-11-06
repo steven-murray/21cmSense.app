@@ -71,6 +71,23 @@ Return:
 ``http://localhost:5000/api-1.0/schema
 ``
 
+### Get the required elements groups for a calculation
+
+**GET** /api-1.0/schema/calculation/get/baselines-distributions
+
+```json
+{
+  "schema": "baselines-distributions",
+  "group": "calculations",
+  "description": "Baselines Distributions",
+  "required": [
+    "antenna",
+    "beam",
+    "location"
+  ]
+}
+```
+
 
 ### Get a specific schema from a group
 

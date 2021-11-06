@@ -13,7 +13,6 @@ from .models import CalculationFactory, handle_output, get_schema_descriptions_j
 from .models import *
 from . import errors
 from .json_util import json_error
-# from .
 
 
 @api.route('/')
@@ -34,16 +33,13 @@ def api_all_schema():
     return jsonify({'list': 'here'})
 
 
-# @api.route('/schema', defaults={'schemagroup': '', 'schemaname': ''}, methods=['GET', 'POST'])
-# @api.route('/schema/<schemagroup>/<schemaname>')
-# @api.route('/schema/<schemagroup>', defaults={'schemaname': ''})
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
 
 
-@api.route('/schema/snork')
-def api_return(schemagroup, schemaname):
+@api.route('/schema/snork', methods=['POST'])
+def api_return():
     if request.method == 'POST':
         j = request.get_json()
         lst = models.get_schema_groups()
@@ -241,7 +237,7 @@ def call_21cm():
         # if 'calculation' not in req:
         #     return json_error("error", "no calculation key found in json")
         # else:
-            # key = req['calculation']
+        # key = req['calculation']
         # calculation_factory = CalculationFactory()
         # if calculation_factory.knows(key):
         #     calc = calculation_factory.get(key)

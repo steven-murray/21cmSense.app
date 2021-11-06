@@ -89,31 +89,139 @@ def one_d_cut(thejson):
     #plt.plot(sensitivity.k1d, power_std)
 
 
-def one_d_noise_cut():
-    pass
+def one_d_noise_cut(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def one_d_sample_var():
-    pass
+def one_d_sample_var(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def two_d_sens():
-    pass
+def two_d_sens(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def two_d_sens_k():
-    pass
+def two_d_sens_k(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def two_d_sens_z():
-    pass
+def two_d_sens_z(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def ant_pos():
-    pass
+def ant_pos(thejson):
+    antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    # location_obj = Loc
+    print("antenna obj=", antenna_obj)
+    print("beam_obj=", beam_obj)
+
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+    sensitivity = PowerSpectrum(
+        observation=Observation(
+            observatory=Observatory(
+                antpos=antenna.get(), beam=beam.get(),
+                latitude=thejson['data']['location']['latitude']
+            )
+        )
+    )
+
+    #plt.plot(sensitivity.k1d, power_std)
 
 
-def baselines_dist():
+def baselines_dist(thejson):
     pass
     # antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
     # beam_obj = BeamFactory().get(self.get_beam_type(thejson))
