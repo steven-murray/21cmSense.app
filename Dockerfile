@@ -5,7 +5,7 @@ WORKDIR /21cmSense-server
 COPY . . 
 
 ENV REDIS_URL "redis"
-ENV FLASK_APP "app"
+ENV FLASK_APP "current_app"
 
 RUN apt-get update -y
 RUN apt-get install -qq -y build-essential gfortran python-pip python-dev redis-server
