@@ -1,4 +1,4 @@
-name: Galileo SSH Deploy
+name: execute remote ssh to pull updates from master
 on:
   push:
     branches:
@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
       - name: Deploy to Server
+      - uses: actions/checkout@v2
         with:
           username: t43-capstone
           SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
