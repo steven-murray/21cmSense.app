@@ -35,7 +35,8 @@ inputs:
     default: false
 
 runs:
-  using: 'actions/setup-python@v2'
+  using: 'docker'
+  image: 'Dockerfile'
   
 branding:
   icon: 'terminal'
