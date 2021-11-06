@@ -21,9 +21,9 @@ jobs:
         uses: bpape1usa/SER401-Project43@github_actions_new_workflow
         with:
           debug: true
-          host: ${{ secrets.HOST }}
+          REMOTE_HOST: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.GALILEO_DEPLOY }}
+          SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
           port: ${{ secrets.PORT }}
           script: |
             export FLASK_RUN_HOST=0.0.0.0
