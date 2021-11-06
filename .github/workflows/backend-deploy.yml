@@ -18,8 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Deploy to Server
-      - uses: actions/checkout@v2
+      - uses: bpape1usa/SER401-Project43@github_actions_new_workflow
         with:
           username: t43-capstone
           SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
