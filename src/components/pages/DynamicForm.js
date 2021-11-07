@@ -3,51 +3,55 @@ import formJSON from '../../schema/formElement.json';
 import React,{ useState, useEffect } from 'react';
 import Element from '../Element';
 import { FormContext } from '../../FormContext';
-function DynamicForm() {
-  const [elements, setElements] = useState(null);
-  useEffect(() => {
-    setElements(formJSON[0])
 
-  }, [])
-  const { fields, page_label } = elements ?? {}
-  const handleSubmit = (event) => {
-    event.preventDefault();
 
-    console.log(elements)
-  }
-  const handleChange = (id, event) => {
-    const newElements = { ...elements }
-    newElements.fields.forEach(field => {
-      const { field_type, field_id } = field;
-      if (id === field_id) {
-        switch (field_type) {
-          case 'checkbox':
-            field['field_value'] = event.target.checked;
-            break;
 
-          default:
-            field['field_value'] = event.target.value;
-            break;
+function DynamicForms() {
+
+  var url = "http://192.168.1.11:8080/api-1.0/schema"; 
+  let jsondata;    
+  fetch(url).then(
+        function(u){ return u.json();}
+      ).then(
+        function(json){
+          jsondata = json;
         }
+      )
+  window.onload = () => {
+        var select = document.getElementById("selectSchema");
 
-
-      }
-      setElements(newElements)
-    });
-    console.log(elements)
+        var options = jsondata;
+        for(var i = 0; i < options.length; i++) {
+            var opt = options[i];
+            var el = document.createElement("option");
+            el.textContent = opt;
+            el.value = opt;
+            select.appendChild(el);
+        }
   }
+
+
+
   return (
-    <FormContext.Provider value={{ handleChange }}>
+    <FormContext.Provider>
       <div className="App container">
-        <h3>{page_label}</h3>
-        <form>
-          {fields ? fields.map((field, i) => <Element key={i} field={field} />) : null}
-          <button type="submit" className="btn btn-primary" onClick={(e) => handleSubmit(e)}>Submit</button>
+        <h3>"21cmsense Dynamic Form"</h3>
+          
+        <form >
+          <br></br>
+          <h6> SCHEMA LIST</h6>                
+          <select id="selectSchema">
+               <option>Choose a Schema</option>
+          </select> 
+
         </form>
 
       </div>
     </FormContext.Provider>
+    
   );
 }
 
-export default DynamicForm;
+
+
+export default DynamicForms;
