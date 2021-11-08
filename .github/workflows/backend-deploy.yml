@@ -24,10 +24,10 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
-          port: ${{ secrets.PORT }}
+          port: 22
           script: |
             export FLASK_RUN_HOST=0.0.0.0
-            export FLASK_RUN_PORT=8010
+            export FLASK_RUN_PORT=22
             export FLASK_KEY=${{ secrets.FLASK_KEY }}
             export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
             export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
