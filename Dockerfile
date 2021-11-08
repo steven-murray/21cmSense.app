@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 
 ADD . /21cmSense-server
 
-CMD ["flask", "run"]
+CMD flask run
