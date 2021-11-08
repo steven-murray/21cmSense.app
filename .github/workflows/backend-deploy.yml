@@ -23,7 +23,6 @@ jobs:
           REMOTE_HOST: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
-          port: ${{ secrets.PORT }}
           script: |
             git clone git@github.com:bpape1usa/SER401-Project43.git
             git pull origin master
