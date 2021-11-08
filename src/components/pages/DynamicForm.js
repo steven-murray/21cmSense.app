@@ -8,7 +8,7 @@ import { FormContext } from '../../FormContext';
 
 function DynamicForms() {
 
-  var url = "http://192.168.1.11:8080/api-1.0/schema"; 
+/*  var url = "http://192.168.1.11:8080/api-1.0/schema"; 
   let jsondata;    
   fetch(url).then(
         function(u){ return u.json();}
@@ -16,11 +16,11 @@ function DynamicForms() {
         function(json){
           jsondata = json;
         }
-      )
+      )*/
   window.onload = () => {
         var select = document.getElementById("selectSchema");
 
-        var options = jsondata;
+        var options =  ["antenna", "beam", "calculation", "location"];
         for(var i = 0; i < options.length; i++) {
             var opt = options[i];
             var el = document.createElement("option");
