@@ -20,19 +20,13 @@ jobs:
       - name: DeployServer
         uses: bpape1usa/SER401-Project43@github_actions_new_workflow
         with:
-          debug: true
-          REMOTE_HOST: ${{ secrets.HOST }}
+          host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           SSH_PRIVATE_KEY: ${{ secrets.GALILEO_DEPLOY }}
-          port: 22
+          port: ${{ secrets.PORT }}
           script: |
-            export FLASK_RUN_HOST=0.0.0.0
-            export FLASK_RUN_PORT=22
-            export FLASK_KEY=${{ secrets.FLASK_KEY }}
-            export MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            export MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
             git clone git@github.com:bpape1usa/SER401-Project43.git
-            git fetch origin -a
+            git pull origin master
             git status 
             ls 
             docker-compose up --build --remove-orphans -d
