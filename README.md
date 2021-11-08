@@ -6,6 +6,8 @@
 
 [![execute remote ssh to pull updates from master](https://github.com/bpape1usa/SER401-Project43/actions/workflows/backend-deploy.yml/badge.svg)](https://github.com/bpape1usa/SER401-Project43/actions/workflows/backend-deploy.yml)
 
+[![.github/workflows/github-actions.yml](https://github.com/bpape1usa/SER401-Project43/actions/workflows/github-actions.yml/badge.svg)](https://github.com/bpape1usa/SER401-Project43/actions/workflows/github-actions.yml)
+
 **Summary**
 	Project 43 is a web application targeted to the scientific and educational communities of radio astronomers and radio astronomer educators.  
 The Project 43 sponsors wish to provide a more user-friendly interface to existing scientific code, 21cmSense - proven Python code that generates 
