@@ -10,7 +10,7 @@ install:
     - tar xvzf redis-stable.tar.gz && mv redis-stable redis
     - cd redis
     - make
-    - src/redis-server ../redis.conf &
+    - src/redis-server /home/travis/build/bpape1usa/SER401-Project43/redis.conf &
     - src/redis-cli ping
     - cd ..
 
