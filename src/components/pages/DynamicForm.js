@@ -1,57 +1,79 @@
 import '../../App.css';
-import formJSON from '../../schema/formElement.json';
-import React,{ useState, useEffect } from 'react';
-import Element from '../Element';
+import React,{ useState, useEffect, useMemo } from 'react';
 import { FormContext } from '../../FormContext';
+import ReactDOM from 'react-dom';
+
+const DropDown = ({ selectedValue, disabled, options, onChange }) => {
+  return (
+    <select onChange={onChange} disabled={disabled}>
+      {
+        options.map(o => <option value={o} selected={o == selectedValue}>{o}</option>)
+      }
+    </select>
+  );
+}
 
 
+class DynamicForm extends React.Component {
 
-function DynamicForms() {
 
-/*  var url = "http://192.168.1.11:8080/api-1.0/schema"; 
-  let jsondata;    
-  fetch(url).then(
-        function(u){ return u.json();}
-      ).then(
-        function(json){
-          jsondata = json;
-        }
-      )*/
-  window.onload = () => {
-        var select = document.getElementById("selectSchema");
+  constructor(props) {
+    super(props);
+    this.state = {
+      schemas: [  "antenna",   "beam",   "calculation",   "location"],
+      groups: ['HERA','PHERA','TERA','DATA']
+    }
+    
+    this.onSchemasChange = this.onSchemasChange.bind(this);
+    this.onGroupsChange = this.onGroupsChange.bind(this);
+  }
+/*
+  componentDidMount(){
+           fetch("http://localhost:8080/api-1.0/schema")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    schemas: json
+                });
+            })
+    }
+*/
 
-        var options =  ["antenna", "beam", "calculation", "location"];
-        for(var i = 0; i < options.length; i++) {
-            var opt = options[i];
-            var el = document.createElement("option");
-            el.textContent = opt;
-            el.value = opt;
-            select.appendChild(el);
-        }
+  onSchemasChange(e) {
+    this.setState({ selectedSchema: e.target.value });
   }
 
+  onGroupsChange(e) {
+    this.setState({ selectedGroup: e.target.value });
+  }
 
-
-  return (
-    <FormContext.Provider>
+  render() {
+    const { schemas, groups} = this.state;
+    return (
+     <FormContext.Provider>
       <div className="App container">
         <h3>"21cmsense Dynamic Form"</h3>
           
         <form >
           <br></br>
-          <h6> SCHEMA LIST</h6>                
-          <select id="selectSchema">
-               <option>Choose a Schema</option>
-          </select> 
+          <h6> SCHEMA LIST</h6>              
+        <DropDown
+          options={schemas}
+          onChange={this.onSchemasChange}
 
+        />
+        <br></br>
+        <br></br>
+        <h6> GROUP LIST</h6>
+        <DropDown
+          options={groups}
+          onChange={this.onGroupsChange}
+        />
         </form>
-
-      </div>
+        
+       </div>
     </FormContext.Provider>
-    
-  );
+    );
+  }
 }
-
-
-
-export default DynamicForms;
+export default DynamicForm;
