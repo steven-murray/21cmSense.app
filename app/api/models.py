@@ -128,16 +128,36 @@ def one_d_noise_cut(thejson):
     sensitivity = getSensitivity(thejson)
 
 
+def one_d_thermal_var(thejson):
+    sensitivity = getSensitivity(thejson)
+    power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
+
 def one_d_sample_var(thejson):
     sensitivity = getSensitivity(thejson)
+    power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
 
 
 def two_d_sens(thejson):
     sensitivity = getSensitivity(thejson)
+    observation = sensitivity.observation
+
+    # plt.figure(figsize=(7, 5))
+    # x = [bl_group[0] for bl_group in observation.baseline_groups]
+    # y = [bl_group[1] for bl_group in observation.baseline_groups]
+    # c = [len(bls) for bls in observation.baseline_groups.values()]
+    #
+    # plt.scatter(x, y, c=c)
+    # cbar = plt.colorbar();
+    # cbar.set_label("Number of baselines in group", fontsize=15)
+    # plt.tight_layout();
 
 
 def two_d_sens_k(thejson):
     sensitivity = getSensitivity(thejson)
+    sense2d = sensitivity.calculate_sensitivity_2d()
+
+    # dict of arrays
+    # sensitivity.plot_sense_2d(sense2d)
 
 
 def two_d_sens_z(thejson):
@@ -150,6 +170,11 @@ def ant_pos(thejson):
 
 def baselines_dist(thejson):
     sensitivity = getSensitivity(thejson)
+    coherent_grid = observatory.grid_baselines_coherent(
+        baselines=baseline_group_coords,
+        weights=baseline_group_counts
+    )
+
 
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
