@@ -1,6 +1,9 @@
+import functools
+import pickle
 from json import JSONDecodeError, JSONDecoder
 
 import pprint
+# import jsonpickle
 
 import os
 from flask import current_app
@@ -70,7 +73,14 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
+# serialize the json to a hashable form for LRU caching
 def getSensitivity(thejson):
+    return cached_sensitivity(pickle.dumps(thejson))
+
+
+@functools.lru_cache
+def cached_sensitivity(json_pickle):
+    thejson = pickle.loads(json_pickle)
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
@@ -132,6 +142,7 @@ def one_d_thermal_var(thejson):
     sensitivity = getSensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
 
+
 def one_d_sample_var(thejson):
     sensitivity = getSensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
@@ -167,8 +178,10 @@ def two_d_sens_z(thejson):
 def ant_pos(thejson):
     sensitivity = getSensitivity(thejson)
 
+
 def one_d_noise_cut():
     pass
+
 
 def baselines_dist(thejson):
     sensitivity = getSensitivity(thejson)
@@ -176,7 +189,6 @@ def baselines_dist(thejson):
         baselines=baseline_group_coords,
         weights=baseline_group_counts
     )
-
 
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
