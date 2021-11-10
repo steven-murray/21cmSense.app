@@ -50,7 +50,15 @@ jobs:
 #       run: |
 #         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-   
+    - name: redis
+      run: |
+        wget http://download.redis.io/redis-stable.tar.gz
+        tar xvzf redis-stable.tar.gz && mv redis-stable redis
+        cd redis
+        make
+        src/redis-server ${BASEDIR}/redis.conf &
+        src/redis-cli ping
+        cd ..
     - name: Test with pytest
       run: |
         pytest
