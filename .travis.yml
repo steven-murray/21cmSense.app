@@ -11,6 +11,7 @@ install:
     - cd redis
     - make
     - src/redis-server &
+    - src/redis-cli ping
     - cd ..
 
     # stage 21cmSense code
