@@ -167,6 +167,8 @@ def two_d_sens_z(thejson):
 def ant_pos(thejson):
     sensitivity = getSensitivity(thejson)
 
+def one_d_noise_cut():
+    pass
 
 def baselines_dist(thejson):
     sensitivity = getSensitivity(thejson)
