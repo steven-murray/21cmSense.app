@@ -13,3 +13,4 @@ matplotlib
 jsonschema
 pytest
 Flask
+redis
