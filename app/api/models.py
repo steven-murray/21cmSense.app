@@ -5,6 +5,7 @@ from json import JSONDecodeError, JSONDecoder
 import pprint
 # import jsonpickle
 
+
 import os
 from flask import current_app
 from flask import jsonify
@@ -78,6 +79,11 @@ def get_sensitivity(thejson):
     return cached_sensitivity(pickle.dumps(thejson))
 
 
+    # create an antenna object and calculate antenna parameters based on submitted data
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+
 @functools.lru_cache
 def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
@@ -121,6 +127,7 @@ def one_d_cut(thejson):
          "yunit": power_std.unit.to_string()}
 
     print(pprint.pprint(d))
+
 
     print("Astropy quantity breakdown:")
     print("type of k1d=", type(sensitivity.k1d))
@@ -179,8 +186,21 @@ def ant_pos(thejson):
     sensitivity = get_sensitivity(thejson)
 
 
+
 def one_d_noise_cut():
     pass
+
+def baselines_dist(thejson):
+    sensitivity = getSensitivity(thejson)
+
+    # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
+    # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
+    #
+    # plt.figure(figsize=(7, 5))
+    # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
+    # cbar = plt.colorbar();
+    # cbar.set_label("Number of baselines in group", fontsize=15)
+    # plt.tight_layout();
 
 
 def baselines_dist(thejson):
