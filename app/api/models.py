@@ -1,6 +1,10 @@
+import functools
+import pickle
 from json import JSONDecodeError, JSONDecoder
 
 import pprint
+# import jsonpickle
+
 
 import os
 from flask import current_app
@@ -70,7 +74,19 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
-def getSensitivity(thejson):
+# serialize the json to a hashable form for LRU caching
+def get_sensitivity(thejson):
+    return cached_sensitivity(pickle.dumps(thejson))
+
+
+    # create an antenna object and calculate antenna parameters based on submitted data
+    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
+    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+
+
+@functools.lru_cache
+def cached_sensitivity(json_pickle):
+    thejson = pickle.loads(json_pickle)
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
@@ -103,7 +119,7 @@ def calculate(thejson):
 
 def one_d_cut(thejson):
     print("in one_d_cut")
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
     d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(), "xlabel": "k [h/Mpc]",
          "ylabel": r"$\delta \Delta^2_{21}$",
@@ -111,6 +127,7 @@ def one_d_cut(thejson):
          "yunit": power_std.unit.to_string()}
 
     print(pprint.pprint(d))
+
 
     print("Astropy quantity breakdown:")
     print("type of k1d=", type(sensitivity.k1d))
@@ -125,33 +142,73 @@ def one_d_cut(thejson):
 
 
 def one_d_noise_cut(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+
+
+def one_d_thermal_var(thejson):
+    sensitivity = get_sensitivity(thejson)
+    power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
 
 
 def one_d_sample_var(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+    power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
 
 
 def two_d_sens(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+    observation = sensitivity.observation
+
+    # plt.figure(figsize=(7, 5))
+    # x = [bl_group[0] for bl_group in observation.baseline_groups]
+    # y = [bl_group[1] for bl_group in observation.baseline_groups]
+    # c = [len(bls) for bls in observation.baseline_groups.values()]
+    #
+    # plt.scatter(x, y, c=c)
+    # cbar = plt.colorbar();
+    # cbar.set_label("Number of baselines in group", fontsize=15)
+    # plt.tight_layout();
 
 
 def two_d_sens_k(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+    sense2d = sensitivity.calculate_sensitivity_2d()
+
+    # dict of arrays
+    # sensitivity.plot_sense_2d(sense2d)
 
 
 def two_d_sens_z(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
 
 
 def ant_pos(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+
+
 
 def one_d_noise_cut():
     pass
 
 def baselines_dist(thejson):
     sensitivity = getSensitivity(thejson)
+
+    # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
+    # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
+    #
+    # plt.figure(figsize=(7, 5))
+    # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
+    # cbar = plt.colorbar();
+    # cbar.set_label("Number of baselines in group", fontsize=15)
+    # plt.tight_layout();
+
+
+def baselines_dist(thejson):
+    sensitivity = get_sensitivity(thejson)
+    coherent_grid = observatory.grid_baselines_coherent(
+        baselines=baseline_group_coords,
+        weights=baseline_group_counts
+    )
 
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)

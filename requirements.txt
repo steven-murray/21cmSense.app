@@ -13,4 +13,6 @@ matplotlib
 jsonschema
 pytest
 Flask
+redis
 cryptography==3.4.7
+
