@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: DeployServer
-        uses:  bpape1usa/SER401-Project43@github_actions_new_workflow
+        uses:  appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
