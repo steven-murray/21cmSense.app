@@ -20,6 +20,9 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - uses: supercharge/redis-github-action@1.2.0
+      with: 
+        redis-version: 6
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -52,13 +55,13 @@ jobs:
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: redis
       run: |
-        wget http://download.redis.io/redis-stable.tar.gz
-        tar xvzf redis-stable.tar.gz && mv redis-stable redis
-        cd redis
-        make
-        src/redis-server ${BASEDIR}/redis.conf &
-        src/redis-cli ping
-        cd ..
+          wget http://download.redis.io/redis-stable.tar.gz
+          tar xvzf redis-stable.tar.gz && mv redis-stable redis
+          cd redis
+          make
+          src/redis-server ${BASEDIR}/redis.conf &
+          src/redis-cli ping
+          cd ..
     - name: Test with pytest
       run: |
         pytest
