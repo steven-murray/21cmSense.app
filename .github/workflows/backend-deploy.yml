@@ -26,6 +26,7 @@ jobs:
           port: 22
           key: ${{ secrets.GALILEO_DEPLOY }}
           script: |
+            rm -r SER401-Project43
             git clone git@github.com:bpape1usa/SER401-Project43.git --config core.sshCommand="ssh -i ~/.ssh/github_id_ed25519"
             cd SER401-Project43
             git pull origin master
