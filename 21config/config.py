@@ -30,7 +30,9 @@ for cls in target_classes:
     a = attr.fields(cls)
     # print("attrs for " + el[0] + " are ", a)
     for at in a:
+        # print(at)
         print("Got attr: ", at.name, ", default=", "" if inspect.isclass(at.default) else at.default)
+        # print("Got attr: ", at.name, ", unit=",at.converter. default=", "" if inspect.isclass(at.default) else at.default)
 # else:
 #     print("Not class: ", el[0])
 
