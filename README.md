@@ -1,5 +1,9 @@
 # SER401-Project43
 
+[![GitHub Actions Workflow](label=Build&Deploy)](https://github.com/bpape1usa/SER401-Project43/actions/workflows/github-actions.yml)
+
+[![Netlify Workflow](label=Netlify)](https://app.netlify.com/sites/21cmsense/deploys)
+
 **Summary**
 	Project 43 is a web application targeted to the scientific and educational communities of radio astronomers and radio astronomer educators.  
 The Project 43 sponsors wish to provide a more user-friendly interface to existing scientific code, 21cmSense - proven Python code that generates 

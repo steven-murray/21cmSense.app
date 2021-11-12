@@ -158,3 +158,5 @@ yarn-error.log*
 /web-app-front-end/node_modules/**
 
 yarn.lock
+.project
+.vscode

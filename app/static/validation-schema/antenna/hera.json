@@ -1,24 +1,19 @@
 {
-  "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+  "__comment__": "string",
   "schema": "hera",
-  "description": "Hera-class antenna array",
-  "group": "antenna",
   "data": {
     "antenna": {
       "hex_num": {
         "type": "integer",
-        "minimum": 3,
-        "help": "Number of antennas per side of hexagonal array"
+        "minimum": 3
       },
       "separation": {
         "type": "number",
-        "minimum": 0,
-        "help": "The distance between antennas along a side"
+        "minimum": 0
       },
       "dl": {
         "type": "float",
-        "minimum": 0,
-        "help": "The distance between rows of antennas"
+        "minimum": 0
       },
       "required": [
         "hex_num",
@@ -31,7 +26,6 @@
     "antenna": {
       "separation": {
         "type": "string",
-        "default": "m",
         "enum": [
           "m",
           "s"
@@ -39,7 +33,6 @@
       },
       "dl": {
         "type": "string",
-        "default": "m",
         "enum": [
           "m",
           "s"

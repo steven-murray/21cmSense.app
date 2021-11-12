@@ -1,0 +1,155 @@
+{
+  "calculation": "baselines-distributions",
+  "data": {
+    "antenna": {
+      "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+      "data": {
+        "antenna": {
+          "dl": {
+            "help": "The distance between rows of antennas",
+            "minimum": 0,
+            "type": "float"
+          },
+          "hex_num": {
+            "help": "Number of antennas per side of hexagonal array",
+            "minimum": 3,
+            "type": "integer"
+          },
+          "required": [
+            "hex_num",
+            "separation",
+            "dl"
+          ],
+          "separation": {
+            "help": "The distance between antennas along a side",
+            "minimum": 0,
+            "type": "number"
+          }
+        }
+      },
+      "description": "Hera-class antenna array",
+      "group": "antenna",
+      "schema": "hera",
+      "units": {
+        "antenna": {
+          "dl": {
+            "default": "m",
+            "enum": [
+              "m",
+              "s"
+            ],
+            "type": "string"
+          },
+          "required": [
+            "separation",
+            "dl"
+          ],
+          "separation": {
+            "default": "m",
+            "enum": [
+              "m",
+              "s"
+            ],
+            "type": "string"
+          }
+        }
+      }
+    },
+    "beam": {
+      "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+      "data": {
+        "beam": {
+          "class": {
+            "default": "GaussianBeam",
+            "help": "The beam class",
+            "type": "string"
+          },
+          "dish_size": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "frequency": {
+            "help": "The beam frequency",
+            "minimum": 0,
+            "type": "number"
+          }
+        },
+        "required": [
+          "class",
+          "frequency",
+          "dish_size"
+        ]
+      },
+      "description": "GaussianBeam type beam",
+      "group": "beam",
+      "schema": "GaussianBeam",
+      "units": {
+        "beam": {
+          "dish_size": {
+            "default": "m",
+            "enum": [
+              "m"
+            ],
+            "type": "string"
+          },
+          "frequency": {
+            "default": "Mhz",
+            "enum": [
+              "Hz",
+              "Mhz"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "frequency",
+          "dish_size"
+        ]
+      }
+    },
+    "location": {
+      "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+      "data": {
+        "location": {
+          "latitude": {
+            "__maximum": 180.0,
+            "__minimum": -180.0,
+            "help": "Terrestrial antenna latitude",
+            "type": "number",
+            "units": {
+              "default": "rad",
+              "enum": [
+                "rad"
+              ]
+            }
+          }
+        },
+        "required": [
+          "latitude"
+        ]
+      },
+      "description": "Terrestrial latitude-only coordinate",
+      "groups": "location",
+      "schema": "location",
+      "units": {
+        "location": {
+          "latitude": {
+            "default": "rad",
+            "enum": [
+              "rad"
+            ],
+            "type": "string"
+          }
+        },
+        "required": [
+          "latitude"
+        ]
+      }
+    }
+  },
+  "units": {
+    "antenna": {},
+    "beam": {},
+    "location": {}
+  }
+}
