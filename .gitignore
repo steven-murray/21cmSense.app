@@ -160,3 +160,7 @@ yarn-error.log*
 yarn.lock
 .project
 .vscode
+
+redis*
+
+
