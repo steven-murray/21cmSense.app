@@ -24,7 +24,7 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           port: 22
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.GALILEO_DEPLOY }}
           script: |
             git clone git@github.com:bpape1usa/SER401-Project43.git
             git pull origin master
