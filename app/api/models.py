@@ -169,6 +169,8 @@ def two_d_sens(thejson):
     # cbar.set_label("Number of baselines in group", fontsize=15)
     # plt.tight_layout();
 
+def two_d_sens_z(thejson):
+    sensitivity = getSensitivity(thejson)
 
 def two_d_sens_k(thejson):
     sensitivity = get_sensitivity(thejson)
@@ -185,6 +187,8 @@ def two_d_sens_z(thejson):
 def ant_pos(thejson):
     sensitivity = get_sensitivity(thejson)
 
+def baselines_dist(thejson):
+    sensitivity = getSensitivity(thejson)
 
 
 def one_d_noise_cut():
