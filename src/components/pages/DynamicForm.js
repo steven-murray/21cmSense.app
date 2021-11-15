@@ -20,31 +20,46 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      schemas: [  "antenna",   "beam",   "calculation",   "location"],
-      groups: ['HERA','PHERA','TERA','DATA']
+      schemas: [],
+      groups: []
     }
     
     this.onSchemasChange = this.onSchemasChange.bind(this);
     this.onGroupsChange = this.onGroupsChange.bind(this);
   }
-/*
+
   componentDidMount(){
-           fetch("http://localhost:8080/api-1.0/schema")
+
+            fetch("http://localhost:8080/api-1.0/schema")
             .then((res) => res.json())
             .then((json) => {
                 this.setState({
                     schemas: json
                 });
             })
-    }
-*/
 
+        
+    }
+
+selectValue (e) {
+        e.preventDefault()
+       
+        fetch("http://localhost:8080/api-1.0/schema/"+e.value)
+          .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    groups: json
+                });
+            })
+      };
+
+      
   onSchemasChange(e) {
-    this.setState({ selectedSchema: e.target.value });
+    this.setState({ selectedSchema: e.selectValue });
   }
 
   onGroupsChange(e) {
-    this.setState({ selectedGroup: e.target.value });
+    this.setState({selectedGroup : e.target.value });
   }
 
   render() {
@@ -66,7 +81,7 @@ class DynamicForm extends React.Component {
         <br></br>
         <h6> GROUP LIST</h6>
         <DropDown
-          options={groups}
+          options={groups }
           onChange={this.onGroupsChange}
         />
         </form>
