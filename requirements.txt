@@ -3,7 +3,7 @@
 pyuvdata==2.2.4
 
 # 21cmSense reqs
-numpy==1.21.4
+numpy==1.19.5
 scipy==1.7.2
 PyYAML==6.0
 astropy==4.3.1
