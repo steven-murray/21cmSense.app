@@ -40,7 +40,7 @@ class DynamicForm extends React.Component {
 
         
     }
-
+/*
 selectValue (e) {
         e.preventDefault()
        
@@ -52,7 +52,7 @@ selectValue (e) {
                 });
             })
       };
-
+*/
       
   onSchemasChange(e) {
     this.setState({ selectedSchema: e.selectValue });
