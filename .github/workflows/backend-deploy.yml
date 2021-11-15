@@ -1,27 +1,33 @@
 name: execute remote ssh to pull updates from master
 on:
-  # Triggers the workflow on push or pull request events but only for the main branch
   push:
-
     branches:
       - master
       - dev
+      - github_actions_new_workflow
+  pull_request_target:
+    branches: 
+      - master
+      - dev
+      - github_actions_new_workflow
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: appleboy/ssh-action@master
+      - name: DeployServer
+        uses:  bpape1usa/SER401-Project43@github_actions_new_workflow
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
+          port: 22
           key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
           script: |
-            cd /srv/shiny-server/${{ secrets.APPNAME }}
-            git pull
+            git clone git@github.com:bpape1usa/SER401-Project43.git
+            git pull origin master
+            git status 
+            ls 
+            docker-compose up --build --remove-orphans -d

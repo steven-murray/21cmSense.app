@@ -13,6 +13,7 @@ from .models import CalculationFactory, handle_output, get_schema_descriptions_j
 from .models import *
 from . import errors
 from .json_util import json_error
+import flask_cors
 
 
 @api.route('/')
