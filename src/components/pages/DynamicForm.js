@@ -37,25 +37,20 @@ class DynamicForm extends React.Component {
                     schemas: json
                 });
             })
-
-        
+ 
     }
 
-selectValue (e) {
-        e.preventDefault()
-       
-        fetch("http://localhost:8080/api-1.0/schema/"+e.value)
-          .then((res) => res.json())
+
+     
+  onSchemasChange(e) {
+    var group = e.target.value;
+          fetch("http://localhost:8080/api-1.0/schema/" + group )
+            .then((res) => res.json())
             .then((json) => {
                 this.setState({
                     groups: json
                 });
             })
-      };
-
-      
-  onSchemasChange(e) {
-    this.setState({ selectedSchema: e.selectValue });
   }
 
   onGroupsChange(e) {
@@ -82,7 +77,6 @@ selectValue (e) {
         <h6> GROUP LIST</h6>
         <DropDown
           options={groups }
-          onChange={this.onGroupsChange}
         />
         </form>
         
