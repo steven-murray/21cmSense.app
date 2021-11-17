@@ -37,14 +37,7 @@ class DynamicForm extends React.Component {
                     schemas: json
                 });
             })
-
-        
-    }
-/*
-selectValue (e) {
-        e.preventDefault()
-       
-        fetch("http://localhost:8080/api-1.0/schema/"+e.value)
+        fetch("http://localhost:8080/api-1.0/schema/antenna")
           .then((res) => res.json())
             .then((json) => {
                 this.setState({
@@ -52,8 +45,9 @@ selectValue (e) {
                 });
             })
       };
-*/
-      
+        
+    }
+     
   onSchemasChange(e) {
     this.setState({ selectedSchema: e.selectValue });
   }
