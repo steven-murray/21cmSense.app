@@ -18,6 +18,7 @@ import jsonschema
 from jsonschema import ValidationError
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
+from ..utils.utils import get_unit_string
 
 debug = DebugPrint(9).debug_print
 
@@ -79,11 +80,6 @@ def get_sensitivity(thejson):
     return cached_sensitivity(pickle.dumps(thejson))
 
 
-    # create an antenna object and calculate antenna parameters based on submitted data
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-
 @functools.lru_cache
 def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
@@ -114,20 +110,23 @@ def cached_sensitivity(json_pickle):
 def calculate(thejson):
     print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
     calculator = CalculationFactory().get(thejson['calculation'])
+    if calculator is None:
+        return jsonify({"error": "unknown calculation"})
     return calculator(thejson)
 
 
+# done
+# with debugging output
 def one_d_cut(thejson):
-    print("in one_d_cut")
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
-    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(), "xlabel": "k [h/Mpc]",
-         "ylabel": r"$\delta \Delta^2_{21}$",
-         "xscale": "log", "yscale": "log", "xunit": sensitivity.k1d.unit.to_string(),
-         "yunit": power_std.unit.to_string()}
+    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(),
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
 
     print(pprint.pprint(d))
-
 
     print("Astropy quantity breakdown:")
     print("type of k1d=", type(sensitivity.k1d))
@@ -145,14 +144,28 @@ def one_d_noise_cut(thejson):
     sensitivity = get_sensitivity(thejson)
 
 
+# done
 def one_d_thermal_var(thejson):
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_thermal_var: includes thermal-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
+    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_thermal.value.tolist(),
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
+    d.update(labels)
+    return jsonify(d)
 
 
+# done
 def one_d_sample_var(thejson):
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_thermal_var: includes sample-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
+    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_sample.unit.to_string()}
+    d.update(labels)
+    return jsonify(d)
 
 
 def two_d_sens(thejson):
@@ -169,8 +182,10 @@ def two_d_sens(thejson):
     # cbar.set_label("Number of baselines in group", fontsize=15)
     # plt.tight_layout();
 
+
 def two_d_sens_z(thejson):
-    sensitivity = getSensitivity(thejson)
+    sensitivity = get_sensitivity(thejson)
+
 
 def two_d_sens_k(thejson):
     sensitivity = get_sensitivity(thejson)
@@ -180,40 +195,39 @@ def two_d_sens_k(thejson):
     # sensitivity.plot_sense_2d(sense2d)
 
 
-def two_d_sens_z(thejson):
-    sensitivity = get_sensitivity(thejson)
-
-
 def ant_pos(thejson):
     sensitivity = get_sensitivity(thejson)
 
-def baselines_dist(thejson):
-    sensitivity = getSensitivity(thejson)
 
+# baselines_dist= [[[   0.    0.    0.]
+#   [  14.    0.    0.]
+#   [  28.    0.    0.]
+#   ...
+#   [ 112.  -84.    0.]
+#   [ 126.   84.    0.]
+#   [ 126.  -84.    0.]]
+#
+#  [[ -14.    0.    0.]
+#   [   0.    0.    0.]
+#   [  14.    0.    0.]
+#   ...
 
-def one_d_noise_cut():
-    pass
-
-def baselines_dist(thejson):
-    sensitivity = getSensitivity(thejson)
-
-    # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
-    # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
-    #
-    # plt.figure(figsize=(7, 5))
-    # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
-    # cbar = plt.colorbar();
-    # cbar.set_label("Number of baselines in group", fontsize=15)
-    # plt.tight_layout();
-
+# baselines_dist[:,:,0]= [[   0.   14.   28. ...  112.  126.  126.]
+# [ -14.    0.   14. ...   98.  112.  112.]
+# [ -28.  -14.    0. ...   84.   98.   98.]
+# ...
+# [-112.  -98.  -84. ...    0.   14.   14.]
+# [-126. -112.  -98. ...  -14.    0.    0.]
+# [-126. -112.  -98. ...  -14.    0.    0.]] m
 
 def baselines_dist(thejson):
     sensitivity = get_sensitivity(thejson)
-    coherent_grid = observatory.grid_baselines_coherent(
-        baselines=baseline_group_coords,
-        weights=baseline_group_counts
-    )
+    observatory = sensitivity.observation.observatory
+    a = observatory.baselines_metres
 
+    print("baselines_dist=", a[:, :, 0])
+    d = {"data": "none"}
+    return jsonify(d)
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
     #
@@ -222,6 +236,23 @@ def baselines_dist(thejson):
     # cbar = plt.colorbar();
     # cbar.set_label("Number of baselines in group", fontsize=15)
     # plt.tight_layout();
+
+
+# def baselines_dist(thejson):
+#     sensitivity = get_sensitivity(thejson)
+#     coherent_grid = observatory.grid_baselines_coherent(
+#         baselines=baseline_group_coords,
+#         weights=baseline_group_counts
+#     )
+
+# baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
+# baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
+#
+# plt.figure(figsize=(7, 5))
+# plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
+# cbar = plt.colorbar();
+# cbar.set_label("Number of baselines in group", fontsize=15)
+# plt.tight_layout();
 
 
 def calcs():
@@ -240,12 +271,12 @@ class CalculationFactory(FactoryManager):
     def __init__(self):
         super().__init__()
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
-        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
-            '1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
-            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z',
-                                                                                   one_d_cut).add('antenna-positions',
-                                                                                                  one_d_cut).add(
-            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut)
+        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_cut).add(
+            '1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
+            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
+            '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
+            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add(
+            'k-vs-redshift-plot', one_d_cut).add('baselines_dist', baselines_dist)
 
         """
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
