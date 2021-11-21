@@ -21,11 +21,14 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       schemas: [],
-      groups: []
+      groups: [],
+      gform:[]
     }
     
+
     this.onSchemasChange = this.onSchemasChange.bind(this);
     this.onGroupsChange = this.onGroupsChange.bind(this);
+    
   }
 
   componentDidMount(){
@@ -35,6 +38,14 @@ class DynamicForm extends React.Component {
             .then((json) => {
                 this.setState({
                     schemas: json
+                });
+            })
+
+             fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    gform: json
                 });
             })
  
@@ -54,11 +65,19 @@ class DynamicForm extends React.Component {
   }
 
   onGroupsChange(e) {
-    this.setState({selectedGroup : e.target.value });
+    var forms = e.target.value;
+          fetch("http://localhost:8080/api-1.0/schema")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    gform: json
+                });
+            })
+
   }
 
   render() {
-    const { schemas, groups} = this.state;
+    const { schemas, groups, gform} = this.state;
     return (
      <FormContext.Provider>
       <div className="App container">
@@ -70,6 +89,7 @@ class DynamicForm extends React.Component {
         <DropDown
           options={schemas}
           onChange={this.onSchemasChange}
+          
 
         />
         <br></br>
@@ -77,7 +97,13 @@ class DynamicForm extends React.Component {
         <h6> GROUP LIST</h6>
         <DropDown
           options={groups }
+          onChange={this.onGroupsChange}
         />
+
+        <br></br>
+        <br></br>
+        <h6> 21cmSense Form</h6>
+        
         </form>
         
        </div>
