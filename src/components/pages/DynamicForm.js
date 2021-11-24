@@ -2,6 +2,8 @@ import '../../App.css';
 import React,{ useState, useEffect, useMemo } from 'react';
 import { FormContext } from '../../FormContext';
 import ReactDOM from 'react-dom';
+import Form from "react-jsonschema-form";
+import  { Component } from "react";
 
 const DropDown = ({ selectedValue, disabled, options, onChange }) => {
   return (
@@ -77,7 +79,62 @@ class DynamicForm extends React.Component {
   }
 
   render() {
-    const { schemas, groups, gform} = this.state;
+    const { schemas, groups, schema = {
+                                        "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+                                        "schema": "hera",
+                                        "description": "Hera-class antenna array",
+                                        "group": "antenna",
+                                        "data": {
+                                            "antenna": {
+                                                "hex_num": {
+                                                    "type": "integer",
+                                                    "minimum": 3,
+                                                    "help": "Number of antennas per side of hexagonal array"
+                                                },
+                                                "separation": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "help": "The distance between antennas along a side"
+                                                },
+                                                "dl": {
+                                                    "type": "float",
+                                                    "minimum": 0,
+                                                    "help": "The distance between rows of antennas"
+                                                },
+                                                "required": [
+                                                    "hex_num",
+                                                    "separation",
+                                                    "dl"
+                                                ]
+                                            }
+                                        },
+                                        "units": {
+                                            "antenna": {
+                                                "separation": {
+                                                    "type": "string",
+                                                    "default": "m",
+                                                    "enum": [
+                                                        "m",
+                                                        "s"
+                                                    ]
+                                                },
+                                                "dl": {
+                                                    "type": "string",
+                                                    "default": "m",
+                                                    "enum": [
+                                                        "m",
+                                                        "s"
+                                                    ]
+                                                },
+                                                "required": [
+                                                    "separation",
+                                                    "dl"
+                                                ]
+                                            }
+                                        }
+                                    }} = this.state;
+                                            
+
     return (
      <FormContext.Provider>
       <div className="App container">
@@ -105,7 +162,8 @@ class DynamicForm extends React.Component {
         <h6> 21cmSense Form</h6>
         
         </form>
-        
+        <Form schema={schema.data}
+      />
        </div>
     </FormContext.Provider>
     );
