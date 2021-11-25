@@ -28,12 +28,6 @@ def ping():
     }
 
 
-@api.route('/schemaj')
-def api_all_schema():
-    models.get_schema_groups()
-    return jsonify({'list': 'here'})
-
-
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
@@ -70,7 +64,9 @@ def get_schema_group(schemagroup):
 
 
 @api.route('/schema', methods=['GET'])
-def list_all_schema():
+def list_all_schema_groups():
+    """List all supported schema groups"""
+
     lst = models.get_schema_groups()
     return jsonify(lst)
 
@@ -235,7 +231,6 @@ def testtest():
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
-
     if request.is_json and request.json:
         req = request.get_json()
         return calculate(req)
