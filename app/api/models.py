@@ -7,6 +7,8 @@ import pprint
 
 
 import os
+
+import numpy
 from flask import current_app
 from flask import jsonify
 
@@ -19,6 +21,8 @@ from jsonschema import ValidationError
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
 from ..utils.utils import get_unit_string
+
+from hashlib import md5
 
 debug = DebugPrint(9).debug_print
 
@@ -122,20 +126,24 @@ def one_d_cut(thejson):
     print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
-    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(),
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
     d.update(labels)
 
-    print(pprint.pprint(d))
+    # prototype debugging output
+    # print(pprint.pprint(d))
+    #
+    # print("Astropy quantity breakdown:")
+    # print("type of k1d=", type(sensitivity.k1d))
+    # print("value=", sensitivity.k1d.value)
+    # print("unit=", sensitivity.k1d.unit)
+    #
+    # print("type of power=", type(power_std))
+    # print("value=", power_std.value)
+    # print("unit=", power_std.unit)
 
-    print("Astropy quantity breakdown:")
-    print("type of k1d=", type(sensitivity.k1d))
-    print("value=", sensitivity.k1d.value)
-    print("unit=", sensitivity.k1d.unit)
-
-    print("type of power=", type(power_std))
-    print("value=", power_std.value)
-    print("unit=", power_std.unit)
+    add_hash(thejson, d)
     return jsonify(d)
     # return jsonify({"a": "b"})
 
@@ -144,15 +152,32 @@ def one_d_noise_cut(thejson):
     sensitivity = get_sensitivity(thejson)
 
 
+def hash_json(thejson):
+    hashfunc = md5()
+    hashfunc.update(pickle.dumps(thejson))
+    return hashfunc.hexdigest()
+
+
+# hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
+def add_hash(thejson, d: dict):
+    d["modelID"] = hash_json(thejson)
+
+
+def filter_infinity(list1: list, list2: list):
+    return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
+
+
 # done
 def one_d_thermal_var(thejson):
     labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes thermal-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
-    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_thermal.value.tolist(),
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std_thermal.value.tolist())
+    d = {"x": xseries, "y": yseries,
          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
     d.update(labels)
+    add_hash(thejson, d)
     return jsonify(d)
 
 
