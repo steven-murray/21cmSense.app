@@ -1,3 +1,4 @@
+import app
 from flask import current_app
 from flask import jsonify
 from flask import request
@@ -53,19 +54,37 @@ def api_return():
 
 @api.route('/schema/<schemagroup>/get/<schemaname>')
 def get_schema(schemagroup, schemaname):
-    # the schema we want
+    """Return a specific schema within a group
+
+    Tests
+    -----
+    test_get_schema
+    test_get_nonexistent_schema
+    test_get_nonexistent_schema_group
+    """
     return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname + '.json')
 
 
 @api.route('/schema/<schemagroup>')
 def get_schema_group(schemagroup):
+    """List all of the schemas in a schema group
+
+    Tests
+    -----
+    test_get_schema_group
+    """
     lst = models.get_schema_names(schemagroup)
     return jsonify(lst)
 
 
 @api.route('/schema', methods=['GET'])
 def list_all_schema_groups():
-    """List all supported schema groups"""
+    """List all supported schema groups
+
+    Tests
+    -----
+    test_list_all_schema_groups
+    """
 
     lst = models.get_schema_groups()
     return jsonify(lst)
