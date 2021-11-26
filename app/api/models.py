@@ -119,6 +119,21 @@ def calculate(thejson):
     return calculator(thejson)
 
 
+def hash_json(thejson):
+    hashfunc = md5()
+    hashfunc.update(pickle.dumps(thejson))
+    return hashfunc.hexdigest()
+
+
+# hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
+def add_hash(thejson, d: dict):
+    d["modelID"] = hash_json(thejson)
+
+
+def filter_infinity(list1: list, list2: list):
+    return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
+
+
 # done
 # with debugging output
 def one_d_cut(thejson):
@@ -150,21 +165,6 @@ def one_d_cut(thejson):
 
 def one_d_noise_cut(thejson):
     sensitivity = get_sensitivity(thejson)
-
-
-def hash_json(thejson):
-    hashfunc = md5()
-    hashfunc.update(pickle.dumps(thejson))
-    return hashfunc.hexdigest()
-
-
-# hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
-def add_hash(thejson, d: dict):
-    d["modelID"] = hash_json(thejson)
-
-
-def filter_infinity(list1: list, list2: list):
-    return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
 
 
 # done
@@ -224,7 +224,7 @@ def ant_pos(thejson):
     sensitivity = get_sensitivity(thejson)
 
 
-# baselines_dist= [[[   0.    0.    0.]
+# baselines_distributions= [[[   0.    0.    0.]
 #   [  14.    0.    0.]
 #   [  28.    0.    0.]
 #   ...
@@ -237,7 +237,7 @@ def ant_pos(thejson):
 #   [  14.    0.    0.]
 #   ...
 
-# baselines_dist[:,:,0]= [[   0.   14.   28. ...  112.  126.  126.]
+# baselines_distributions[:,:,0]= [[   0.   14.   28. ...  112.  126.  126.]
 # [ -14.    0.   14. ...   98.  112.  112.]
 # [ -28.  -14.    0. ...   84.   98.   98.]
 # ...
@@ -245,13 +245,33 @@ def ant_pos(thejson):
 # [-126. -112.  -98. ...  -14.    0.    0.]
 # [-126. -112.  -98. ...  -14.    0.    0.]] m
 
-def baselines_dist(thejson):
+def baselines_distributions(thejson):
     sensitivity = get_sensitivity(thejson)
     observatory = sensitivity.observation.observatory
-    a = observatory.baselines_metres
+    baselines = observatory.baselines_metres
 
-    print("baselines_dist=", a[:, :, 0])
-    d = {"data": "none"}
+    # print("baselines_distributions=", baselines[:, :, 0])
+    # l = baselines[:, :, 0]
+    # print("type l=", type(l))
+    # print(l)
+    # print("l dim=",l.ndim)
+    # for q in l:
+    #     for qq in q:
+    #         print("type=",type(qq))
+    # print("value=",l.value)
+    # print("value.tolist()=",l.value.tolist())
+    # print("l.tolist()=", l.tolist())
+    # print("list(l)=",list(l))
+    # return jsonify({"none": "none"})
+
+    labels = {"xlabel": "Baseline Length [x, m]", "ylabel": r"Baselines Length [y, m]", "alpha": 0.1}
+    d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
+         "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
+    d.update(labels)
+    add_hash(thejson, d)
+
+    print("d=", d)
+
     return jsonify(d)
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
@@ -263,25 +283,12 @@ def baselines_dist(thejson):
     # plt.tight_layout();
 
 
-# def baselines_dist(thejson):
+# def baselines_distributions(thejson):
 #     sensitivity = get_sensitivity(thejson)
 #     coherent_grid = observatory.grid_baselines_coherent(
 #         baselines=baseline_group_coords,
 #         weights=baseline_group_counts
 #     )
-
-# baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
-# baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
-#
-# plt.figure(figsize=(7, 5))
-# plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
-# cbar = plt.colorbar();
-# cbar.set_label("Number of baselines in group", fontsize=15)
-# plt.tight_layout();
-
-
-def calcs():
-    pass
 
 
 def k_vs_redshift():
@@ -300,8 +307,8 @@ class CalculationFactory(FactoryManager):
             '1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
             '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
             '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
-            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add(
-            'k-vs-redshift-plot', one_d_cut).add('baselines_dist', baselines_dist)
+            'calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut).add('baselines-distributions',
+                                                                                baselines_distributions)
 
         """
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json

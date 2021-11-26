@@ -85,3 +85,14 @@ def test_get_nonexistent_schema_group_case_sensitive_fs(client):
     # there is no such group as "Beam" (it is "beam")
     page = client.get(APIPATH + "/schema/Beam/get/GaussianBeam")
     assert page.status_code == 404
+
+
+def test_calculation(client):
+    assert True
+
+# e.g. "calculation": "baselines-dist"  (should be "baselines-distributions)
+#    {
+#         "error": "unknown calculation"
+#     }
+def test_unknown_calculation(client):
+    assert True
