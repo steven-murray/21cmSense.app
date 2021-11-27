@@ -14,6 +14,7 @@ from flask import jsonify
 
 from .json_util import json_error
 # from app.api.errors import error
+from app.schema import *
 
 import json
 import jsonschema
@@ -114,9 +115,16 @@ def cached_sensitivity(json_pickle):
 def calculate(thejson):
     print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
     calculator = CalculationFactory().get(thejson['calculation'])
+
     if calculator is None:
-        return jsonify({"error": "unknown calculation"})
-    return calculator(thejson)
+        return jsonify({"error": "unknown calculation", "calculation": thejson['calculation']})
+
+    results = calculator(thejson)
+
+    add_hash(thejson, results)
+    add_calculation_type(thejson, results)
+
+    return jsonify(results)
 
 
 def hash_json(thejson):
@@ -128,6 +136,10 @@ def hash_json(thejson):
 # hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
 def add_hash(thejson, d: dict):
     d["modelID"] = hash_json(thejson)
+
+
+def add_calculation_type(thejson, d: dict):
+    d["calculation"] = thejson['calculation']
 
 
 def filter_infinity(list1: list, list2: list):
@@ -158,8 +170,9 @@ def one_d_cut(thejson):
     # print("value=", power_std.value)
     # print("unit=", power_std.unit)
 
-    add_hash(thejson, d)
-    return jsonify(d)
+    # add_hash(thejson, d)
+    # return jsonify(d)
+    return d
     # return jsonify({"a": "b"})
 
 
@@ -177,8 +190,9 @@ def one_d_thermal_var(thejson):
     d = {"x": xseries, "y": yseries,
          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
     d.update(labels)
-    add_hash(thejson, d)
-    return jsonify(d)
+    # add_hash(thejson, d)
+    # return jsonify(d)
+    return d
 
 
 # done
@@ -268,11 +282,12 @@ def baselines_distributions(thejson):
     d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
          "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
     d.update(labels)
-    add_hash(thejson, d)
+    # add_hash(thejson, d)
+    #
+    # print("d=", d)
 
-    print("d=", d)
-
-    return jsonify(d)
+    # return jsonify(d)
+    return d
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
     #
@@ -299,12 +314,24 @@ def handle_output(calculation):
     return jsonify({"key": "value"})
 
 
+# note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
+# schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 class CalculationFactory(FactoryManager):
     def __init__(self):
         super().__init__()
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
-        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_cut).add(
-            '1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
+
+        #
+        calculation_schemas = get_schema_names('calculation')
+        for c in calculation_schemas:
+            print("Got schema=", c)
+
+        # now check the directory
+        # for f in getattr(globals()):
+        #     print(f)
+
+        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
+            '1D-sample-variance-cut-of-2D-sensitivity', one_d_sample_var).add(
             '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
             '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
             'calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut).add('baselines-distributions',
@@ -328,11 +355,9 @@ class BeamFactory(FactoryManager):
 
 
 class AntennaFactory(FactoryManager):
-    antennas = None
-
     def __init__(self):
         super().__init__()
-        AntennaFactory.antennas = self.add('hera', HeraAntennaDispatcher)
+        self.add('hera', HeraAntennaDispatcher)
 
 
 class Factory:
@@ -376,149 +401,6 @@ class Factory:
         )
 
         return sensitivity
-
-
-def get_schema_names(schemagroup):
-    try:
-        dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
-    except FileNotFoundError:
-        return None
-    schemas = [dir.replace('.json', '') for dir in dirs]
-    return schemas
-
-
-def get_schema_descriptions_json(schemagroup):
-    d = {}
-    schema_names = get_schema_names(schemagroup)
-    if schema_names is None:
-        return json_error("error", "schema " + schemagroup + " not found.")
-
-    for schema_name in get_schema_names(schemagroup):
-        try:
-            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
-            sch = json.load(f)
-            f.close()
-            d[schema_name] = sch['description']
-
-        # issue with json.load()
-        except JSONDecodeError:
-            pass
-
-        # issue with f.open()
-        except OSError:
-            pass
-
-        # issue with finding 'description' key in json
-        except KeyError:
-            pass
-    return jsonify(d)
-
-
-def get_schema_groups():
-    dirs = os.listdir(current_app.root_path + '/static/schema')
-    # print("schema groups")
-    # for dd in d:
-    #     print(dd)
-    return dirs
-
-
-def get_schema_groups_json():
-    d = get_schema_groups()
-    j = {}
-    j['required'] = list(d)
-    return jsonify(j)
-
-
-def load_schema(schemagroup: str, schemaname: str):
-    l = load_schema_generic('schema', schemagroup, schemaname)
-    print("loaded schema=", l)
-    return l
-
-
-def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
-    try:
-        p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
-        print("going to load schema from path: ", p)
-        f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
-        schema = json.load(f)
-        f.close()
-    except (JSONDecodeError, IOError) as e:
-        print("error=", e)
-        return None
-    else:
-        return schema
-
-
-# load a validation schema.  It must either have the same name as the schema that is to be validated, or
-# be "default"
-def load_validation_schema(schemagroup: str, schemaname: str):
-    schema = load_schema_generic('validation-schema', schemagroup, schemaname)
-    if not schema:
-        schema = load_schema_generic('validation-schema', schemagroup, "default")
-        if not schema:
-            debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
-            return None
-    print("DEBUG: returning validation schema:", schema)
-    return schema
-
-
-def build_schema_for_validation(component, data_json, units_json):
-    return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
-    # return d
-
-
-# pass a dict such as:
-# { group: schema, [...] }
-# ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
-# schema should already be a json object
-def build_composite_schema(schema: JSONDecoder):
-    # get calculation type
-    if 'calculation' not in schema:
-        return json_error("error", "specified schema missing 'calculation' key")
-
-    calculation_type = schema['calculation']
-    print("Going to load schema for calculation ", calculation_type)
-
-    calc_schema = load_schema('calculation', calculation_type)
-    if not calc_schema:
-        return json_error("error", "Cannot find requested calculation schema " + calculation_type)
-
-    newschema = {"calculation": calculation_type, "data": {}, "units": {}}
-    # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
-    #     return json_error("error", "Schema failed validation")
-    for component in calc_schema['required']:
-        if component not in schema:
-            return json_error("error", "Missing required data component " + component)
-        else:
-            comp_schema_name = schema[component]
-        # if component not in schema['data']:
-        #     return json_error("error", "Missing required data component " + component)
-        # if 'schema' not in schema['data'][component]:
-        #     return json_error("error", "Missing schema identifier in data component " + component)
-        # else:
-        #     comp_schema_name = schema['data'][component]['schema']
-
-        # cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
-
-        #
-        #
-        # Validation, save for later
-        # cs = build_schema_for_validation(component, schema['data'], schema['units'])
-        # print("Going to validate schema: ", cs)
-        # validation_schema = load_validation_schema(component, comp_schema_name)
-        # if not validation_schema:
-        #     return json_error("error",
-        #                       "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
-        # try:
-        #     jsonschema.validate(cs, validation_schema)
-        # except ValidationError:
-        #     return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
-        print("Going to load component schema %s/%s" % (component, comp_schema_name))
-        newschema['data'][component] = load_schema(component, comp_schema_name)
-        newschema['units'][component] = {}
-
-    return jsonify(newschema)
-    # d[schema_name] = sch['description']
 
 
 class Validator:
