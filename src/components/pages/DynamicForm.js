@@ -68,7 +68,7 @@ class DynamicForm extends React.Component {
 
   onGroupsChange(e) {
     var forms = e.target.value;
-          fetch("http://localhost:8080/api-1.0/schema")
+          fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
             .then((res) => res.json())
             .then((json) => {
                 this.setState({
@@ -85,7 +85,12 @@ class DynamicForm extends React.Component {
                                         "description": "Hera-class antenna array",
                                         "group": "antenna",
                                         "data": {
-                                            "antenna": {
+                                            "required": [
+                                                    "hex_num",
+                                                    "separation",
+                                                    "dl"
+                                                ],
+                                            "properties": {
                                                 "hex_num": {
                                                     "type": "integer",
                                                     "minimum": 3,
@@ -97,19 +102,18 @@ class DynamicForm extends React.Component {
                                                     "help": "The distance between antennas along a side"
                                                 },
                                                 "dl": {
-                                                    "type": "float",
+                                                    "type": "string",
                                                     "minimum": 0,
                                                     "help": "The distance between rows of antennas"
-                                                },
-                                                "required": [
-                                                    "hex_num",
-                                                    "separation",
-                                                    "dl"
-                                                ]
+                                                }
                                             }
                                         },
                                         "units": {
-                                            "antenna": {
+                                          "required": [
+                                                    "separation",
+                                                    "dl"
+                                                ],
+                                            "properties": {
                                                 "separation": {
                                                     "type": "string",
                                                     "default": "m",
@@ -125,11 +129,8 @@ class DynamicForm extends React.Component {
                                                         "m",
                                                         "s"
                                                     ]
-                                                },
-                                                "required": [
-                                                    "separation",
-                                                    "dl"
-                                                ]
+                                                }
+                                                
                                             }
                                         }
                                     }} = this.state;
@@ -160,10 +161,15 @@ class DynamicForm extends React.Component {
         <br></br>
         <br></br>
         <h6> 21cmSense Form</h6>
+        <h4> DATA </h4>
+         <Form schema={schema.units}
+                 schema = {schema.data}
+          />
+         
         
+         
         </form>
-        <Form schema={schema.data}
-      />
+       
        </div>
     </FormContext.Provider>
     );
