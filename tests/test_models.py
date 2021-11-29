@@ -125,7 +125,7 @@ def test_hash_variance():
     assert True
 
 
-# "antenna" group is misisng "schema" keyword
+# "antenna" group is missing "schema" keyword
 def test_missing_value():
     input_json = """{
       "calculation": "1D-cut-of-2D-sensitivity",
@@ -164,7 +164,7 @@ def test_missing_value():
     assert True
 
 # "antenna" group is missing "hex_num" keyword
-def test_missing_value():
+def test_missing_value_2():
     input_json = """{
       "calculation": "1D-cut-of-2D-sensitivity",
       "data":{
