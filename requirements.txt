@@ -1,18 +1,18 @@
 ### Requirements
 # unstated reqs for 21cmSense
-pyuvdata
+pyuvdata==2.2.4
 
 # 21cmSense reqs
-numpy
-scipy
-pyyaml
-astropy
-matplotlib
+numpy==1.21.4
+scipy==1.7.2
+PyYAML==6.0
+astropy==4.3.1
+matplotlib==3.4.3
 
 # project reqs
-jsonschema
-pytest
-Flask
-redis
+jsonschema==4.2.1
+pytest==6.2.5
+Flask==2.0.2
+redis==3.5.3
 cryptography==3.4.7
-
+Flask-Cors==3.0.10

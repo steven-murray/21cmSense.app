@@ -74,6 +74,7 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
+
 # serialize the json to a hashable form for LRU caching
 def get_sensitivity(thejson):
     return cached_sensitivity(pickle.dumps(thejson))
@@ -87,6 +88,7 @@ def get_sensitivity(thejson):
 @functools.lru_cache
 def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
+
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
@@ -119,7 +121,9 @@ def calculate(thejson):
 
 def one_d_cut(thejson):
     print("in one_d_cut")
+
     sensitivity = get_sensitivity(thejson)
+
     power_std = sensitivity.calculate_sensitivity_1d()
     d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(), "xlabel": "k [h/Mpc]",
          "ylabel": r"$\delta \Delta^2_{21}$",
@@ -170,6 +174,10 @@ def two_d_sens(thejson):
     # plt.tight_layout();
 
 
+def two_d_sens_z(thejson):
+    sensitivity = getSensitivity(thejson)
+
+
 def two_d_sens_k(thejson):
     sensitivity = get_sensitivity(thejson)
     sense2d = sensitivity.calculate_sensitivity_2d()
@@ -185,6 +193,8 @@ def two_d_sens_z(thejson):
 def ant_pos(thejson):
     sensitivity = get_sensitivity(thejson)
 
+def baselines_dist(thejson):
+    sensitivity = getSensitivity(thejson)
 
 
 def one_d_noise_cut():
@@ -260,8 +270,10 @@ class BeamFactory(FactoryManager):
         self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
 
 
+
 class AntennaFactory(FactoryManager):
     antennas = None
+
 
     def __init__(self):
         super().__init__()

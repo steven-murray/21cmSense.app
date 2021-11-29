@@ -14,6 +14,9 @@ from .models import *
 from . import errors
 from .json_util import json_error
 
+import flask_cors
+
+
 
 @api.route('/')
 def welcome():  # put application's code here
