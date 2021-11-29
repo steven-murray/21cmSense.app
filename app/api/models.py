@@ -1,4 +1,3 @@
-
 import functools
 import pickle
 from json import JSONDecodeError, JSONDecoder
@@ -147,7 +146,6 @@ def one_d_cut(thejson):
 
 
 def one_d_noise_cut(thejson):
-
     sensitivity = get_sensitivity(thejson)
 
 
@@ -221,7 +219,6 @@ def baselines_dist(thejson):
         baselines=baseline_group_coords,
         weights=baseline_group_counts
     )
-
 
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)

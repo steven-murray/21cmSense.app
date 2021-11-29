@@ -4,11 +4,9 @@
 
 [![Netlify Workflow](label=Netlify)](https://app.netlify.com/sites/21cmsense/deploys)
 
-
 [![execute remote ssh to pull updates from master](https://github.com/bpape1usa/SER401-Project43/actions/workflows/backend-deploy.yml/badge.svg)](https://github.com/bpape1usa/SER401-Project43/actions/workflows/backend-deploy.yml)
 
 [![.github/workflows/github-actions.yml](https://github.com/bpape1usa/SER401-Project43/actions/workflows/github-actions.yml/badge.svg)](https://github.com/bpape1usa/SER401-Project43/actions/workflows/github-actions.yml)
-
 
 **Summary**
 	Project 43 is a web application targeted to the scientific and educational communities of radio astronomers and radio astronomer educators.  
