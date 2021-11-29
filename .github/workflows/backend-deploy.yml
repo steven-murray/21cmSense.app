@@ -32,4 +32,3 @@ jobs:
             git pull origin master
             git status 
             ls 
-            # docker-compose up --build --remove-orphans -d
