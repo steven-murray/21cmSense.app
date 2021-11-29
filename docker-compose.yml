@@ -1,0 +1,19 @@
+version: '3.5'
+
+services:
+  galileo-server:
+    build: .
+    ports: 
+      - ${FLASK_RUN_PORT}:${FLASK_RUN_PORT}
+    links:
+      - redis
+    container_name: galileo-server
+    environment: 
+      - FLASK_RUN_PORT=${FLASK_RUN_PORT}
+      - FLASK_RUN_HOST=${FLASK_RUN_HOST}
+
+  redis:
+    image: "redis"
+    container_name: 21cmSense-redis-cache
+    expose: 
+      - 6379

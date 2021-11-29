@@ -159,4 +159,11 @@ yarn-error.log*
 
 yarn.lock
 .project
+
 .vscode
+
+redis*
+
+
+package.json
+package-lock.json
