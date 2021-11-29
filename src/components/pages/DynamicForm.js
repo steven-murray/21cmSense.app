@@ -154,7 +154,6 @@ class DynamicForm extends React.Component {
         <br></br>
         <br></br>
         <h6> 21cmSense Form</h6>
-        <h4> DATA </h4>
          <Form schema={schema[0].jsonSchema}/>
          
         </form>
