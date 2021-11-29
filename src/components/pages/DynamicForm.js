@@ -1,6 +1,7 @@
 import '../../App.css';
 import React,{ useState, useEffect, useMemo } from 'react';
 import { FormContext } from '../../FormContext';
+
 import ReactDOM from 'react-dom';
 import Form from "react-jsonschema-form";
 import  { Component } from "react";
@@ -130,17 +131,19 @@ class DynamicForm extends React.Component {
 
     return (
      <FormContext.Provider>
+
       <div className="App container">
         <h3>"21cmsense Dynamic Form"</h3>
           
         <form >
           <br></br>
+
           <h6> SCHEMA LIST</h6>              
         <DropDown
           options={schemas}
           onChange={this.onSchemasChange}
          
-          
+
 
         />
         <br></br>
@@ -160,7 +163,9 @@ class DynamicForm extends React.Component {
        
        </div>
     </FormContext.Provider>
+
     );
   }
 }
 export default DynamicForm;
+
