@@ -48,7 +48,7 @@ class DynamicForm extends React.Component {
                                                     "help": "The distance between antennas along a side"
                                                 },
                                                 "dl": {
-                                                    "type": "float",
+                                                    "type": "number",
                                                     "minimum": 0,
                                                     "help": "The distance between rows of antennas"
                                                 },
@@ -60,7 +60,7 @@ class DynamicForm extends React.Component {
                                                           "s"
                                                       ]
                                                   },
-                                                  "dl_unit": {
+                                                  "dl_Unit": {
                                                       "type": "string",
                                                       "default": "m",
                                                       "enum": [
