@@ -25,9 +25,7 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       calc:[],
-      schemas: [],
-      groups: [],
-      schema: [{
+      antenna:[{
                                         "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
                                         "schema": "hera",
                                         "description": "Hera-class antenna array",
@@ -73,7 +71,12 @@ class DynamicForm extends React.Component {
                                                   
                                               }
                                           }
-                                     }]
+                                     }],
+      beam:[],
+      location:[],
+      schemas: [],
+      groups: [],
+      schema:[]
     }
     
 
@@ -136,7 +139,7 @@ class DynamicForm extends React.Component {
 
  
   render() {
-    const { calc,schemas, groups, schema } = this.state;                                        
+    const { calc,antenna,schemas, groups, schema } = this.state;                                        
 
     return (
     <FormContext.Provider>
@@ -154,7 +157,7 @@ class DynamicForm extends React.Component {
                   <br></br><br></br><br></br>
                   <br></br><br></br><br></br>
                   <br></br><br></br>
-                  <h4> PLOT </h4>          
+                  <button><h5> PLOT </h5> </button>         
                   
             </form>
           </div>
@@ -181,7 +184,33 @@ class DynamicForm extends React.Component {
                     
                   </div>
                   <div class="row">
-                    <Form schema={schema[0].jsonSchema}/>
+                    <Form schema={antenna[0].jsonSchema}/>
+                                       
+                  </div>
+                  <div class="row">
+                    <div>
+                      <label> <h6>Beam Information</h6></label>
+                    </div>
+                    <div>
+                      <DropDown options={groups}/>
+                    </div>
+                    
+                  </div>
+                  <div class="row">
+                    <Form schema={antenna[0].jsonSchema}/>
+                                       
+                  </div>
+                   <div class="row">
+                    <div>
+                      <label> <h6>Location Information</h6></label>
+                    </div>
+                    <div>
+                      <DropDown options={groups}/>
+                    </div>
+                    
+                  </div>
+                  <div class="row">
+                    <Form schema={antenna[0].jsonSchema}/>
                                        
                   </div>
               </form>
