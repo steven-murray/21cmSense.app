@@ -5,9 +5,6 @@ from json import JSONDecodeError, JSONDecoder
 import pprint
 # import jsonpickle
 
-
-import os
-
 import numpy
 from flask import current_app
 from flask import jsonify
@@ -149,7 +146,7 @@ def filter_infinity(list1: list, list2: list):
 # done
 # with debugging output
 def one_d_cut(thejson):
-    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
@@ -182,7 +179,7 @@ def one_d_noise_cut(thejson):
 
 # done
 def one_d_thermal_var(thejson):
-    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes thermal-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
@@ -197,14 +194,14 @@ def one_d_thermal_var(thejson):
 
 # done
 def one_d_sample_var(thejson):
-    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title":"1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes sample-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
     d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_sample.unit.to_string()}
     d.update(labels)
-    return jsonify(d)
+    return d
 
 
 def two_d_sens(thejson):
@@ -212,9 +209,15 @@ def two_d_sens(thejson):
     observation = sensitivity.observation
 
     # plt.figure(figsize=(7, 5))
-    # x = [bl_group[0] for bl_group in observation.baseline_groups]
-    # y = [bl_group[1] for bl_group in observation.baseline_groups]
-    # c = [len(bls) for bls in observation.baseline_groups.values()]
+    labels = {"title": "Number of baselines in group", "plottype": "scatter", "xlabel": "", "ylabel": "", "xscale": "log", "yscale": "log"}
+    x = [bl_group[0] for bl_group in observation.baseline_groups]
+    y = [bl_group[1] for bl_group in observation.baseline_groups]
+    c = [len(bls) for bls in observation.baseline_groups.values()]
+
+    d={"x":x, "y":y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
+    d.update(labels)
+    return d
+
     #
     # plt.scatter(x, y, c=c)
     # cbar = plt.colorbar();
@@ -223,7 +226,15 @@ def two_d_sens(thejson):
 
 
 def two_d_sens_z(thejson):
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in two-d sensitivity -z")
     sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
+    return d
 
 
 def two_d_sens_k(thejson):
@@ -235,7 +246,15 @@ def two_d_sens_k(thejson):
 
 
 def ant_pos(thejson):
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in antenna position")
     sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
+    return d
 
 
 # baselines_distributions= [[[   0.    0.    0.]
@@ -307,7 +326,14 @@ def baselines_distributions(thejson):
 
 
 def k_vs_redshift():
-    pass
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_cut: includes thermal noise and sample variance")
+    sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
 
 
 def handle_output(calculation):

@@ -45,6 +45,7 @@ def test_one_d_cut():
   }
 }"""
     return_json=one_d_cut(input_json)
+    print(return_json)
     assert True
 
 def test_repeatable_hash():
