@@ -24,6 +24,7 @@ class DynamicForm extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      calc:[],
       schemas: [],
       groups: [],
       schema: [{
@@ -83,6 +84,14 @@ class DynamicForm extends React.Component {
 
   componentDidMount(){
 
+             fetch("http://localhost:8080/api-1.0/schema/calculation")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    calc: json
+                });
+            })
+
             fetch("http://localhost:8080/api-1.0/schema")
             .then((res) => res.json())
             .then((json) => {
@@ -127,45 +136,62 @@ class DynamicForm extends React.Component {
 
  
   render() {
-    const { schemas, groups, schema } = this.state;                                        
+    const { calc,schemas, groups, schema } = this.state;                                        
 
     return (
-     <FormContext.Provider>
-
-      <div className="App container">
-        <h3>"21cmsense Dynamic Form"</h3>
-          
-        <form >
-          <br></br>
-
-          <h6> SCHEMA LIST</h6>              
-        <DropDown
-          options={schemas}
-          onChange={this.onSchemasChange}
-         
-
-
-        />
-        <br></br>
-        <br></br>
-        <h6> GROUP LIST</h6>
-        <DropDown
-          options={groups }
-          onChange={this.onGroupsChange}
-        />
-
-        <br></br>
-        <br></br>
-        <h6> 21cmSense Form</h6>
-         <Form schema={schema[0].jsonSchema}/>
-         
-        </form>
+    <FormContext.Provider>
+        
+      <div className="container">
+         <div class="row">
+          <div>
+            <form >
+                  <br></br>
+                  <h6>MODELS</h6>  
+                  <br></br><br></br><br></br>
+                  <br></br><br></br><br></br>
+                  <br></br><br></br><br></br>
+                  <br></br><br></br><br></br>
+                  <br></br><br></br><br></br>
+                  <br></br><br></br><br></br>
+                  <br></br><br></br>
+                  <h4> PLOT </h4>          
+                  
+            </form>
+          </div>
+          <div>
+              <form >
+                  <br></br>
+                  <div class="row">
+                    <div>
+                      <DropDown options={calc}/>
+                    </div>
+                    <div>
+                      <label> <h6>CALCULATE</h6></label>
+                    </div>
+                  </div>
+                  <br></br>
+                  <br></br>
+                  <div class="row">
+                    <div>
+                      <label> <h6>Antenna Information</h6></label>
+                    </div>
+                    <div>
+                      <DropDown options={groups}/>
+                    </div>
+                    
+                  </div>
+                  <div class="row">
+                    <Form schema={schema[0].jsonSchema}/>
+                                       
+                  </div>
+              </form>
+          </div>
+        </div>        
        
-       </div>
+      </div>
     </FormContext.Provider>
 
     );
   }
 }
 export default DynamicForm;
-
