@@ -18,11 +18,16 @@ from flask import jsonify
 import json
 import jsonschema
 from jsonschema import ValidationError
+
+from app.api.json_util import json_error
+from app.api.util import DebugPrint
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 # from .util import DebugPrint
 # from ..utils.utils import get_unit_string
 
-from hashlib import md5
+
+debug = DebugPrint(9).debug_print
+
 
 def get_schema_names(schemagroup):
     try:
