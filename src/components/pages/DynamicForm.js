@@ -25,58 +25,13 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       calc:[],
-      antenna:[{
-                                        "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
-                                        "schema": "hera",
-                                        "description": "Hera-class antenna array",
-                                        "group": "antenna",
-                                        "jsonSchema": {
-                                            "required": [
-                                                    "hex_num",
-                                                    "separation",
-                                                    "dl"
-                                                ],
-                                            "properties": {
-                                                "hex_num": {
-                                                    "type": "integer",
-                                                    "minimum": 3,
-                                                    "help": "Number of antennas per side of hexagonal array"
-                                                },
-                                                "separation": {
-                                                    "type": "number",
-                                                    "minimum": 0,
-                                                    "help": "The distance between antennas along a side"
-                                                },
-                                                "dl": {
-                                                    "type": "number",
-                                                    "minimum": 0,
-                                                    "help": "The distance between rows of antennas"
-                                                },
-                                                "separation_Unit": {
-                                                      "type": "string",
-                                                      "default": "m",
-                                                      "enum": [
-                                                          "m",
-                                                          "s"
-                                                      ]
-                                                  },
-                                                  "dl_Unit": {
-                                                      "type": "string",
-                                                      "default": "m",
-                                                      "enum": [
-                                                          "m",
-                                                          "s"
-                                                      ]
-                                                  }
-                                                  
-                                              }
-                                          }
-                                     }],
+      antenna:[],
       beam:[],
       location:[],
       schemas: [],
       groups: [],
-      schema:[]
+      schema:[],
+      requires:[]
     }
     
 
@@ -103,11 +58,11 @@ class DynamicForm extends React.Component {
                 });
             })
 
-            fetch("http://localhost:8080/api-1.0/schema/antenna")
+            fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              groups: json
+                              antenna: json
                           });
                       })
     }
@@ -139,7 +94,50 @@ class DynamicForm extends React.Component {
 
  
   render() {
-    const { calc,antenna,schemas, groups, schema } = this.state;                                        
+    const { hexObj,calc,antenna,schemas, groups, schema,requires } = this.state;              
+    const myObj = {"__comment__": "this is an extension of the JSON schema document and includes default specifier","schema": "hera","description": "Hera-class antenna array","group": "antenna","data":{"antenna":{"hex_num": {"type": "integer", "minimum": 3, "help": "Number of antennas per side of hexagonal array" },  "separation": { "type": "number", "minimum": 0, "help": "The distance between antennas along a side"}, "dl": { "type": "number", "minimum": 0,"help": "The distance between rows of antennas"}},"required": ["hex_num","separation","dl"]}};
+         
+                               
+      let text  ;
+      let la = "DL";
+      for (const x in myObj) {
+       // text += x +",";
+        if(x == "data"){
+              for(const y in myObj[x]){
+                if(y == "antenna"){
+                 // text += myObj[x][y]+",";
+                  for(const z in myObj[x][y]){
+                    text +=z +",";
+                    
+                  }
+                 // text += "</select>";
+               //   document.getElementById("text").innerHTML = text
+                }
+              }
+        }
+        //for(const y in myObj[x]){
+      
+     /*     if (y == "required"){
+                 text =myObj[x][y];
+            
+            
+          }*/
+        /*  for(const z in myObj[x][y]){
+            //text += z + ",";
+            if(z == schemas[0]){
+              text += "found it";
+            }else{
+              text+=z + ",";
+            }
+           // for(const t in myObj[x][y][z]){
+           //       text += t + ",";
+           // }
+            
+          }
+      // text += myObj[x][y]+ "., ";*/
+     //   }
+      
+      }
 
     return (
     <FormContext.Provider>
@@ -150,11 +148,6 @@ class DynamicForm extends React.Component {
             <form >
                   <br></br>
                   <h6>MODELS</h6>  
-                  <br></br><br></br><br></br>
-                  <br></br><br></br><br></br>
-                  <br></br><br></br><br></br>
-                  <br></br><br></br><br></br>
-                  <br></br><br></br><br></br>
                   <br></br><br></br><br></br>
                   <br></br><br></br>
                   <button><h5> PLOT </h5> </button>         
@@ -180,11 +173,19 @@ class DynamicForm extends React.Component {
                     </div>
                     <div>
                       <DropDown options={groups}/>
-                    </div>
-                    
+                    </div>                    
                   </div>
                   <div class="row">
-                    <Form schema={antenna[0].jsonSchema}/>
+                    <div>
+                      {text.antenna}
+                    </div>                    
+                  </div>
+                 <div class="row">
+                   <div></div>
+                   <div>
+                   {}
+                   </div> 
+                   <div></div>
                                        
                   </div>
                   <div class="row">
@@ -196,10 +197,7 @@ class DynamicForm extends React.Component {
                     </div>
                     
                   </div>
-                  <div class="row">
-                    <Form schema={antenna[0].jsonSchema}/>
-                                       
-                  </div>
+                  
                    <div class="row">
                     <div>
                       <label> <h6>Location Information</h6></label>
@@ -209,10 +207,7 @@ class DynamicForm extends React.Component {
                     </div>
                     
                   </div>
-                  <div class="row">
-                    <Form schema={antenna[0].jsonSchema}/>
-                                       
-                  </div>
+                  
               </form>
           </div>
         </div>        
