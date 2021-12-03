@@ -53,7 +53,7 @@ def test_one_d_cut():
 
 
 def test_repeatable_hash():
-    input_json_str = """{
+    input_json_str1 = """{
       "calculation": "1D-cut-of-2D-sensitivity",
       "data":{
         "antenna":{
@@ -87,19 +87,90 @@ def test_repeatable_hash():
         }
       }
     }"""
-    # return_json = one_d_cut(input_json)
-    input_json = json.loads(input_json_str)
-    return_json = calculate(input_json)
-    print(return_json)
-    assert return_json['x'][0] == 0.16499818112915432
-    assert return_json['y'][0] == 12.912515880728177
-    for k in ('xunit', 'yunit', 'title', 'plottype', 'xlabel', 'ylabel', 'xscale', 'yscale'):
-        assert k in return_json
+    input_json_str2 = """{
+      "calculation": "1D-cut-of-2D-sensitivity",
+      "data":{
+        "antenna":{
+          "schema": "hera",
+          "hex_num": 7,
+          "separation": 14,
+          "dl": 12.02
+        },
+        "beam":{
+          "schema":"GaussianBeam",
+          "frequency": 100,
+          "dish_size": 14
+        },
+        "location":{
+          "schema": "latitude",
+          "latitude": 1.382
+        }
+      },
+      "units":{
+        "antenna":{
+          "hex_num": "m",
+          "separation": "m",
+          "dl": "m"
+        },
+        "beam":{
+          "frequency": "MHz",
+          "dish_size": "m"
+        },
+        "location":{
+          "latitude": "deg"
+        }
+      }
+    }"""
+
+    input_json1 = json.loads(input_json_str1)
+    input_json2 = json.loads(input_json_str2)
+
+    testapp = app.create_app('default')
+
+    with testapp.test_request_context('/21cm/schema'):
+
+        return_json1 = calculate(input_json1)
+        return_json2 = calculate(input_json2)
+        assert return_json1 == return_json2
 
 
 # change dl from 12.02 to 12.03
 def test_hash_variance():
-    input_json_str = """{
+    input_json_str1 = """{
+      "calculation": "1D-cut-of-2D-sensitivity",
+      "data":{
+        "antenna":{
+          "schema": "hera",
+          "hex_num": 7,
+          "separation": 14,
+          "dl": 12.02
+        },
+        "beam":{
+          "schema":"GaussianBeam",
+          "frequency": 100,
+          "dish_size": 14
+        },
+        "location":{
+          "schema": "latitude",
+          "latitude": 1.382
+        }
+      },
+      "units":{
+        "antenna":{
+          "hex_num": "m",
+          "separation": "m",
+          "dl": "m"
+        },
+        "beam":{
+          "frequency": "MHz",
+          "dish_size": "m"
+        },
+        "location":{
+          "latitude": "deg"
+        }
+      }
+    }"""
+    input_json_str2 = """{
       "calculation": "1D-cut-of-2D-sensitivity",
       "data":{
         "antenna":{
@@ -133,9 +204,17 @@ def test_hash_variance():
         }
       }
     }"""
-    input_json = json.loads(input_json_str)
-    # return_json = one_d_cut(input_json)
-    assert True
+
+    input_json1 = json.loads(input_json_str1)
+    input_json2 = json.loads(input_json_str2)
+
+    testapp = app.create_app('default')
+
+    with testapp.test_request_context('/21cm/schema'):
+
+        return_json1=calculate(input_json1)
+        return_json2=calculate(input_json2)
+        assert not return_json1 == return_json2
 
 
 # "antenna" group is missing "schema" keyword
