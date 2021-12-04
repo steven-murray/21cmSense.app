@@ -6,8 +6,7 @@ on:
       - dev
       - github_actions_new_workflow
   pull_request_target:
-    branches: 
-      - master
+    branches:
       - dev
       - github_actions_new_workflow
 
