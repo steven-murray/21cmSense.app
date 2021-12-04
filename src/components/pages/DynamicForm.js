@@ -98,7 +98,7 @@ class DynamicForm extends React.Component {
     const myObj = {"__comment__": "this is an extension of the JSON schema document and includes default specifier","schema": "hera","description": "Hera-class antenna array","group": "antenna","data":{"antenna":{"hex_num": {"type": "integer", "minimum": 3, "help": "Number of antennas per side of hexagonal array" },  "separation": { "type": "number", "minimum": 0, "help": "The distance between antennas along a side"}, "dl": { "type": "number", "minimum": 0,"help": "The distance between rows of antennas"}},"required": ["hex_num","separation","dl"]}};
          
                                
-      let text  ;
+      let text ="" ;
       let la = "DL";
       for (const x in myObj) {
        // text += x +",";
@@ -177,7 +177,9 @@ class DynamicForm extends React.Component {
                   </div>
                   <div class="row">
                     <div>
-                      {text.antenna}
+                      <label>Testing </label>
+                      <input id="Hex_Num" name="Hex_Num" type="number" value="0"/>
+                      
                     </div>                    
                   </div>
                  <div class="row">
