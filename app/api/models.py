@@ -5,19 +5,22 @@ from json import JSONDecodeError, JSONDecoder
 import pprint
 # import jsonpickle
 
-
-import os
+import numpy
 from flask import current_app
 from flask import jsonify
 
 from .json_util import json_error
 # from app.api.errors import error
+from app.schema import *
 
 import json
 import jsonschema
 from jsonschema import ValidationError
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
+from ..utils.utils import get_unit_string
+
+from hashlib import md5
 
 debug = DebugPrint(9).debug_print
 
@@ -74,21 +77,14 @@ class CalculationDispatcher(Dispatcher):
     pass
 
 
-
 # serialize the json to a hashable form for LRU caching
 def get_sensitivity(thejson):
     return cached_sensitivity(pickle.dumps(thejson))
 
 
-    # create an antenna object and calculate antenna parameters based on submitted data
-    antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-    beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-
 @functools.lru_cache
 def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
-
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
@@ -116,32 +112,64 @@ def cached_sensitivity(json_pickle):
 def calculate(thejson):
     print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
     calculator = CalculationFactory().get(thejson['calculation'])
-    return calculator(thejson)
+
+    if calculator is None:
+        return jsonify({"error": "unknown calculation", "calculation": thejson['calculation']})
+
+    results = calculator(thejson)
+
+    add_hash(thejson, results)
+    add_calculation_type(thejson, results)
+
+    return jsonify(results)
 
 
+def hash_json(thejson):
+    hashfunc = md5()
+    hashfunc.update(pickle.dumps(thejson))
+    return hashfunc.hexdigest()
+
+
+# hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
+def add_hash(thejson, d: dict):
+    d["modelID"] = hash_json(thejson)
+
+
+def add_calculation_type(thejson, d: dict):
+    d["calculation"] = thejson['calculation']
+
+
+def filter_infinity(list1: list, list2: list):
+    return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
+
+
+# done
+# with debugging output
 def one_d_cut(thejson):
-    print("in one_d_cut")
-
+    labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
-
     power_std = sensitivity.calculate_sensitivity_1d()
-    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std.value.tolist(), "xlabel": "k [h/Mpc]",
-         "ylabel": r"$\delta \Delta^2_{21}$",
-         "xscale": "log", "yscale": "log", "xunit": sensitivity.k1d.unit.to_string(),
-         "yunit": power_std.unit.to_string()}
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
 
-    print(pprint.pprint(d))
+    # prototype debugging output
+    # print(pprint.pprint(d))
+    #
+    # print("Astropy quantity breakdown:")
+    # print("type of k1d=", type(sensitivity.k1d))
+    # print("value=", sensitivity.k1d.value)
+    # print("unit=", sensitivity.k1d.unit)
+    #
+    # print("type of power=", type(power_std))
+    # print("value=", power_std.value)
+    # print("unit=", power_std.unit)
 
-
-    print("Astropy quantity breakdown:")
-    print("type of k1d=", type(sensitivity.k1d))
-    print("value=", sensitivity.k1d.value)
-    print("unit=", sensitivity.k1d.unit)
-
-    print("type of power=", type(power_std))
-    print("value=", power_std.value)
-    print("unit=", power_std.unit)
-    return jsonify(d)
+    # add_hash(thejson, d)
+    # return jsonify(d)
+    return d
     # return jsonify({"a": "b"})
 
 
@@ -149,14 +177,31 @@ def one_d_noise_cut(thejson):
     sensitivity = get_sensitivity(thejson)
 
 
+# done
 def one_d_thermal_var(thejson):
+    labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_thermal_var: includes thermal-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std_thermal.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
+    d.update(labels)
+    # add_hash(thejson, d)
+    # return jsonify(d)
+    return d
 
 
+# done
 def one_d_sample_var(thejson):
+    labels = {"title":"1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_thermal_var: includes sample-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
+    d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_sample.unit.to_string()}
+    d.update(labels)
+    return d
 
 
 def two_d_sens(thejson):
@@ -164,9 +209,15 @@ def two_d_sens(thejson):
     observation = sensitivity.observation
 
     # plt.figure(figsize=(7, 5))
-    # x = [bl_group[0] for bl_group in observation.baseline_groups]
-    # y = [bl_group[1] for bl_group in observation.baseline_groups]
-    # c = [len(bls) for bls in observation.baseline_groups.values()]
+    labels = {"title": "Number of baselines in group", "plottype": "scatter", "xlabel": "", "ylabel": "", "xscale": "log", "yscale": "log"}
+    x = [bl_group[0] for bl_group in observation.baseline_groups]
+    y = [bl_group[1] for bl_group in observation.baseline_groups]
+    c = [len(bls) for bls in observation.baseline_groups.values()]
+
+    d={"x":x, "y":y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
+    d.update(labels)
+    return d
+
     #
     # plt.scatter(x, y, c=c)
     # cbar = plt.colorbar();
@@ -175,8 +226,15 @@ def two_d_sens(thejson):
 
 
 def two_d_sens_z(thejson):
-    sensitivity = getSensitivity(thejson)
-
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in two-d sensitivity -z")
+    sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
+    return d
 
 def two_d_sens_k(thejson):
     sensitivity = get_sensitivity(thejson)
@@ -186,23 +244,68 @@ def two_d_sens_k(thejson):
     # sensitivity.plot_sense_2d(sense2d)
 
 
-def two_d_sens_z(thejson):
-    sensitivity = get_sensitivity(thejson)
-
-
 def ant_pos(thejson):
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in antenna position")
     sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
+    return d
 
-def baselines_dist(thejson):
-    sensitivity = getSensitivity(thejson)
 
+# baselines_distributions= [[[   0.    0.    0.]
+#   [  14.    0.    0.]
+#   [  28.    0.    0.]
+#   ...
+#   [ 112.  -84.    0.]
+#   [ 126.   84.    0.]
+#   [ 126.  -84.    0.]]
+#
+#  [[ -14.    0.    0.]
+#   [   0.    0.    0.]
+#   [  14.    0.    0.]
+#   ...
 
-def one_d_noise_cut():
-    pass
+# baselines_distributions[:,:,0]= [[   0.   14.   28. ...  112.  126.  126.]
+# [ -14.    0.   14. ...   98.  112.  112.]
+# [ -28.  -14.    0. ...   84.   98.   98.]
+# ...
+# [-112.  -98.  -84. ...    0.   14.   14.]
+# [-126. -112.  -98. ...  -14.    0.    0.]
+# [-126. -112.  -98. ...  -14.    0.    0.]] m
 
-def baselines_dist(thejson):
-    sensitivity = getSensitivity(thejson)
+def baselines_distributions(thejson):
+    sensitivity = get_sensitivity(thejson)
+    observatory = sensitivity.observation.observatory
+    baselines = observatory.baselines_metres
 
+    # print("baselines_distributions=", baselines[:, :, 0])
+    # l = baselines[:, :, 0]
+    # print("type l=", type(l))
+    # print(l)
+    # print("l dim=",l.ndim)
+    # for q in l:
+    #     for qq in q:
+    #         print("type=",type(qq))
+    # print("value=",l.value)
+    # print("value.tolist()=",l.value.tolist())
+    # print("l.tolist()=", l.tolist())
+    # print("list(l)=",list(l))
+    # return jsonify({"none": "none"})
+
+    labels = {"xlabel": "Baseline Length [x, m]", "ylabel": r"Baselines Length [y, m]", "alpha": 0.1}
+    d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
+         "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
+    d.update(labels)
+    # add_hash(thejson, d)
+    #
+    # print("d=", d)
+
+    # return jsonify(d)
+    return d
     # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
     # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
     #
@@ -213,45 +316,51 @@ def baselines_dist(thejson):
     # plt.tight_layout();
 
 
-def baselines_dist(thejson):
-    sensitivity = get_sensitivity(thejson)
-    coherent_grid = observatory.grid_baselines_coherent(
-        baselines=baseline_group_coords,
-        weights=baseline_group_counts
-    )
-
-    # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
-    # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
-    #
-    # plt.figure(figsize=(7, 5))
-    # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
-    # cbar = plt.colorbar();
-    # cbar.set_label("Number of baselines in group", fontsize=15)
-    # plt.tight_layout();
-
-
-def calcs():
-    pass
+# def baselines_distributions(thejson):
+#     sensitivity = get_sensitivity(thejson)
+#     coherent_grid = observatory.grid_baselines_coherent(
+#         baselines=baseline_group_coords,
+#         weights=baseline_group_counts
+#     )
 
 
 def k_vs_redshift():
-    pass
+    labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    print("in one_d_cut: includes thermal noise and sample variance")
+    sensitivity = get_sensitivity(thejson)
+    power_std = sensitivity.calculate_sensitivity_1d()
+    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+    d = {"x": xseries, "y": yseries,
+         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+    d.update(labels)
 
 
 def handle_output(calculation):
     return jsonify({"key": "value"})
 
 
+# note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
+# schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 class CalculationFactory(FactoryManager):
     def __init__(self):
         super().__init__()
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
-        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
-            '1D-noise-cut-of-2D-sensitivity', one_d_cut).add('1D-sample-variance-cut-of-2D-sensitivity', one_d_cut).add(
-            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add('2D-sensitivity-vs-z',
-                                                                                   one_d_cut).add('antenna-positions',
-                                                                                                  one_d_cut).add(
-            'baselines-distributions', one_d_cut).add('calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut)
+
+        #
+        calculation_schemas = get_schema_names('calculation')
+        for c in calculation_schemas:
+            print("Got schema=", c)
+
+        # now check the directory
+        # for f in getattr(globals()):
+        #     print(f)
+
+        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
+            '1D-sample-variance-cut-of-2D-sensitivity', one_d_sample_var).add(
+            '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
+            '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
+            'calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut).add('baselines-distributions',
+                                                                                baselines_distributions)
 
         """
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
@@ -272,12 +381,9 @@ class BeamFactory(FactoryManager):
 
 
 class AntennaFactory(FactoryManager):
-    antennas = None
-
-
     def __init__(self):
         super().__init__()
-        AntennaFactory.antennas = self.add('hera', HeraAntennaDispatcher)
+        self.add('hera', HeraAntennaDispatcher)
 
 
 class Factory:
@@ -321,149 +427,6 @@ class Factory:
         )
 
         return sensitivity
-
-
-def get_schema_names(schemagroup):
-    try:
-        dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
-    except FileNotFoundError:
-        return None
-    schemas = [dir.replace('.json', '') for dir in dirs]
-    return schemas
-
-
-def get_schema_descriptions_json(schemagroup):
-    d = {}
-    schema_names = get_schema_names(schemagroup)
-    if schema_names is None:
-        return json_error("error", "schema " + schemagroup + " not found.")
-
-    for schema_name in get_schema_names(schemagroup):
-        try:
-            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
-            sch = json.load(f)
-            f.close()
-            d[schema_name] = sch['description']
-
-        # issue with json.load()
-        except JSONDecodeError:
-            pass
-
-        # issue with f.open()
-        except OSError:
-            pass
-
-        # issue with finding 'description' key in json
-        except KeyError:
-            pass
-    return jsonify(d)
-
-
-def get_schema_groups():
-    dirs = os.listdir(current_app.root_path + '/static/schema')
-    # print("schema groups")
-    # for dd in d:
-    #     print(dd)
-    return dirs
-
-
-def get_schema_groups_json():
-    d = get_schema_groups()
-    j = {}
-    j['required'] = list(d)
-    return jsonify(j)
-
-
-def load_schema(schemagroup: str, schemaname: str):
-    l = load_schema_generic('schema', schemagroup, schemaname)
-    print("loaded schema=", l)
-    return l
-
-
-def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
-    try:
-        p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
-        print("going to load schema from path: ", p)
-        f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
-        schema = json.load(f)
-        f.close()
-    except (JSONDecodeError, IOError) as e:
-        print("error=", e)
-        return None
-    else:
-        return schema
-
-
-# load a validation schema.  It must either have the same name as the schema that is to be validated, or
-# be "default"
-def load_validation_schema(schemagroup: str, schemaname: str):
-    schema = load_schema_generic('validation-schema', schemagroup, schemaname)
-    if not schema:
-        schema = load_schema_generic('validation-schema', schemagroup, "default")
-        if not schema:
-            debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
-            return None
-    print("DEBUG: returning validation schema:", schema)
-    return schema
-
-
-def build_schema_for_validation(component, data_json, units_json):
-    return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
-    # return d
-
-
-# pass a dict such as:
-# { group: schema, [...] }
-# ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
-# schema should already be a json object
-def build_composite_schema(schema: JSONDecoder):
-    # get calculation type
-    if 'calculation' not in schema:
-        return json_error("error", "specified schema missing 'calculation' key")
-
-    calculation_type = schema['calculation']
-    print("Going to load schema for calculation ", calculation_type)
-
-    calc_schema = load_schema('calculation', calculation_type)
-    if not calc_schema:
-        return json_error("error", "Cannot find requested calculation schema " + calculation_type)
-
-    newschema = {"calculation": calculation_type, "data": {}, "units": {}}
-    # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
-    #     return json_error("error", "Schema failed validation")
-    for component in calc_schema['required']:
-        if component not in schema:
-            return json_error("error", "Missing required data component " + component)
-        else:
-            comp_schema_name = schema[component]
-        # if component not in schema['data']:
-        #     return json_error("error", "Missing required data component " + component)
-        # if 'schema' not in schema['data'][component]:
-        #     return json_error("error", "Missing schema identifier in data component " + component)
-        # else:
-        #     comp_schema_name = schema['data'][component]['schema']
-
-        # cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
-
-        #
-        #
-        # Validation, save for later
-        # cs = build_schema_for_validation(component, schema['data'], schema['units'])
-        # print("Going to validate schema: ", cs)
-        # validation_schema = load_validation_schema(component, comp_schema_name)
-        # if not validation_schema:
-        #     return json_error("error",
-        #                       "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
-        # try:
-        #     jsonschema.validate(cs, validation_schema)
-        # except ValidationError:
-        #     return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
-        print("Going to load component schema %s/%s" % (component, comp_schema_name))
-        newschema['data'][component] = load_schema(component, comp_schema_name)
-        newschema['units'][component] = {}
-
-    return jsonify(newschema)
-    # d[schema_name] = sch['description']
 
 
 class Validator:
