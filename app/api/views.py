@@ -1,3 +1,4 @@
+import app
 from flask import current_app
 from flask import jsonify
 from flask import request
@@ -13,6 +14,7 @@ from .models import CalculationFactory, handle_output, get_schema_descriptions_j
 from .models import *
 from . import errors
 from .json_util import json_error
+import flask_cors
 
 import flask_cors
 
@@ -28,12 +30,6 @@ def ping():
     return {
         "pong": "",
     }
-
-
-@api.route('/schemaj')
-def api_all_schema():
-    models.get_schema_groups()
-    return jsonify({'list': 'here'})
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -61,18 +57,38 @@ def api_return():
 
 @api.route('/schema/<schemagroup>/get/<schemaname>')
 def get_schema(schemagroup, schemaname):
-    # the schema we want
+    """Return a specific schema within a group
+
+    Tests
+    -----
+    test_get_schema
+    test_get_nonexistent_schema
+    test_get_nonexistent_schema_group
+    """
     return current_app.send_static_file('schema/' + schemagroup + '/' + schemaname + '.json')
 
 
 @api.route('/schema/<schemagroup>')
 def get_schema_group(schemagroup):
+    """List all of the schemas in a schema group
+
+    Tests
+    -----
+    test_get_schema_group
+    """
     lst = models.get_schema_names(schemagroup)
     return jsonify(lst)
 
 
 @api.route('/schema', methods=['GET'])
-def list_all_schema():
+def list_all_schema_groups():
+    """List all supported schema groups
+
+    Tests
+    -----
+    test_list_all_schema_groups
+    """
+
     lst = models.get_schema_groups()
     return jsonify(lst)
 
@@ -237,7 +253,6 @@ def testtest():
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
-
     if request.is_json and request.json:
         req = request.get_json()
         return calculate(req)

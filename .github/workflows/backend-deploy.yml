@@ -11,7 +11,6 @@ on:
       - dev
       - github_actions_new_workflow
 
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
@@ -20,16 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: DeployServer
-        uses:  bpape1usa/SER401-Project43@github_actions_new_workflow
+        uses:  appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          host: galileo.sese.asu.edu
+          username: t43-capstone
           port: 22
-          key: ${{ secrets.KEY }}
+          key: ${{ secrets.GALILEO_DEPLOY }}
           script: |
-            git clone git@github.com:bpape1usa/SER401-Project43.git
+            rm -r SER401-Project43
+            git clone git@github.com:bpape1usa/SER401-Project43.git --config core.sshCommand="ssh -i ~/.ssh/github_id_ed25519"
+            cd SER401-Project43
             git pull origin master
             git status 
             ls 
-            docker-compose up --build --remove-orphans -d
-
