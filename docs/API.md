@@ -250,26 +250,26 @@ Return:
 
 # Example API call
 
-HTTP POST to http://backend.server/api-1.0/21cm
+## HTTP POST to http://backend.server/api-1.0/21cm
 
 ```json
 {
-  "calculation": "baselines-distributions",
+  "calculation": "1D-cut-of-2D-sensitivity",
   "data":{
     "antenna":{
       "schema": "hera",
-      "hex_num": 3,
-      "separation": 1.2,
-      "dl": 1.02
+      "hex_num": 7,
+      "separation": 14,
+      "dl": 12.02
     },
     "beam":{
       "schema":"GaussianBeam",
       "frequency": 100,
-      "dish_size": 7
+      "dish_size": 14
     },
     "location":{
       "schema": "latitude",
-      "latitude": 38.382
+      "latitude": 1.382
     }
   },
   "units":{
@@ -286,6 +286,41 @@ HTTP POST to http://backend.server/api-1.0/21cm
       "latitude": "deg"
     }
   }
+}
+```
+
+## Returned data
+
+(Series truncated for readability)
+Note that Infinity is filtered out
+
+Plot types:
+- lines
+- scatter
+- ...
+
+```json
+{
+  "title": "2D cut",
+  "plottype": "line",,
+  "x": [
+    0.16499818112915432,
+    3.079966047744214,
+    3.1349654414539323,
+    3.1899648351636505
+  ],
+  "xlabel": "k [h/Mpc]",
+  "xscale": "log",
+  "xunit": "littleh / Mpc",
+  "y": [
+    12.912515880728177,
+    19.45343904564521,
+    32.12647074134198,
+    53.013664937540476
+  ],
+  "ylabel": "$\\delta \\Delta^2_{21}$",
+  "yscale": "log",
+  "yunit": "mK2"
 }
 ```
 
