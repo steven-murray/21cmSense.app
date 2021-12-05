@@ -30,3 +30,18 @@
     transform: rotate(360deg);
   }
 }
+
+
+.container {
+    width: fit-content;
+}
+
+.row {
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+}
+
+.row > *:not(:last-child) {
+    margin-right: .5rem;
+}
