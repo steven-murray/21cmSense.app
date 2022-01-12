@@ -1,16 +1,17 @@
 import '../../App.css';
-import React,{ useState, useEffect, useMemo } from 'react';
+//import React,{ useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { FormContext } from '../../FormContext';
 
-import ReactDOM from 'react-dom';
-import Form from "react-jsonschema-form";
-import  { Component } from "react";
+// import ReactDOM from 'react-dom';
+// import Form from "react-jsonschema-form";
+// import  { Component } from "react";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
     <select onChange={onChange} >
       {
-        options.map(o => <option value={o} selected={o == selectedValue}>{o}</option>)
+        options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
         
       }
     </select>
@@ -94,19 +95,21 @@ class DynamicForm extends React.Component {
 
  
   render() {
-    const { hexObj,calc,antenna,schemas, groups, schema,requires } = this.state;              
+    // const { hexObj,calc,antenna,schemas, groups, schema,requires } = this.state;  
+    const { calc, groups } = this.state;              
     const myObj = {"__comment__": "this is an extension of the JSON schema document and includes default specifier","schema": "hera","description": "Hera-class antenna array","group": "antenna","data":{"antenna":{"hex_num": {"type": "integer", "minimum": 3, "help": "Number of antennas per side of hexagonal array" },  "separation": { "type": "number", "minimum": 0, "help": "The distance between antennas along a side"}, "dl": { "type": "number", "minimum": 0,"help": "The distance between rows of antennas"}},"required": ["hex_num","separation","dl"]}};
          
                                
       let text ="" ;
-      let la = "DL";
+      // let la = "DL";
       for (const x in myObj) {
        // text += x +",";
-        if(x == "data"){
+        if(x === "data"){
               for(const y in myObj[x]){
-                if(y == "antenna"){
-                 // text += myObj[x][y]+",";
+                if(y === "antenna"){
+                 text += myObj[x][y]+",";
                   for(const z in myObj[x][y]){
+                    // eslint-disable-next-line
                     text +=z +",";
                     
                   }
