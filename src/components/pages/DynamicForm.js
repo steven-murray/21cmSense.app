@@ -162,22 +162,20 @@ class DynamicForm extends React.Component {
                       <DropDown options={calc}/>
                     </div>
                     <div>
-                      <label> <h6>CALCULATE</h6></label>
+                      <h6>CALCULATE</h6>
                     </div>
                   </div>
                   <br></br>
                   <br></br>
                   <div class="row">
                     <div>
-                      <label> <h6>Antenna Information</h6></label>
+                      <h6>Antenna Information</h6>
                     </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>                    
+                    
                   </div>
                   <div class="row">
                     <div>
-                      <label>Testing </label>
+                      <label>Hex_Number </label>
                       <input id="Hex_Num" name="Hex_Num" type="number" value="0"/>
                       
                     </div>                    
