@@ -94,49 +94,31 @@ class DynamicForm extends React.Component {
 
  
   render() {
-    const { hexObj,calc,antenna,schemas, groups, schema,requires } = this.state;              
-    const myObj = {"__comment__": "this is an extension of the JSON schema document and includes default specifier","schema": "hera","description": "Hera-class antenna array","group": "antenna","data":{"antenna":{"hex_num": {"type": "integer", "minimum": 3, "help": "Number of antennas per side of hexagonal array" },  "separation": { "type": "number", "minimum": 0, "help": "The distance between antennas along a side"}, "dl": { "type": "number", "minimum": 0,"help": "The distance between rows of antennas"}},"required": ["hex_num","separation","dl"]}};
-         
-                               
+    const { calc,antenna,schemas, groups, schema,requires } = this.state;              
+    const myObj = antenna;
+	const hexObj = {
+        "type": "integer",
+        "minimum": 3,
+        "help": "Number of antennas per side of hexagonal array"
+      }                    
       let text ="" ;
       let la = "DL";
+
       for (const x in myObj) {
-       // text += x +",";
-        if(x == "data"){
+         if(x == "data"){
               for(const y in myObj[x]){
                 if(y == "antenna"){
-                 // text += myObj[x][y]+",";
                   for(const z in myObj[x][y]){
-                    text +=z +",";
+	
+                    if (z == "hex_num"){
+					//	hexObj = JSON.parse(myObj[x][y][z]);
+					}
                     
                   }
-                 // text += "</select>";
-               //   document.getElementById("text").innerHTML = text
-                }
+               }
               }
         }
-        //for(const y in myObj[x]){
-      
-     /*     if (y == "required"){
-                 text =myObj[x][y];
-            
-            
-          }*/
-        /*  for(const z in myObj[x][y]){
-            //text += z + ",";
-            if(z == schemas[0]){
-              text += "found it";
-            }else{
-              text+=z + ",";
-            }
-           // for(const t in myObj[x][y][z]){
-           //       text += t + ",";
-           // }
-            
-          }
-      // text += myObj[x][y]+ "., ";*/
-     //   }
-      
+
       }
 
     return (
@@ -169,16 +151,15 @@ class DynamicForm extends React.Component {
                   <br></br>
                   <div class="row">
                     <div>
-                      <h6>Antenna Information</h6>
+                      <p><h6>Antenna Information</h6></p>
                     </div>
                     
                   </div>
                   <div class="row">
-                    <div>
-                      <label>Hex_Number </label>
-                      <input id="Hex_Num" name="Hex_Num" type="number" value="0"/>
-                      
-                    </div>                    
+                    <div>   
+						<label> Hex Number </label>            
+                   		<input type = {hexObj.type} min = {hexObj.minimum} placeholder = {hexObj.help} />					
+					</div>                    
                   </div>
                  <div class="row">
                    <div></div>
