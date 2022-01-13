@@ -130,73 +130,41 @@ class DynamicForm extends React.Component {
             <form >
                   <br></br>
                   <h6>MODELS</h6>  
-                  <br></br><br></br><br></br>
-                  <br></br><br></br>
-                  <button><h5> PLOT </h5> </button>         
-                  
+						Example 1 <br></br>
+						Example 2  <br></br>
+						Example 3  <br></br>
+						Example 4  <br></br>
+						Example 5  <br></br>
+						Example 6  <br></br>
+						Example 7  <br></br>
+						Example 8  <br></br>
+						<br></br>
+                 <p> <button><h5> PLOT </h5> </button> </p>                  
             </form>
           </div>
           <div>
-              <form >
-                  <br></br>
-                  <div class="row">
-                    <div>
-                      <DropDown options={calc}/>
-                    </div>
-                    <div>
-                      <h6>CALCULATE</h6>
-                    </div>
-                  </div>
-                  <br></br>
-                  <br></br>
-                  <div class="row">
-                    <div>
-                      <p><h6>Antenna Information</h6></p>
-                    </div>
-                    
-                  </div>
-                  <div class="row">
-                    <div>   
-						<label> Hex Number </label>            
-                   		<input type = {hexObj.type} min = {hexObj.minimum} placeholder = {hexObj.help} />					
-					</div>                    
-                  </div>
-                 <div class="row">
-                   <div></div>
-                   <div>
-                   {}
-                   </div> 
-                   <div></div>
-                                       
-                  </div>
-                  <div class="row">
-                    <div>
-                      <label> <h6>Beam Information</h6></label>
-                    </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>
-                    
-                  </div>
-                  
-                   <div class="row">
-                    <div>
-                      <label> <h6>Location Information</h6></label>
-                    </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>
-                    
-                  </div>
-                  
-              </form>
-          </div>
-        </div>        
-       
-      </div>
-    </FormContext.Provider>
+            	<br></br>
+                <div class="row">
+                    <div>  <DropDown options={calc}/> 	
+						   <br></br><br></br>
+ 							<div class="row">
+                    			<div> <p><h6>Antenna Information</h6></p> </div>                    
+                			</div>
+                			<div class="row">
+                    			<div>   
+									<label> Hex Number </label>            
+                   					<input type = {hexObj.type} min = {hexObj.minimum} placeholder = {hexObj.help} />					
+								</div>                    
+                			</div>
 
-    );
+					</div>
+                    <div> <h6>CALCULATE</h6>   </div>
+                </div>			
+          </div>
+        </div>
+      </div>        
+   </FormContext.Provider>
+  );
   }
 }
 export default DynamicForm;
