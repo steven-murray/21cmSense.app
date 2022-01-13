@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-// import { Button } from './Button';
+//import { Button } from './Button';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
 	const [click, setClick] = useState(false);
-	//const [setButton] = useState(true);
-
+	//const [button, setButton] = useState(true);
+   
 	const handleClick = () => setClick(!click);
 	const closeMobileMenu = () => setClick(false);
-	
+   
 	// const showButton = () => {
 	//     setButton(true);
 	// };
@@ -38,11 +38,20 @@ function Navbar() {
 			</li>
 			<li className='nav-item'>
 			  <Link
-			    to='/DecodeJSON'
+			    to='/DECODE'
 			    className='nav-links'
 			    onClick={closeMobileMenu}
 			  >
-			    DecodeJSON
+			    DECODE
+			  </Link>
+			</li>
+			<li className='nav-item'>
+			  <Link
+			    to='/DynamicForm'
+			    className='nav-links'
+			    onClick={closeMobileMenu}
+			  >
+			    DynamicForm
 			  </Link>
 			</li>
 		   </ul>
