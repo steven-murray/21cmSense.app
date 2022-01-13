@@ -21,7 +21,8 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       calc:[],
-      antenna:[]
+      ant:[],
+	  DataisLoaded: false
     }
   }
 
@@ -39,38 +40,16 @@ class DynamicForm extends React.Component {
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              antenna: json
+                              ant: json,
+							  DataisLoaded: true
                           });
                       })
     }
 
  render() {
-    const { calc,antenna } = this.state;              
-    const myObj = antenna;
-	const hexObj = {
-        "type": "integer",
-        "minimum": 3,
-        "help": "Number of antennas per side of hexagonal array"
-      }                    
-      let text ="" ;
-      let la = "DL";
-
-      for (const x in myObj) {
-         if(x == "data"){
-              for(const y in myObj[x]){
-                if(y == "antenna"){
-                  for(const z in myObj[x][y]){
-	
-                    if (z == "hex_num"){
-					//	hexObj = JSON.parse(myObj[x][y][z]);
-					}
-                    
-                  }
-               }
-              }
-        }
-
-      }
+    const { calc,ant,DataisLoaded } = this.state;              
+ 		if (!DataisLoaded) return <div>
+			<h1> Pleses wait some time.... </h1> </div> ;
 
     return (
     <FormContext.Provider>
@@ -104,11 +83,10 @@ class DynamicForm extends React.Component {
                 			<div class="row">
                     			<div>   
 									<label> Hex Number </label>            
-                   					<input type = {hexObj.type} min = {hexObj.minimum} placeholder = {hexObj.help} />					
-								</div>                    
-                			</div>
-
-					</div>
+                   					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help}/>
+								</div>  
+							</div>
+				    </div>
                     <div> <h6>CALCULATE</h6>   </div>
                 </div>			
           </div>
