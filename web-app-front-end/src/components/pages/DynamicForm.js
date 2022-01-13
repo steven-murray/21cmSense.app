@@ -6,7 +6,7 @@ const DropDown = ({ selectedValue, options, onChange }) => {
   return (
     <select onChange={onChange} >
       {
-        options.map(o => <option value={o} selected={o == selectedValue}>{o}</option>)
+        options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
         
       }
     </select>
