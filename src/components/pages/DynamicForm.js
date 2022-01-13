@@ -1,10 +1,6 @@
 import '../../App.css';
-import React,{ useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { FormContext } from '../../FormContext';
-
-import ReactDOM from 'react-dom';
-import Form from "react-jsonschema-form";
-import  { Component } from "react";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -25,19 +21,8 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       calc:[],
-      antenna:[],
-      beam:[],
-      location:[],
-      schemas: [],
-      groups: [],
-      schema:[],
-      requires:[]
+      antenna:[]
     }
-    
-
-    this.onSchemasChange = this.onSchemasChange.bind(this);
-    this.onGroupsChange = this.onGroupsChange.bind(this);
-    
   }
 
   componentDidMount(){
@@ -50,14 +35,6 @@ class DynamicForm extends React.Component {
                 });
             })
 
-            fetch("http://localhost:8080/api-1.0/schema")
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    schemas: json
-                });
-            })
-
             fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
@@ -67,34 +44,8 @@ class DynamicForm extends React.Component {
                       })
     }
 
-         
-  onSchemasChange(e) {
-    var group = e.target.value;
-    
-          fetch("http://localhost:8080/api-1.0/schema/" + group )
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    groups: json
-                });
-            })
-  }
-
-  onGroupsChange(e) {
-    var forms = e.target.value;
-          fetch("http://localhost:8080/api-1.0/schema/antenna/get/"+ forms)
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    schema: json
-                });
-            })
-
-  }
-
- 
-  render() {
-    const { calc,antenna,schemas, groups, schema,requires } = this.state;              
+ render() {
+    const { calc,antenna } = this.state;              
     const myObj = antenna;
 	const hexObj = {
         "type": "integer",
