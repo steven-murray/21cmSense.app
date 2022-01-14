@@ -110,6 +110,9 @@ def cached_sensitivity(json_pickle):
 
 
 def calculate(thejson):
+    if 'calculation' not in thejson:
+        return jsonify(error="calculation type not provided")
+
     print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
     calculator = CalculationFactory().get(thejson['calculation'])
 
