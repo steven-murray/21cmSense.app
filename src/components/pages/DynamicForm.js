@@ -91,6 +91,7 @@ class DynamicForm extends React.Component {
                     			<div>   
 									<label> Separation </label>            
                    					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help}/>
+									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
 								</div>  
 							</div>							
 				    </div>
