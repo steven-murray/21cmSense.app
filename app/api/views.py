@@ -10,7 +10,6 @@ from . import api
 from flask import current_app
 from flask import jsonify
 
-from .models import CalculationFactory, handle_output, get_schema_descriptions_json
 from .models import *
 from . import errors
 from .json_util import json_error
@@ -75,8 +74,7 @@ def get_schema_group(schemagroup):
     -----
     test_get_schema_group
     """
-    lst = models.get_schema_names(schemagroup)
-    return jsonify(lst)
+    return get_schema_names_json(schemagroup)
 
 
 @api.route('/schema', methods=['GET'])
