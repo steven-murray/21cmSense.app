@@ -84,8 +84,16 @@ class DynamicForm extends React.Component {
                     			<div>   
 									<label> Hex Number </label>            
                    					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help}/>
-								</div>  
+								</div> 								 
 							</div>
+							<br></br>
+							<div class="row">
+                    			<div>   
+									<label> Separation </label>            
+                   					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help}/>
+									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
+								</div>  
+							</div>							
 				    </div>
                     <div> <h6>CALCULATE</h6>   </div>
                 </div>			
