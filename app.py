@@ -14,7 +14,7 @@ parser.add_argument('--bind-address', dest="bind_address_raw", default='0.0.0.0'
 args = parser.parse_args()
 
 bind_address = args.bind_address_raw.exploded
-print("Binding to interface ", args.bind_address)
+print("Binding to interface ", bind_address)
 print("Starting app on port ", args.port)
 
 app = create_app('default')
