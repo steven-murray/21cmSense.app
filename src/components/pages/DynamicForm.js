@@ -83,14 +83,14 @@ class DynamicForm extends React.Component {
                 			<div class="row">
                     			<div>   
 									<label> Hex Number </label>            
-                   					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help}/>
+                   					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help} required/>
 								</div> 								 
 							</div>
 							<br></br>
 							<div class="row">
                     			<div>   
 									<label> Separation </label>            
-                   					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help}/>
+                   					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help} required/>
 									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
 								</div>  
 							</div>	
@@ -98,7 +98,7 @@ class DynamicForm extends React.Component {
 							<div class="row">
                     			<div>   
 									<label> Distance </label>            
-                   					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help}/>
+                   					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help} required/>
 									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
 								</div>  
 							</div>							
