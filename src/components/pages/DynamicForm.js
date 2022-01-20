@@ -93,6 +93,14 @@ class DynamicForm extends React.Component {
                    					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help}/>
 									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
 								</div>  
+							</div>	
+							<br></br>
+							<div class="row">
+                    			<div>   
+									<label> Distance </label>            
+                   					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help}/>
+									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
+								</div>  
 							</div>							
 				    </div>
                     <div> <h6>CALCULATE</h6>   </div>
