@@ -64,10 +64,7 @@ class DynamicForm extends React.Component {
 						Example 2  <br></br>
 						Example 3  <br></br>
 						Example 4  <br></br>
-						Example 5  <br></br>
-						Example 6  <br></br>
-						Example 7  <br></br>
-						Example 8  <br></br>
+						
 						<br></br>
                  <p> <button><h5> PLOT </h5> </button> </p>                  
             </form>
