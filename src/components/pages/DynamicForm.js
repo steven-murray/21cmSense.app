@@ -95,7 +95,6 @@ class DynamicForm extends React.Component {
 								</div>  
 							</div>	
 							<br></br>
-              <br></br>
 							<div class="row">
                     			<div>   
 									<label> Frequency </label>            
@@ -104,7 +103,6 @@ class DynamicForm extends React.Component {
 								</div>  
 							</div>	
 							<br></br>
-              <br></br>
 							<div class="row">
                     			<div>   
 									<label> Dish Size </label>            
