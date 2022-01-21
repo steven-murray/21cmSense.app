@@ -51,7 +51,7 @@ def test_one_d_cut():
     for k in ('xunit', 'yunit', 'title', 'plottype', 'xlabel', 'ylabel', 'xscale', 'yscale'):
         assert k in return_json
 
-
+# should get same result from same input
 def test_repeatable_hash():
     input_json_str1 = """{
       "calculation": "1D-cut-of-2D-sensitivity",
@@ -131,7 +131,8 @@ def test_repeatable_hash():
 
         return_json1 = calculate(input_json1)
         return_json2 = calculate(input_json2)
-        assert return_json1 == return_json2
+
+        assert return_json1.get_json() == return_json2.get_json()
 
 
 # change dl from 12.02 to 12.03
