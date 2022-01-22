@@ -54,14 +54,14 @@ jobs:
     - name: Stage 21cmSense
       run: git clone https://github.com/steven-murray/21cmSense && cd 21cmSense && python ./setup.py install 
   
-    - name: Upload artifact for deployment jobs
-      uses: actions/upload-artifact@v2
-      with:
-        name: python-app
-        path: |
-          . 
-          !node_modules/
-          !venv/
+    # - name: Upload artifact for deployment jobs
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: python-app
+    #     path: |
+    #       . 
+    #       !node_modules/
+    #       !venv/
   
     - name: Test with pytest
       run: |
