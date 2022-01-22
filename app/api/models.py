@@ -1,26 +1,17 @@
+#
+# models.py
+#
 import functools
 import pickle
-from json import JSONDecodeError, JSONDecoder
+from hashlib import md5
 
-import pprint
-# import jsonpickle
-
-import numpy
-from flask import current_app
-from flask import jsonify
-
-from .json_util import json_error
 # from app.api.errors import error
-from app.schema import *
-
-import json
 import jsonschema
-from jsonschema import ValidationError
+import numpy
+
+from app.schema import *
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
-from ..utils.utils import get_unit_string
-
-from hashlib import md5
 
 debug = DebugPrint(9).debug_print
 
@@ -327,7 +318,7 @@ def baselines_distributions(thejson):
 #     )
 
 
-def k_vs_redshift():
+def k_vs_redshift(thejson):
     labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)

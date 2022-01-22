@@ -1,21 +1,13 @@
-import app
-from flask import current_app
-from flask import jsonify
+#
+# views.py
+#
 from flask import request
-import json
 import numpy as np
-from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from . import models
 from . import api
-from flask import current_app
-from flask import jsonify
 
 from .models import *
-from . import errors
 from .json_util import json_error
-import flask_cors
-
-import flask_cors
 
 
 @api.route('/')
@@ -25,6 +17,11 @@ def welcome():
 
 @api.route('/ping')
 def ping():
+    """
+    ping test
+    :return:
+    pong
+    """
     return {
         "pong": "",
     }
@@ -32,11 +29,15 @@ def ping():
 
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
+    """Return a list of all of the schema in a schema group along with user-friendly descriptions
+    """
     return get_schema_descriptions_json(schemagroup)
 
 
 @api.route('/customschema', methods=['POST'])
 def api_return():
+    """Return a custom schema
+    """
     if request.method == 'POST':
         lst = models.get_schema_groups()
 
@@ -73,6 +74,9 @@ def get_schema_group(schemagroup):
     Tests
     -----
     test_get_schema_group
+
+    :return:
+    List all of the schemas in a schema group in JSON format
     """
     return get_schema_names_json(schemagroup)
 
@@ -243,11 +247,13 @@ def testtest():
         print(json.dumps(d))
         return json.dumps(d)
 
-    return jsonify("nothing")
+    return jsonify("test succeeded.")
 
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
+    """Make a computation request to the 21cmSense library
+    """
     if request.is_json and request.json:
         req = request.get_json()
 
