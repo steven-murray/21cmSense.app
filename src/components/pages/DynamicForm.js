@@ -122,7 +122,7 @@ class DynamicForm extends React.Component {
 								<div>
 									<label> Latitude </label>
 									<input type={ant.data.antenna.latitude.dl.type} min={ant.data.antenna.latitude.dl.minimum} placeholder={ant.data.antenna.latitude.dl.help}/>
-									<DropDown type={ant.units.antenna.latitude.dl.type} default={ant.units.antenna.latitude.dl.default} options={ant.units.antenna.latitude.dl.enum}/>
+									<DropDown type={ant.units.antenna.latitude.dl.type} default={ant.units.antenna.latitude.dl.default} options={ant.units.antenna.latitude.dl.enum}required/>
 								</div>
 							</div>
 					</div>
