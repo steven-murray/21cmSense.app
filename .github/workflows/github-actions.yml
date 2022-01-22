@@ -10,8 +10,6 @@ on:
       - master
       - dev
 
-env:
-  WEBAPP_NAME: 'web-app-front-end'
 
 jobs:
   build-and-test:
@@ -52,16 +50,6 @@ jobs:
 #       run: |
 #         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        pytest
-    - name: Build Coverage File 
-      run: |
-        pytest --cache-clear --cov=app tests/ > pytest-coverage.txt
-    - name: pytest-coverage-commentator
-      uses: coroo/pytest-coverage-commentator@v1.0.2
-      with:
-        pytest-coverage: pytest-coverage.txt
 
     - name: Stage 21cmSense
       run: git clone https://github.com/steven-murray/21cmSense && cd 21cmSense && python ./setup.py install 
@@ -75,6 +63,17 @@ jobs:
           !node_modules/
           !venv/
   
+    - name: Test with pytest
+      run: |
+        pytest
+    - name: Build Coverage File 
+      run: |
+        pytest --cache-clear --cov=app tests/ > pytest-coverage.txt
+    - name: pytest-coverage-commentator
+      uses: coroo/pytest-coverage-commentator@v1.0.2
+      with:
+        pytest-coverage: pytest-coverage.txt
+
   deploy-to-webapp:
     needs: build-and-test
     runs-on: ubuntu-latest
