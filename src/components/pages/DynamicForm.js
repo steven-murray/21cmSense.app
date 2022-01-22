@@ -49,7 +49,7 @@ class DynamicForm extends React.Component {
  render() {
     const { calc,ant,DataisLoaded } = this.state;              
  		if (!DataisLoaded) return <div>
-			<h1> Pleses wait some time.... </h1> </div> ;
+			<h1> Please wait some time.... </h1> </div> ;
 
     return (
     <FormContext.Provider>
@@ -103,15 +103,31 @@ class DynamicForm extends React.Component {
 									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
 								</div>
 							</div>
+                            <br></br>
+                            <div className="row">
+                                <div>
+                                    <label> Frequency </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
+                                </div>
+                            </div>
+                            <br></br>
+                            <div className="row">
+                                <div>
+                                    <label> Dish Size </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
+                                </div>
+                            </div>
                         <br></br>
-                        <div className="row">
-                            <div>
-                                <label> Latitude </label>
-                                <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
-                                <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
+                            <div className="row">
+                                <div>
+                                    <label> Latitude </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
+                                </div>
                             </div>
                         </div>
-				    </div>
                     <div> <h6>CALCULATE</h6>   </div>
                 </div>			
           </div>
