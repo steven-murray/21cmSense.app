@@ -38,15 +38,6 @@ function Navbar() {
 			</li>
 			<li className='nav-item'>
 			  <Link
-			    to='/DECODE'
-			    className='nav-links'
-			    onClick={closeMobileMenu}
-			  >
-			    DECODE
-			  </Link>
-			</li>
-			<li className='nav-item'>
-			  <Link
 			    to='/DynamicForm'
 			    className='nav-links'
 			    onClick={closeMobileMenu}
