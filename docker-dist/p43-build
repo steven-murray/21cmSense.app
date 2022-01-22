@@ -1,0 +1,4 @@
+#!/bin/bash
+#docker build -t p43 --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" --squash .
+docker build -t p43 --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
+

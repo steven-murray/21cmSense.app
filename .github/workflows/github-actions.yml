@@ -5,14 +5,11 @@ on:
     branches: 
       - master
       - dev
-      - github_actions_new_workflow
   pull_request:
     branches: 
       - master
       - dev
 
-env:
-  WEBAPP_NAME: 'web-app-front-end'
 
 jobs:
   build-and-test:
@@ -53,15 +50,19 @@ jobs:
 #       run: |
 #         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: redis
-      run: |
-          wget http://download.redis.io/redis-stable.tar.gz
-          tar xvzf redis-stable.tar.gz && mv redis-stable redis
-          cd redis
-          make
-          src/redis-server ${BASEDIR}/redis.conf &
-          src/redis-cli ping
-          cd ..
+
+    - name: Stage 21cmSense
+      run: git clone https://github.com/steven-murray/21cmSense && cd 21cmSense && python ./setup.py install 
+  
+    # - name: Upload artifact for deployment jobs
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: python-app
+    #     path: |
+    #       . 
+    #       !node_modules/
+    #       !venv/
+  
     - name: Test with pytest
       run: |
         pytest
@@ -73,18 +74,6 @@ jobs:
       with:
         pytest-coverage: pytest-coverage.txt
 
-    - name: Stage 21cmSense
-      run: git clone https://github.com/steven-murray/21cmSense
-  
-    - name: Upload artifact for deployment jobs
-      uses: actions/upload-artifact@v2
-      with:
-        name: python-app
-        path: |
-          . 
-          !node_modules/
-          !venv/
-  
   deploy-to-webapp:
     needs: build-and-test
     runs-on: ubuntu-latest
