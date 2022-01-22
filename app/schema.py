@@ -1,27 +1,20 @@
-import functools
-import pickle
+#
+# schema.py
+#
+
+import json
+import os
 from json import JSONDecodeError, JSONDecoder
 
-import pprint
-# import jsonpickle
-
-
-import os
-
-import numpy
 from flask import current_app
 from flask import jsonify
 
-# from .json_util import json_error
-# from app.api.errors import error
-
-import json
-import jsonschema
-from jsonschema import ValidationError
-
 from app.api.json_util import json_error
 from app.api.util import DebugPrint
-from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
+
+# import jsonpickle
+# from .json_util import json_error
+# from app.api.errors import error
 
 # from .util import DebugPrint
 # from ..utils.utils import get_unit_string
