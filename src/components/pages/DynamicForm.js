@@ -94,6 +94,22 @@ class DynamicForm extends React.Component {
 							<br></br>
 							<div class="row">
                     			<div>   
+									<label> Frequency </label>            
+                   					<input type = {ant.data.antenna.frequency.type} min = {ant.data.antenna.frequency.minimum} placeholder = {ant.data.antenna.frequency.help}/>
+									<DropDown type = {ant.units.antenna.frequency.type} default = {ant.units.antenna.frequency.default} options={ant.units.antenna.frequency.enum} required/>
+								</div>  
+							</div>	
+							<br></br>
+							<div class="row">
+                    			<div>   
+									<label> Dish Size </label>            
+                   					<input type = {ant.data.antenna.dish_size.type} min = {ant.data.antenna.dish_size.minimum} placeholder = {ant.data.antenna.dish_size.help}/>
+									<DropDown type = {ant.units.antenna.dish_size.type} default = {ant.units.antenna.dish_size.default} options={ant.units.antenna.dish_size.enum} required/>
+								</div>  
+							</div>	
+							<br></br>
+							<div class="row">
+                    			<div>   
 									<label> Distance </label>            
                    					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help} required/>
 									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
