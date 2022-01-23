@@ -1,32 +1,27 @@
-import app
-from flask import current_app
-from flask import jsonify
+#
+# views.py
+#
 from flask import request
-import json
 import numpy as np
-from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from . import models
 from . import api
-from flask import current_app
-from flask import jsonify
 
-from .models import CalculationFactory, handle_output, get_schema_descriptions_json
 from .models import *
-from . import errors
 from .json_util import json_error
-import flask_cors
-
-import flask_cors
-
 
 
 @api.route('/')
-def welcome():  # put application's code here
+def welcome():
     return 'Welcome to Project 43!'
 
 
 @api.route('/ping')
 def ping():
+    """
+    ping test
+    :return:
+    pong
+    """
     return {
         "pong": "",
     }
@@ -34,11 +29,15 @@ def ping():
 
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
+    """Return a list of all of the schema in a schema group along with user-friendly descriptions
+    """
     return get_schema_descriptions_json(schemagroup)
 
 
 @api.route('/customschema', methods=['POST'])
 def api_return():
+    """Return a custom schema
+    """
     if request.method == 'POST':
         lst = models.get_schema_groups()
 
@@ -75,9 +74,11 @@ def get_schema_group(schemagroup):
     Tests
     -----
     test_get_schema_group
+
+    :return:
+    List all of the schemas in a schema group in JSON format
     """
-    lst = models.get_schema_names(schemagroup)
-    return jsonify(lst)
+    return get_schema_names_json(schemagroup)
 
 
 @api.route('/schema', methods=['GET'])
@@ -88,20 +89,18 @@ def list_all_schema_groups():
     -----
     test_list_all_schema_groups
     """
-
     lst = models.get_schema_groups()
     return jsonify(lst)
 
 
 @api.route("/test", methods=['GET', 'POST'])
 def testtest():
-    if request.is_json:
-        if request.json:
-            thisjson = request.get_data()
+    if request.is_json and request.json:
+        thisjson = request.get_data()
 
-            # req = request.get_json()
+        # req = request.get_json()
 
-            schema = """
+        schema = """
 {
   "$schema": "http://json-schema.org/schema#",
   "type": "object",
@@ -222,40 +221,45 @@ def testtest():
   ]
 }
     """
-            # print("type of schema=",type(schema))
-            # ss='{"hello":"there"}'
-            # sch=json.loads(ss)
-            sch = json.loads(schema)
-            v = models.Validator()
-            req_json = request.get_json()
-            if v.validate(sch, req_json):
-                print("json validated")
-            else:
-                print("json failed validation")
+        # print("type of schema=",type(schema))
+        # ss='{"hello":"there"}'
+        # sch=json.loads(ss)
+        sch = json.loads(schema)
+        v = models.Validator()
+        req_json = request.get_json()
+        if v.validate(sch, req_json):
+            print("json validated")
+        else:
+            print("json failed validation")
 
-            fact = models.Factory()
-            sensitivity = fact.go(req_json)
-            power_std = sensitivity.calculate_sensitivity_1d()
+        fact = models.Factory()
+        sensitivity = fact.go(req_json)
+        power_std = sensitivity.calculate_sensitivity_1d()
 
-            for v in sensitivity.k1d:
-                print("v.value=", v.value, ", type(v.value)=", type(v.value))
-            for v in power_std:
-                print("v.value=", v.value, ", type(v.value)=", type(v.value))
-            z = zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
-            print(z)
-            d = dict(z)
-            print("dict=", d)
-            print(json.dumps(d))
-            return json.dumps(d)
+        for v in sensitivity.k1d:
+            print("v.value=", v.value, ", type(v.value)=", type(v.value))
+        for v in power_std:
+            print("v.value=", v.value, ", type(v.value)=", type(v.value))
+        z = zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
+        print(z)
+        d = dict(z)
+        print("dict=", d)
+        print(json.dumps(d))
+        return json.dumps(d)
 
-    return jsonify("nothing")
+    return jsonify("test succeeded.")
 
 
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
+    """Make a computation request to the 21cmSense library
+    """
     if request.is_json and request.json:
         req = request.get_json()
+
         return calculate(req)
+    else:
+        return json_error("error", "request is not in json format")
 
     # if request.is_json and request.json:
     #     req = request.get_json()

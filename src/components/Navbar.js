@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from './Button';
+import React, { useState } from 'react';
+//import { Button } from './Button';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 function Navbar() {
 	const [click, setClick] = useState(false);
-	const [button, setButton] = useState(true);
+	//const [button, setButton] = useState(true);
    
 	const handleClick = () => setClick(!click);
 	const closeMobileMenu = () => setClick(false);
    
-	const showButton = () => {
-	    setButton(true);
-	};
+	// const showButton = () => {
+	//     setButton(true);
+	// };
    
-	useEffect(() => {
-	  showButton();
-	}, []);
+	// useEffect(() => {
+	//   showButton();
+	// }, []);
    
-	window.addEventListener('resize', showButton);
+	// window.addEventListener('resize', showButton);
    
 	return (
 	  <>
@@ -34,15 +34,6 @@ function Navbar() {
 			<li className='nav-item'>
 			  <Link to='/' className='nav-links' onClick={closeMobileMenu}>
 			    Home
-			  </Link>
-			</li>
-			<li className='nav-item'>
-			  <Link
-			    to='/DECODE'
-			    className='nav-links'
-			    onClick={closeMobileMenu}
-			  >
-			    DECODE
 			  </Link>
 			</li>
 			<li className='nav-item'>

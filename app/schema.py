@@ -1,27 +1,21 @@
-import functools
-import pickle
+#
+# schema.py
+#
+
+import json
+import os
 from json import JSONDecodeError, JSONDecoder
 
-import pprint
-# import jsonpickle
-
-
-import os
-
-import numpy
 from flask import current_app
 from flask import jsonify
 
+from app.api.json_util import json_error
+from app.api.util import DebugPrint
+
+# import jsonpickle
 # from .json_util import json_error
 # from app.api.errors import error
 
-import json
-import jsonschema
-from jsonschema import ValidationError
-
-from app.api.json_util import json_error
-from app.api.util import DebugPrint
-from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 # from .util import DebugPrint
 # from ..utils.utils import get_unit_string
 
@@ -29,6 +23,7 @@ from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, h
 debug = DebugPrint(9).debug_print
 
 
+# get a list of the schema names within a schema group
 def get_schema_names(schemagroup):
     try:
         dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
@@ -38,6 +33,21 @@ def get_schema_names(schemagroup):
     return schemas
 
 
+# get schema names in proper format for return to client
+def get_schema_names_json(schemagroup):
+    j = get_schema_names(schemagroup)
+    if j is None:
+        return jsonify(error="Schema group does not exist.", schemagroup=schemagroup)
+    else:
+        return jsonify(j)
+
+
+# returns a list of all schemas in the provided schema group along with a textual description (appropriate for display
+# in a user interface) of the schema
+# ex:
+# {
+#   "1D-cut-of-2D-sensitivity": "1D cut of 2D sensitivity"
+# }
 def get_schema_descriptions_json(schemagroup):
     d = {}
     schema_names = get_schema_names(schemagroup)
@@ -62,7 +72,11 @@ def get_schema_descriptions_json(schemagroup):
         # issue with finding 'description' key in json
         except KeyError:
             pass
-    return jsonify(d)
+
+    if not d:
+        return json_error("error", "error returning data")
+    else:
+        return jsonify(d)
 
 
 def get_schema_groups():

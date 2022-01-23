@@ -1,16 +1,12 @@
 import '../../App.css';
-import React,{ useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import { FormContext } from '../../FormContext';
-
-import ReactDOM from 'react-dom';
-import Form from "react-jsonschema-form";
-import  { Component } from "react";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
     <select onChange={onChange} >
       {
-        options.map(o => <option value={o} selected={o == selectedValue}>{o}</option>)
+        options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
         
       }
     </select>
@@ -25,19 +21,9 @@ class DynamicForm extends React.Component {
     super(props);
     this.state = {
       calc:[],
-      antenna:[],
-      beam:[],
-      location:[],
-      schemas: [],
-      groups: [],
-      schema:[],
-      requires:[]
+      ant:[],
+	  DataisLoaded: false
     }
-    
-
-    this.onSchemasChange = this.onSchemasChange.bind(this);
-    this.onGroupsChange = this.onGroupsChange.bind(this);
-    
   }
 
   componentDidMount(){
@@ -50,94 +36,20 @@ class DynamicForm extends React.Component {
                 });
             })
 
-            fetch("http://localhost:8080/api-1.0/schema")
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    schemas: json
-                });
-            })
-
             fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              antenna: json
+                              ant: json,
+							  DataisLoaded: true
                           });
                       })
     }
 
-         
-  onSchemasChange(e) {
-    var group = e.target.value;
-    
-          fetch("http://localhost:8080/api-1.0/schema/" + group )
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    groups: json
-                });
-            })
-  }
-
-  onGroupsChange(e) {
-    var forms = e.target.value;
-          fetch("http://localhost:8080/api-1.0/schema/antenna/get/"+ forms)
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    schema: json
-                });
-            })
-
-  }
-
- 
-  render() {
-    const { hexObj,calc,antenna,schemas, groups, schema,requires } = this.state;              
-    const myObj = {"__comment__": "this is an extension of the JSON schema document and includes default specifier","schema": "hera","description": "Hera-class antenna array","group": "antenna","data":{"antenna":{"hex_num": {"type": "integer", "minimum": 3, "help": "Number of antennas per side of hexagonal array" },  "separation": { "type": "number", "minimum": 0, "help": "The distance between antennas along a side"}, "dl": { "type": "number", "minimum": 0,"help": "The distance between rows of antennas"}},"required": ["hex_num","separation","dl"]}};
-         
-                               
-      let text ="" ;
-      let la = "DL";
-      for (const x in myObj) {
-       // text += x +",";
-        if(x == "data"){
-              for(const y in myObj[x]){
-                if(y == "antenna"){
-                 // text += myObj[x][y]+",";
-                  for(const z in myObj[x][y]){
-                    text +=z +",";
-                    
-                  }
-                 // text += "</select>";
-               //   document.getElementById("text").innerHTML = text
-                }
-              }
-        }
-        //for(const y in myObj[x]){
-      
-     /*     if (y == "required"){
-                 text =myObj[x][y];
-            
-            
-          }*/
-        /*  for(const z in myObj[x][y]){
-            //text += z + ",";
-            if(z == schemas[0]){
-              text += "found it";
-            }else{
-              text+=z + ",";
-            }
-           // for(const t in myObj[x][y][z]){
-           //       text += t + ",";
-           // }
-            
-          }
-      // text += myObj[x][y]+ "., ";*/
-     //   }
-      
-      }
+ render() {
+    const { calc,ant,DataisLoaded } = this.state;              
+ 		if (!DataisLoaded) return <div>
+			<h1> Please wait some time.... </h1> </div> ;
 
     return (
     <FormContext.Provider>
@@ -148,76 +60,81 @@ class DynamicForm extends React.Component {
             <form >
                   <br></br>
                   <h6>MODELS</h6>  
-                  <br></br><br></br><br></br>
-                  <br></br><br></br>
-                  <button><h5> PLOT </h5> </button>         
-                  
+						Example 1 <br></br>
+						Example 2  <br></br>
+						Example 3  <br></br>
+						Example 4  <br></br>
+						
+						<br></br>
+                 <p> <button><h5> PLOT </h5> </button> </p>
             </form>
           </div>
           <div>
-              <form >
-                  <br></br>
-                  <div class="row">
-                    <div>
-                      <DropDown options={calc}/>
-                    </div>
-                    <div>
-                      <label> <h6>CALCULATE</h6></label>
-                    </div>
-                  </div>
-                  <br></br>
-                  <br></br>
-                  <div class="row">
-                    <div>
-                      <label> <h6>Antenna Information</h6></label>
-                    </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>                    
-                  </div>
-                  <div class="row">
-                    <div>
-                      <label>Testing </label>
-                      <input id="Hex_Num" name="Hex_Num" type="number" value="0"/>
-                      
-                    </div>                    
-                  </div>
-                 <div class="row">
-                   <div></div>
-                   <div>
-                   {}
-                   </div> 
-                   <div></div>
-                                       
-                  </div>
-                  <div class="row">
-                    <div>
-                      <label> <h6>Beam Information</h6></label>
-                    </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>
-                    
-                  </div>
-                  
-                   <div class="row">
-                    <div>
-                      <label> <h6>Location Information</h6></label>
-                    </div>
-                    <div>
-                      <DropDown options={groups}/>
-                    </div>
-                    
-                  </div>
-                  
-              </form>
-          </div>
-        </div>        
-       
-      </div>
-    </FormContext.Provider>
+            	<br></br>
+                <div class="row">
+                    <div>  <DropDown options={calc}/>
+						   <br></br><br></br>
+ 							<div class="row">
+                    			<div> <p><h6>Antenna Information</h6></p> </div>
+                			</div>
+                			<div class="row">
 
-    );
+                    			<div>   
+									<label> Hex Number </label>            
+                   					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help} required/>
+								</div> 								 
+							</div>
+							<br></br>
+							<div class="row">
+                    			<div>   
+									<label> Separation </label>            
+
+                   					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help} required/>
+									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
+								</div>
+							</div>
+							<br></br>
+							<div class="row">
+
+                    			<div>   
+									<label> Distance </label>            
+
+                   					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help} required/>
+									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
+								</div>
+							</div>
+                            <br></br>
+                            <div className="row">
+                                <div>
+                                    <label> Frequency </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
+                                </div>
+                            </div>
+                            <br></br>
+                            <div className="row">
+                                <div>
+                                    <label> Dish Size </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
+                                </div>
+                            </div>
+                        <br></br>
+                            <div className="row">
+                                <div>
+                                    <label> Latitude </label>
+                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
+                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
+                                </div>
+                            </div>
+                        </div>
+                    <div> <h6>CALCULATE</h6>   </div>
+                </div>			
+          </div>
+        </div>
+      </div>        
+   </FormContext.Provider>
+  );
   }
 }
 export default DynamicForm;
