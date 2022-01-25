@@ -24,7 +24,7 @@ function Navbar() {
 	  <>
 	    <nav className='navbar'>
 		 <div className='navbar-container'>
-		   <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
+		   <Link to='/Prototype' className='navbar-logo' onClick={closeMobileMenu}>
 			21cmSense
 		   </Link>
 		   <div className='menu-icon' onClick={handleClick}>
