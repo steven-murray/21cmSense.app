@@ -41,8 +41,8 @@ RUN git clone https://github.com/steven-murray/21cmSense && \
     python ./setup.py install && \
     cd ..
 
-ENTRYPOINT [ "/usr/local/bin/python3", "app.py" ]
-
 # can use parameters --port=8080 --bind-address=1.2.3.4
-CMD [ ]
+ENTRYPOINT [ "python3", "app.py" ]
+
+CMD [ "--port=8080" ]
 
