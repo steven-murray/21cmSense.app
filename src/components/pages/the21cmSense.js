@@ -6,10 +6,13 @@ import '../rsuite-default.css';
 function the21cmSense(){
     return (
         <div style={{
-      display: 'block', width: 700, paddingLeft: 30
+      display: 'block', width: 700, paddingLeft: 30 
     }}>
       <br></br>
-      <Panel header="Model" shaded>
+      <Panel  shaded >
+		<label> Model </label>
+		<button style={{ float: 'right'}}> + </button> 
+		<br></br><br></br>
         No models created yet. Please click "New Model"
       </Panel>
 

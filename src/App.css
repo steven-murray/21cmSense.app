@@ -49,10 +49,11 @@
 label {
     width:180px;
     clear:left;
-    text-align:right;
+    text-align:left;
     padding-right:50px;
 }
 
 input, label {
     float:left;
 }
+
