@@ -10,7 +10,7 @@ function the21cmSense(){
     }}>
       <br></br>
       <Panel  shaded >
-		<button style={{ float: 'right', fontWeight: 'bold', fontSize:18}}> + </button> 
+		<button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model"> + </button> 
 		<br></br><br></br>
         No models created yet. Please click "New Model"
       </Panel>
