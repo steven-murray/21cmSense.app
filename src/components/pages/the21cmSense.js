@@ -10,6 +10,7 @@ function the21cmSense(){
     }}>
       <br></br>
       <Panel  shaded >
+		<label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model </label>
 		<button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model"> + </button> 
 		<br></br><br></br>
         No models created yet. Please click "New Model"
