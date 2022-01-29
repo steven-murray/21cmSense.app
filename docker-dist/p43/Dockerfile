@@ -19,9 +19,13 @@ RUN echo "Host github.com\nIdentityFile=/root/.ssh/id_ed25519"
 # os-level dependency for hd5 library
 RUN apt-get update -y && \
     apt-get install -y libhdf5-dev && \
-    apt-get install -y nginx
+    apt-get install -y nginx && \
+    apt install -y vim && \
+    apt install -y netcat
 
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
+RUN rm -f /etc/nginx/sites-enabled/default && \
+    ln -s ../sites-available/p43_nginx /etc/nginx/sites-enabled/p43_nginx
 #RUN service nginx start
 
 # install python dependencies
