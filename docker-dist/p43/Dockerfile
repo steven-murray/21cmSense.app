@@ -18,7 +18,11 @@ RUN echo "Host github.com\nIdentityFile=/root/.ssh/id_ed25519"
 
 # os-level dependency for hd5 library
 RUN apt-get update -y && \
-    apt-get install -y libhdf5-dev
+    apt-get install -y libhdf5-dev && \
+    apt-get install -y nginx
+
+COPY nginx.conf /etc/nginx/sites-available/p43_nginx
+#RUN service nginx start
 
 # install python dependencies
 RUN python3 -m pip install --upgrade pip
@@ -30,7 +34,7 @@ RUN git clone git@github.com:bpape1usa/SER401-Project43.git
 RUN rm -rf /root/.ssh/
 
 RUN cd SER401-Project43 && \
-    git checkout dev && \
+    git checkout bpape1-s7 && \
     pip install -r requirements.txt && \
     cd ..
 
@@ -41,8 +45,10 @@ RUN git clone https://github.com/steven-murray/21cmSense && \
     python ./setup.py install && \
     cd ..
 
-# can use parameters --port=8080 --bind-address=1.2.3.4
-ENTRYPOINT [ "python3", "app.py" ]
 
-CMD [ "--port=8080" ]
+# can use parameters --port=8080 --bind-address=1.2.3.4
+#ENTRYPOINT [ "python3", "app.py" ]
+ENTRYPOINT [ "gunicorn", "--bind=unix:/tmp/gunicorn.sock", "--workers=2", "wsgi:create_app" ]
+
+#CMD [ "--port=8080" ]
 
