@@ -6,16 +6,22 @@ import '../rsuite-default.css';
 function the21cmSense(){
     return (
         <div style={{
-      display: 'block', width: 700, paddingLeft: 30 
-    }}>
-      <br></br>
-      <Panel  shaded >
-		<button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model"> + </button> 
-		<br></br><br></br>
-        No models created yet. Please click "New Model"
-      </Panel>
+          display: 'block', width: 700, paddingLeft: 30 
+        }}>
+          <br></br>
+          <Panel  shaded >
+        <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model"> + </button> 
+        <br></br><br></br>
+            No models created yet. Please click "New Model"
+          </Panel>
+          <br></br>
+          <Panel  shaded >
+        <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="Download"> Download </button> 
+        <br></br>
+            Download Data
+          </Panel>
+        </div>
 
-    </div>
     );
 }
 export default the21cmSense;
