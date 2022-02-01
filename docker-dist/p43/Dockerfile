@@ -26,7 +26,7 @@ RUN apt-get update -y && \
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \
     ln -s ../sites-available/p43_nginx /etc/nginx/sites-enabled/p43_nginx
-RUN service nginx start
+#RUN service nginx start
 
 # install python dependencies
 RUN python3 -m pip install --upgrade pip
