@@ -140,7 +140,8 @@ def filter_infinity(list1: list, list2: list):
 # done
 # with debugging output
 def one_d_cut(thejson):
-    labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+              "xscale": "log", "yscale": "log"}
     print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
@@ -173,7 +174,8 @@ def one_d_noise_cut(thejson):
 
 # done
 def one_d_thermal_var(thejson):
-    labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+              "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes thermal-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_thermal = sensitivity.calculate_sensitivity_1d(thermal=True, sample=False)
@@ -188,7 +190,8 @@ def one_d_thermal_var(thejson):
 
 # done
 def one_d_sample_var(thejson):
-    labels = {"title":"1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
+    labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+              "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes sample-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
@@ -203,12 +206,13 @@ def two_d_sens(thejson):
     observation = sensitivity.observation
 
     # plt.figure(figsize=(7, 5))
-    labels = {"title": "Number of baselines in group", "plottype": "scatter", "xlabel": "", "ylabel": "", "xscale": "log", "yscale": "log"}
+    labels = {"title": "Number of baselines in group", "plottype": "scatter", "xlabel": "", "ylabel": "",
+              "xscale": "log", "yscale": "log"}
     x = [bl_group[0] for bl_group in observation.baseline_groups]
     y = [bl_group[1] for bl_group in observation.baseline_groups]
     c = [len(bls) for bls in observation.baseline_groups.values()]
 
-    d={"x":x, "y":y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
+    d = {"x": x, "y": y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
     d.update(labels)
     return d
 
@@ -229,6 +233,7 @@ def two_d_sens_z(thejson):
          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
     d.update(labels)
     return d
+
 
 def two_d_sens_k(thejson):
     sensitivity = get_sensitivity(thejson)
@@ -371,7 +376,6 @@ class BeamFactory(FactoryManager):
     def __init__(self):
         super().__init__()
         self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
-
 
 
 class AntennaFactory(FactoryManager):

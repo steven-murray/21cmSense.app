@@ -2,6 +2,7 @@
 from flask import Flask, request, render_template
 from flask_cors import CORS
 
+
 # mod_main = Blueprint('mod_main', __name__)
 # from app.mod_main import main as main_blueprint
 # app.register_blueprint(main_blueprint)

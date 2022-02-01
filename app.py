@@ -17,7 +17,9 @@ bind_address = args.bind_address_raw.exploded
 print("Binding to interface ", bind_address)
 print("Starting app on port ", args.port)
 
-app = create_app('default')
-
 if __name__ == '__main__':
+    app = create_app('default')
     app.run(host=bind_address, port=args.port, debug=True)
+
+else:
+    print("ERROR: WSGI application should be started with 'wsgi.py'")
