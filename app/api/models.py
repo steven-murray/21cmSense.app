@@ -133,22 +133,27 @@ def add_calculation_type(thejson, d: dict):
     d["calculation"] = thejson['calculation']
 
 
+# remove ungraphable infinity values
 def filter_infinity(list1: list, list2: list):
     return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
 
 
-# done
-# with debugging output
-def one_d_cut(thejson):
-    labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
-              "xscale": "log", "yscale": "log"}
-    print("in one_d_cut: includes thermal noise and sample variance")
-    sensitivity = get_sensitivity(thejson)
-    power_std = sensitivity.calculate_sensitivity_1d()
-    (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
-    d = {"x": xseries, "y": yseries,
-         "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
-    d.update(labels)
+# moved to CalculationFactor for now
+# def one_d_cut(thejson):
+#     """one_d_cut: includes thermal noise and sample variance
+#
+#     :param thejson:
+#     :return:
+#     """
+#     labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+#               "xscale": "log", "yscale": "log"}
+#     sensitivity = get_sensitivity(thejson)
+#     power_std = sensitivity.calculate_sensitivity_1d()
+#     (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+#     d = {"x": xseries, "y": yseries,
+#          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+#     d.update(labels)
+#     return d
 
     # prototype debugging output
     # print(pprint.pprint(d))
@@ -164,16 +169,25 @@ def one_d_cut(thejson):
 
     # add_hash(thejson, d)
     # return jsonify(d)
-    return d
     # return jsonify({"a": "b"})
 
 
 def one_d_noise_cut(thejson):
+    """1D noise cut
+
+    :param thejson:
+    :return:
+    """
     sensitivity = get_sensitivity(thejson)
 
 
 # done
 def one_d_thermal_var(thejson):
+    """one_d_thermal_var
+
+    :param thejson:
+    :return:
+    """
     labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
               "xscale": "log", "yscale": "log"}
     print("in one_d_thermal_var: includes thermal-only variance")
@@ -190,9 +204,13 @@ def one_d_thermal_var(thejson):
 
 # done
 def one_d_sample_var(thejson):
+    """one_d_sample_var: includes sample-only variance
+
+    :param thejson:
+    :return:
+    """
     labels = {"title": "1D thermal var", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
               "xscale": "log", "yscale": "log"}
-    print("in one_d_thermal_var: includes sample-only variance")
     sensitivity = get_sensitivity(thejson)
     power_std_sample = sensitivity.calculate_sensitivity_1d(thermal=False, sample=True)
     d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
@@ -202,6 +220,11 @@ def one_d_sample_var(thejson):
 
 
 def two_d_sens(thejson):
+    """Return 2D cut of sensitivity
+
+    :param thejson:
+    :return:
+    """
     sensitivity = get_sensitivity(thejson)
     observation = sensitivity.observation
 
@@ -224,8 +247,12 @@ def two_d_sens(thejson):
 
 
 def two_d_sens_z(thejson):
+    """Return 2D cut of sensitivity -z
+
+    :param thejson:
+    :return:
+    """
     labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
-    print("in two-d sensitivity -z")
     sensitivity = get_sensitivity(thejson)
     power_std = sensitivity.calculate_sensitivity_1d()
     (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
@@ -236,6 +263,12 @@ def two_d_sens_z(thejson):
 
 
 def two_d_sens_k(thejson):
+    """Return 2D cut of sensitivity -z
+
+    :param thejson:
+    :return:
+    """
+
     sensitivity = get_sensitivity(thejson)
     sense2d = sensitivity.calculate_sensitivity_2d()
 
@@ -244,6 +277,11 @@ def two_d_sens_k(thejson):
 
 
 def ant_pos(thejson):
+    """Antenna position
+
+    :param thejson:
+    :return:
+    """
     labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in antenna position")
     sensitivity = get_sensitivity(thejson)
@@ -277,6 +315,11 @@ def ant_pos(thejson):
 # [-126. -112.  -98. ...  -14.    0.    0.]] m
 
 def baselines_distributions(thejson):
+    """Baselines distributions
+
+    :param thejson:
+    :return:
+    """
     sensitivity = get_sensitivity(thejson)
     observatory = sensitivity.observation.observatory
     baselines = observatory.baselines_metres
@@ -324,6 +367,11 @@ def baselines_distributions(thejson):
 
 
 def k_vs_redshift(thejson):
+    """K vs redshift
+
+    :param thejson:
+    :return:
+    """
     labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
     print("in one_d_cut: includes thermal noise and sample variance")
     sensitivity = get_sensitivity(thejson)
@@ -338,6 +386,8 @@ def handle_output(calculation):
     return jsonify({"key": "value"})
 
 
+def one_d_cut(thejson):
+    pass
 # note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
 # schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 class CalculationFactory(FactoryManager):
@@ -354,7 +404,32 @@ class CalculationFactory(FactoryManager):
         # for f in getattr(globals()):
         #     print(f)
 
-        self.add('1D-cut-of-2D-sensitivity', one_d_cut).add('1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
+        allmethods=[]
+        for m in dir(CalculationFactory):
+            if not m.startswith('__'):
+                print("Got method=",m)
+                allmethods.append(m)
+
+
+        lookfor=["one_d_cut","two_d_cut"]
+        for s in lookfor:
+            try:
+                method = getattr(CalculationFactory, s)
+                if method in allmethods:
+                    allmethods.remove(method)
+
+            # this function does not exist
+            except AttributeError as e:
+                print("Missing method for schema "+s)
+                pass
+
+        for m in allmethods:
+            print("Missing schema for method "+m)
+
+
+        #        self.add('1D-cut-of-2D-sensitivity', one_d_cut).\
+        self.add('1D-cut-of-2D-sensitivity', method).add(
+            '1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
             '1D-sample-variance-cut-of-2D-sensitivity', one_d_sample_var).add(
             '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
             '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
@@ -364,6 +439,25 @@ class CalculationFactory(FactoryManager):
         """
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
         """
+
+    def one_d_cut(thejson):
+
+        """one_d_cut: includes thermal noise and sample variance
+
+        :param thejson:
+        :return:
+        """
+
+
+        labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
+                  "xscale": "log", "yscale": "log"}
+        sensitivity = get_sensitivity(thejson)
+        power_std = sensitivity.calculate_sensitivity_1d()
+        (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+        d = {"x": xseries, "y": yseries,
+             "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+        d.update(labels)
+        return d
 
 
 class LocationFactory(FactoryManager):
