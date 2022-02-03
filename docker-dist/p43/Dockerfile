@@ -26,13 +26,13 @@ RUN apt-get update -y && \
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \
     ln -s ../sites-available/p43_nginx /etc/nginx/sites-enabled/p43_nginx
-RUN service nginx start
 
 # install python dependencies
 RUN python3 -m pip install --upgrade pip
 
 WORKDIR /home/app
 RUN git clone git@github.com:bpape1usa/SER401-Project43.git
+COPY docker-run-app.sh /home/app/SER401-Project43
 
 # remove ssh keys
 RUN rm -rf /root/.ssh/
@@ -50,9 +50,11 @@ RUN git clone https://github.com/steven-murray/21cmSense && \
     cd ..
 
 
-# can use parameters --port=8080 --bind-address=1.2.3.4
-#ENTRYPOINT [ "python3", "app.py" ]
-ENTRYPOINT [ "gunicorn", "--bind=unix:/tmp/gunicorn.sock", "--workers=2", "wsgi:create_app" ]
+# nginx runs on port 80 inside container.
+# start container like this: docker run -p8081:80 p43
+ENTRYPOINT [ "./docker-run-app.sh" ]
 
-#CMD [ "--port=8080" ]
+# Flask app can use parameters --port=8080 --bind-address=1.2.3.4
+# but this container uses nginx and WSGI
+#CMD [ "" ]
 
