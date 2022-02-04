@@ -4,7 +4,7 @@ import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
 
-function the21cmSense(){
+function The21cmSense(){
     const data = [
       {
         label: "Image of Plot"
@@ -16,9 +16,9 @@ function the21cmSense(){
         label:"Export Plot Details to CSV"
       }
     ];
-    const [useSelectedOption, useSetSelectedOption] = useState();
+    const [UseSelectedOption, UseSetSelectedOption] = useState(null);
     const handleChange = e => {
-      useSetSelectedOption(e);
+      UseSetSelectedOption(e);
     }
     return (
         <div style={{
@@ -39,18 +39,18 @@ function the21cmSense(){
           </div>
             <Select
               placeholder="Select Options"
-              value={useSelectedOption}
+              value={UseSelectedOption}
               options={data}
               onChange={handleChange}
             />
-
+            {UseSelectedOption && <div style={{ marginTop: 20, lineHeight: '25px' }}>
+              <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
+            </div>}
           </div>
-        <br></br>
-            Download Data
           </Panel>
         </div>
 
 
     );
 }
-export default the21cmSense;
+export default The21cmSense;
