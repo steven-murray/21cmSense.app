@@ -12,6 +12,8 @@ render() {
 			</Panel>
 			<Panel header = 'BEAM' shaded style={{color: 'rgb(106, 120, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 			</Panel>
+			<Panel header = 'LOCATION' shaded style={{color: 'rgb(106, 120, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+			</Panel>
  		</div>
        
   );
