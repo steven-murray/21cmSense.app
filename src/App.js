@@ -19,7 +19,7 @@ function App() {
           <Route path='/The21cmSense' component={The21cmSense} />
           <Route path='/DynamicForm' component={DynamicForm} />
           <Route path='/Home' component={Home} />
-		  <Route path='/createModel' component={createModel} />
+		      <Route path='/createModel' component={createModel} />
         </Switch>
       </Router>
     </>
