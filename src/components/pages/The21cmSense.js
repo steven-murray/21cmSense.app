@@ -3,7 +3,7 @@ import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
-import "react-plotly.js";
+import Plot from "react-plotly.js";
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 // import exportFromJSON from 'export-from-json' 
@@ -11,40 +11,26 @@ import { Link } from 'react-router-dom';
 
 function The21cmSense(){
 
-  var img_jpg= d3.select('#jpg-export');
-
-    // Plotting the Graph
-
-    var trace={x:[3,9,8,10,4,6,5],y:[5,7,6,7,8,9,8],type:"scatter"};
-    var trace1={x:[3,4,1,6,8,9,5],y:[4,2,5,2,1,7,3],type:"scatter"};
-    var dataPlot = [trace,trace1];
-    var layout = {title : "Simple JavaScript Graph"};
-    Plotly.newPlot(
-      'plotly_div',
-      dataPlot,
-      layout)
-
-    // static image in jpg format
-
-    .then(
-        function(gd)
+      <Plot
+      data={[
         {
-          Plotly.toImage(gd,{height:300,width:300})
-            .then(
-                function(url)
-            {
-                img_jpg.attr("src", url);
-            }
-            )
-        });
-    <img id="jpg-export"></img>
+          x: [1, 2, 3],
+          y: [2, 6, 3],
+          type: 'scatter',
+          mode: 'lines+markers',
+          marker: {color: 'red'},
+        },
+        {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+      ]}
+      layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
+    />
     const data = [
       {
         value: "Download Image of Plot",
         
         downloadGraph(fileName) {
           if(this.graphPlotted) {
-            Plot.downloadImage(this.graphPlotted, {format: 'png', filename: fileName})
+            Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
           }
       }
       },
