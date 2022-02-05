@@ -3,12 +3,17 @@ import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
+import Plot from "react-plotly.js";
 
 function The21cmSense(){
     const data = [
       {
-        label: "Image of Plot"
-      },
+        label: "Download Image of Plot",
+        downloadGraph(fileName) {
+          if(this.graphPlotted) {
+            Plot.downloadImage(this.graphPlotted, {format: 'png', filename: fileName})
+          }
+      }},
       {
         label: "Download JSON Data"
       },
@@ -32,7 +37,6 @@ function The21cmSense(){
           </Panel>
           <br></br>
           <Panel  shaded >
-        <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="Download"> Download </button> 
          <div class="md-toolbar-row">
           <div class="md-toolbar-section-start">
             <h3 class="md-title">Download</h3>
@@ -43,7 +47,7 @@ function The21cmSense(){
               options={data}
               onChange={handleChange}
             />
-            {UseSelectedOption && <div style={{ marginTop: 20, lineHeight: '25px' }}>
+            {UseSelectedOption && <div style={{ marginTop: 100, lineHeight: '25px' }}>
               <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
             </div>}
           </div>
