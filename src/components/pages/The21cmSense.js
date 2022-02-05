@@ -32,7 +32,6 @@ function The21cmSense(){
         //   if(this.graphPlotted) {
         //     Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
         //   }
-      }
       },
       {
         value: "Download JSON Data",
