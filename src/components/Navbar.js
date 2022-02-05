@@ -24,7 +24,7 @@ function Navbar() {
 	  <>
 	    <nav className='navbar'>
 		 <div className='navbar-container'>
-		   <Link to='/' className='navbar-logo' onClick={closeMobileMenu}>
+		   <Link to='/the21cmSense' className='navbar-logo' onClick={closeMobileMenu}>
 			21cmSense
 		   </Link>
 		   <div className='menu-icon' onClick={handleClick}>
@@ -37,11 +37,7 @@ function Navbar() {
 			  </Link>
 			</li>
 			<li className='nav-item'>
-			  <Link
-			    to='/DynamicForm'
-			    className='nav-links'
-			    onClick={closeMobileMenu}
-			  >
+			  <Link to='/DynamicForm' className='nav-links' onClick={closeMobileMenu}>
 			    DynamicForm
 			  </Link>
 			</li>
