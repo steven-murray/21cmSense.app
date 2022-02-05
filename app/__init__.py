@@ -2,11 +2,6 @@
 from flask import Flask, request, render_template
 from flask_cors import CORS
 
-# mod_main = Blueprint('mod_main', __name__)
-# from app.mod_main import main as main_blueprint
-# app.register_blueprint(main_blueprint)
-
-# from . import views, errors
 
 def register_errorhandlers(app):
     @app.errorhandler(404)
@@ -17,7 +12,7 @@ def register_errorhandlers(app):
             return render_template('404.html'), 404
 
 
-def create_app(config_name):
+def create_app():
     from .api import api as api_blueprint
     from .interactive import interactive as interactive_blueprint
 

@@ -94,6 +94,7 @@ def test_get_nonexistent_schema_group_case_sensitive_fs(client):
 def test_calculation(client):
     assert True
 
+
 # e.g. "calculation": "baselines-dist"  (should be "baselines-distributions)
 #    {
 #         "error": "unknown calculation"
