@@ -49,38 +49,47 @@ function The21cmSense(){
       UseSetSelectedOption(e);
     }
     return (
-        <div style={{
-          display: 'block', width: 700, paddingLeft: 30 
-        }}>
-          <br></br>
-          <Panel  shaded >
-          <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model <GiInfo title = "create,edit, or delete"/> </label>
-          <Link to='/createModel'>
-			    <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button> 
-		    </Link>
-        <br></br><br></br>
-            No models created yet. Please click "New Model"
-          </Panel>
-          <br></br>
-          <Panel  shaded >
-          <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download </label>
-            <Select
-              placeholder="Select Options"
-              value={UseSelectedOption}
-              options={data}
-              onChange={handleChange}
-            />
-            
-            {UseSelectedOption 
-            && <div style={{ marginTop: 75, lineHeight: '25px' }}>
-             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
-             {/* <Dropdown 
-            //   label="Download"
-            //   data={data}
-            //   /> */}
-              </div>
-              }
-        </Panel>
+        <div>
+            <div style={{
+              display: 'inline-block', width: 700, paddingLeft: 30
+            }}>
+              <br></br>
+              <Panel  shaded >
+              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model <GiInfo title = "create,edit, or delete"/> </label>
+              <Link to='/createModel'>
+                    <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
+                </Link>
+            <br></br><br></br>
+                No models created yet. Please click "New Model"
+              </Panel>
+              <br></br>
+              <Panel  shaded >
+              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download </label>
+                <Select
+                  placeholder="Select Options"
+                  value={UseSelectedOption}
+                  options={data}
+                  onChange={handleChange}
+                />
+
+                {UseSelectedOption
+                && <div style={{ marginTop: 75, lineHeight: '25px' }}>
+                 <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
+                 {/* <Dropdown
+                //   label="Download"
+                //   data={data}
+                //   /> */}
+                  </div>
+                  }
+            </Panel>
+            </div>
+
+            <div className = "graph">
+                <Panel shaded>
+                    This is the panel for graph
+                </Panel>
+            </div>
+
         </div>
 
     );
