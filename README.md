@@ -38,13 +38,13 @@ with a user-friendly interface on the front end and API-driven integration with 
 ```text
 cd SER401-Project43
 source venv/bin/activate
-python app.py []
+python project43.py
 ```
 
 
 Usage:
 ```text
-usage: app.py [-h] [--port PORT] [--bind-address BIND_ADDRESS_RAW]
+usage: project43.py [-h] [--port PORT] [--bind-address BIND_ADDRESS_RAW]
 
 Web interface for py21cmSense astronomy software
 
