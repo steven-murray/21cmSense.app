@@ -83,13 +83,13 @@ function The21cmSense(){
               onChange={handleChange}
             />
             
-            {UseSelectedOption && 
+            {UseSelectedOption && <div style={{ marginTop: 75, lineHeight: '25px' }}>
              <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.value}</div>
-            // {/* <Dropdown 
-            //   label="Download"
-            //   data={data}
-            // /> */}
-          }
+            {/* <Dropdown 
+              label="Download"
+              data={data}
+              /> */}
+              </div>}
         </Panel>
         </div>
 
