@@ -1,5 +1,5 @@
-# use python 3.10
-FROM python:3.10.2-bullseye
+# use python 3.9.8
+FROM python:3.9.8-bullseye
 
 # pass keys during build in order to clone from repo
 ARG ssh_prv_key
