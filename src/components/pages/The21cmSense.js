@@ -7,7 +7,7 @@ import Plot from "react-plotly.js";
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 // import exportFromJSON from 'export-from-json' 
-// import { Dropdown } from 'react-native-material-dropdown';
+import { Dropdown } from 'react-native-material-dropdown';
 
 function The21cmSense(){
 
