@@ -3,11 +3,12 @@ import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
-import Plot from "react-plotly.js";
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
+//import Plot from "react-plotly.js";
 // import exportFromJSON from 'export-from-json' 
-import { Dropdown } from 'react-native-material-dropdown';
+//import { Dropdown } from 'react-native-material-dropdown';
+//import {CSVLink, CSVDownload} from 'react-csv';
 
 function The21cmSense(){
 
@@ -24,9 +25,10 @@ function The21cmSense(){
     //   ]}
     //   layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
     // />
+
     const data = [
       {
-        value: "Download Image of Plot",
+        label: "Download Image of Plot",
         
         // downloadGraph(fileName) {
         //   if(this.graphPlotted) {
@@ -34,11 +36,12 @@ function The21cmSense(){
         //   }
       },
       {
-        value: "Download JSON Data",
+        label: "Download JSON Data",
         //exportFromJSON({ data: JSONdata, fileName: 'download', exportType: exportFromJSON.types.xls })
       },
       {
-        value:"Export Plot Details to CSV"
+        label:"Export Plot Details to CSV"
+        //<CSVLink data={csvData} >Download me</CSVLink>
       }
     ];
     const [UseSelectedOption, UseSetSelectedOption] = useState(null);
@@ -68,13 +71,15 @@ function The21cmSense(){
               onChange={handleChange}
             />
             
-            {/* {UseSelectedOption && <div style={{ marginTop: 75, lineHeight: '25px' }}>
-             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.value}</div> */}
-            <Dropdown 
-              label="Download"
-              data={data}
-              />
-              {/* </div>} */}
+            {UseSelectedOption 
+            && <div style={{ marginTop: 75, lineHeight: '25px' }}>
+             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
+             {/* <Dropdown 
+            //   label="Download"
+            //   data={data}
+            //   /> */}
+              </div>
+              }
         </Panel>
         </div>
 
