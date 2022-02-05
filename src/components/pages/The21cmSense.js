@@ -11,27 +11,27 @@ import { Link } from 'react-router-dom';
 
 function The21cmSense(){
 
-      <Plot
-      data={[
-        {
-          x: [1, 2, 3],
-          y: [2, 6, 3],
-          type: 'scatter',
-          mode: 'lines+markers',
-          marker: {color: 'red'},
-        },
-        {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-      ]}
-      layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-    />
+    //   <Plot
+    //   data={[
+    //     {
+    //       x: [1, 2, 3],
+    //       y: [2, 6, 3],
+    //       type: 'scatter',
+    //       mode: 'lines+markers',
+    //       marker: {color: 'red'},
+    //     },
+    //     {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+    //   ]}
+    //   layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
+    // />
     const data = [
       {
         value: "Download Image of Plot",
         
-        downloadGraph(fileName) {
-          if(this.graphPlotted) {
-            Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
-          }
+        // downloadGraph(fileName) {
+        //   if(this.graphPlotted) {
+        //     Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
+        //   }
       }
       },
       {
@@ -69,13 +69,13 @@ function The21cmSense(){
               onChange={handleChange}
             />
             
-            {UseSelectedOption && <div style={{ marginTop: 75, lineHeight: '25px' }}>
-             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.value}</div>
-            {/* <Dropdown 
+            {/* {UseSelectedOption && <div style={{ marginTop: 75, lineHeight: '25px' }}>
+             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.value}</div> */}
+            <Dropdown 
               label="Download"
               data={data}
-              /> */}
-              </div>}
+              />
+              {/* </div>} */}
         </Panel>
         </div>
 
