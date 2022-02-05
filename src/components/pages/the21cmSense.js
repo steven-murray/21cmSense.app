@@ -3,25 +3,57 @@ import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
-// import Plot from "react-plotly.js";
+import Plot from "react-plotly.js";
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
+import exportFromJSON from 'export-from-json' 
+import { Dropdown } from 'react-native-material-dropdown';
 
 function The21cmSense(){
+
+  var img_jpg= d3.select('#jpg-export');
+
+    // Plotting the Graph
+
+    var trace={x:[3,9,8,10,4,6,5],y:[5,7,6,7,8,9,8],type:"scatter"};
+    var trace1={x:[3,4,1,6,8,9,5],y:[4,2,5,2,1,7,3],type:"scatter"};
+    var dataPlot = [trace,trace1];
+    var layout = {title : "Simple JavaScript Graph"};
+    Plotly.newPlot(
+      'plotly_div',
+      dataPlot,
+      layout)
+
+    // static image in jpg format
+
+    .then(
+        function(gd)
+        {
+          Plotly.toImage(gd,{height:300,width:300})
+            .then(
+                function(url)
+            {
+                img_jpg.attr("src", url);
+            }
+            )
+        });
+    <img id="jpg-export"></img>
     const data = [
       {
-        label: "Download Image of Plot",
-      //   downloadGraph(fileName) {
-      //     if(this.graphPlotted) {
-      //       Plot.downloadImage(this.graphPlotted, {format: 'png', filename: fileName})
-      //     }
-      // }
-    },
-      {
-        label: "Download JSON Data"
+        value: "Download Image of Plot",
+        
+        downloadGraph(fileName) {
+          if(this.graphPlotted) {
+            Plot.downloadImage(this.graphPlotted, {format: 'png', filename: fileName})
+          }
+      }
       },
       {
-        label:"Export Plot Details to CSV"
+        value: "Download JSON Data",
+        //exportFromJSON({ data: JSONdata, fileName: 'download', exportType: exportFromJSON.types.xls })
+      },
+      {
+        value:"Export Plot Details to CSV"
       }
     ];
     const [UseSelectedOption, UseSetSelectedOption] = useState(null);
@@ -50,9 +82,14 @@ function The21cmSense(){
               options={data}
               onChange={handleChange}
             />
+            
             {UseSelectedOption && <div style={{ marginTop: 75, lineHeight: '25px' }}>
-             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
-            </div>}
+             <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.value}</div>
+            {/* <Dropdown 
+              label="Download"
+              data={data}
+              /> */}
+              </div>}
         </Panel>
         </div>
 
