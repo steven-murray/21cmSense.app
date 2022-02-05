@@ -3,7 +3,7 @@ import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import Select from 'react-select';
-import Plot from "react-plotly.js";
+import "react-plotly.js";
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 // import exportFromJSON from 'export-from-json' 
