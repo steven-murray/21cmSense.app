@@ -1,4 +1,14 @@
 #!/bin/bash
+if [ "$1" = "-nc" ]
+then
+    NOCACHE="--no-cache"
+    echo Building image without cache.
+else
+    echo Building image with cache.
+fi
+
 #docker build -t p43 --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" --squash .
-docker build -t p43 --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
+
+# no-cache
+docker build -t p43 $NOCACHE --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
 

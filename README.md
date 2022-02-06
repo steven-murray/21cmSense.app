@@ -30,9 +30,34 @@ with a user-friendly interface on the front end and API-driven integration with 
 **21cmSense**
 		proven Python code that generates estimates of the sensitivity of different radio telescope configurations to signals coming from the very early Universe.
 		
-## Implementation Strategy
-
 ## Post-requisite
+
+## Running the Python/Flask back end application
+
+### Standalone (non-production) mode
+```text
+cd SER401-Project43
+source venv/bin/activate
+python project43.py
+```
+
+
+Usage:
+```text
+usage: project43.py [-h] [--port PORT] [--bind-address BIND_ADDRESS_RAW]
+
+Web interface for py21cmSense astronomy software
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --port PORT
+  --bind-address BIND_ADDRESS_RAW
+```
+
+
+### Production mode (docker container)
+
+
 
 ## How to run the Web application 
 
