@@ -11,6 +11,9 @@ render() {
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(106, 120, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
                 <input required/>
+				<br></br><br></br>
+				<label> Separation </label>            
+                <input required/>
 			</Panel>
 			<Panel header = 'BEAM' shaded style={{color: 'rgb(106, 120, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 			</Panel>
