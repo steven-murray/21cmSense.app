@@ -50,9 +50,12 @@ label {
     width:280px;
     clear:left;
     text-align:left;
-    padding-right:50px;
+    padding-left:50px;
 }
-
+select {
+    padding-right:50px;
+	float:right;
+}
 input, label {
     float:left;
 }
