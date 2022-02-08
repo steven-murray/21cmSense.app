@@ -33,14 +33,14 @@ render() {
 			
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
-                <input required/>
+                <input type = {"number"} min={3}required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input required/>
+                <input type = {"number"} min={0}required/>
 				<DropDown options={option.separation.enum}/>      
   				<br></br><br></br>
 				<label> Distance </label>           
-                <input required/>
+                <input type = {"number"} min={0}required/>
 				<DropDown options={option.separation.enum}/>      
   				<br></br><br></br>
 			</Panel>
@@ -48,6 +48,7 @@ render() {
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 			<label> Latitude </label> 
+			<input type = {"number"} min={-180} max = {180} required/>
 			</Panel>
  		</div>
   );
