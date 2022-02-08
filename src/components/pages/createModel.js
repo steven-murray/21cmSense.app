@@ -47,8 +47,10 @@ render() {
 			<Panel header = 'BEAM' shaded style={{color: 'rgb(106, 120, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontWeight: 'bold', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
-			<label> Latitude </label> 
-			<input type = {"number"} min={-180} max = {180} required/>
+				<label> Latitude </label> 
+				<input type = {"number"} min={-180} max = {180} required/>
+				<DropDown options={option.separation.enum}/>      
+  				<br></br><br></br>
 			</Panel>
  		</div>
   );
