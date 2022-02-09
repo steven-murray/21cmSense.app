@@ -1,6 +1,7 @@
 import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
+import styled from "styled-components";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -11,6 +12,40 @@ const DropDown = ({ selectedValue, options, onChange }) => {
       }
     </select>
   );
+}
+
+const theme = {
+  blue: {
+    default: "#9facde",
+    hover: "#657aca"
+  },
+  green: {
+    default: "#6ca59b",
+    hover: "#6c9ca5"
+  }
+};
+
+const Button = styled.button`
+  background-color: ${(props) => theme[props.theme].default};
+  color: rgb(128, 0, 0);
+  padding: 5px 15px;
+  border-radius: 9px;
+  &:hover {
+    background-color: ${(props) => theme[props.theme].hover};
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+`;
+
+Button.defaultProps = {
+  theme: "green"
+
+};
+
+function clickMe() {
+  alert("You clicked me!");
 }
 
 class CreateModel extends React.Component {
@@ -28,7 +63,7 @@ render() {
 							      }
 						}
      return (
-			<div style={{display: 'block', width: 900, paddingLeft: 30 }}>
+		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
 			<br></br>
 			
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
@@ -57,9 +92,10 @@ render() {
   				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
-			<label style = {{color: 'rgb(128, 0, 0)', fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
+			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
 			<input type = {"text"} required/>
- 		</div>
+			<Button onclick={clickMe} style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
+		</div>
   );
   }
 }

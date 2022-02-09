@@ -71,3 +71,8 @@ input, label {
     display: inline-block;
 }
 
+Button {
+	float:right;
+	
+}
+
