@@ -10,6 +10,6 @@ class DebugPrint:
     def get_level(self):
         return DebugPrint.level
 
-    def debug_print(self, debug_level: int, msg):
-        if debug_level <= self.get_level():
-            print("DEBUG: " + msg)
+    def debug_print(self, msg, debug_level: int = 3):
+        if 0 < debug_level <= self.get_level():
+            print("DEBUG(", debug_level, "): " + msg, sep="")

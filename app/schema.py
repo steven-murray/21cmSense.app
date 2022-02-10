@@ -14,15 +14,7 @@ import jsonschema
 from app.api.json_util import json_error
 from app.api.util import DebugPrint
 
-# import jsonpickle
-# from .json_util import json_error
-# from app.api.errors import error
-
-# from .util import DebugPrint
-# from ..utils.utils import get_unit_string
-
-
-debug = DebugPrint(9).debug_print
+debug = DebugPrint(0).debug_print
 
 
 # get a list of the schema names within a schema group
@@ -98,14 +90,14 @@ def get_schema_groups_json():
 
 def load_schema(schemagroup: str, schemaname: str):
     l = load_schema_generic('schema', schemagroup, schemaname)
-    print("loaded schema=", l)
+    debug("loaded schema=" + str(l), 9)
     return l
 
 
 def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     try:
         p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
-        print("going to load schema from path: ", p)
+        debug("going to load schema from path: " + p, 3)
         f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
         schema = json.load(f)
         f.close()
@@ -126,7 +118,7 @@ def build_composite_schema(schema: JSONDecoder):
         return json_error("error", "specified schema missing 'calculation' key")
 
     calculation_type = schema['calculation']
-    print("Going to load schema for calculation ", calculation_type)
+    debug("Going to load schema for calculation " + calculation_type, 9)
 
     calc_schema = load_schema('calculation', calculation_type)
     if not calc_schema:
@@ -162,7 +154,7 @@ def build_composite_schema(schema: JSONDecoder):
         #     jsonschema.validate(cs, validation_schema)
         # except ValidationError:
         #     return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
-        print("Going to load component schema %s/%s" % (component, comp_schema_name))
+        debug("Going to load component schema %s/%s" % (component, comp_schema_name), 3)
         newschema['data'][component] = load_schema(component, comp_schema_name)
         newschema['units'][component] = {}
 
@@ -205,7 +197,7 @@ class Validator:
             self.errorMsg = "Missing sections " + str(missing)
 
         # prettier but we've already calculated surplus and missing so ought to save the set operation
-        #return required.intersection(supplied) == required
+        # return required.intersection(supplied) == required
         return not (surplus or missing)
 
     # load a validation schema.  It must either have the same name as the schema that is to be validated, or

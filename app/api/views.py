@@ -50,8 +50,6 @@ def api_return():
                 if schema_group in req:
                     print("json return for component %s=" % schema_group, req[schema_group]);
             return build_composite_schema(req)
-        # return jsonify("blah")
-        # return current_app.send_static_file('schema/an
 
 
 @api.route('/schema/<schemagroup>/get/<schemaname>')
