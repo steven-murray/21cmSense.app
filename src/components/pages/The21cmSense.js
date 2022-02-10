@@ -89,6 +89,9 @@ function The21cmSense(){
                     // addition of label will be here for future reference
                 }
                 <Panel shaded>
+                    <div style>
+                        <div style> </div>
+                    </div>
                     This is the panel for graph
                 </Panel>
             </div>
