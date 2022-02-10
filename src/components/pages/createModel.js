@@ -94,6 +94,7 @@ render() {
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
 			<input type = {"text"} required/>
+			<Button onclick={clickMe} style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button onclick={clickMe} style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
 		</div>
   );
