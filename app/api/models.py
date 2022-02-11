@@ -11,6 +11,7 @@ import numpy
 from app.schema import *
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
+from ..constants import *
 
 from app.schema import Validator
 
@@ -22,8 +23,14 @@ class Hera:
 
 
 class FactoryManager:
-    def __init__(self):
+    def __init__(self, schemagroup):
         self.d = {}
+        if not schemagroup:
+            assert(schemagroup), "Factory manager initialized without a schema group name"
+        else:
+            self.schemagroup = schemagroup
+
+        self.map_schema_to_methods()
 
     def add(self, key, f):
         # if key not in self.d:
@@ -44,13 +51,55 @@ class FactoryManager:
             return None
 
 
+    def map_schema_to_methods(self):
+        schemas = get_schema_names(self.schemagroup)
+        for c in schemas:
+            print("Got schema=", c)
+
+        # find all of the methods in this class.  Nomenclature is '_name_of_schema_on_disk'
+        allmethods = {}
+        for m in dir(self):
+            if not m.startswith('__') and m.startswith('_'):
+                print("Got method=", m)
+                allmethods[m.upper()] = m
+
+        # lookfor = ["one_d_cut", "two_d_cut"]
+        # a list of schema names; we will look for methods matching these
+        lookfor = schemas
+        print("Going to look for methods matching these schema:", lookfor)
+        for s in lookfor:
+
+            # transliterate "-" in schema to "_" in method and add leading underscore
+            method_name = "_" + s.replace("-", "_").upper()
+            if method_name in allmethods:
+
+                method = getattr(CalculationFactory, allmethods[method_name])
+                self.add(s, method)
+                print("Mapped group " + self.schemagroup + " method " + allmethods[method_name] + " to schema " + s)
+                allmethods.pop(method_name)
+
+            else:
+                print("Missing group " + self.schemagroup + " method for schema " + s)
+                # if method.__name__ in allmethods:
+                #     allmethods.remove(method.__name__)
+
+        for m in allmethods:
+            print("Missing group " + self.schemagroup + " schema for method " + m)
+
+
+
+# This class simplifies the handling of data and unit data
 class Dispatcher:
     def __init__(self, data_json, units_json):
         self.data_json = data_json
         self.units_json = units_json
 
 
+
 class GaussianBeamDispatcher(Dispatcher):
+    """
+    Makes a py21cmSense library call to the GaussianBeam class
+    """
     def get(self):
         return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
@@ -61,6 +110,9 @@ class LatitudeDispatcher(Dispatcher):
 
 
 class HeraAntennaDispatcher(Dispatcher):
+    """
+    makes a py21cmSense call to the hera antenna class
+    """
     def get(self):
         j = self.data_json
         return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
@@ -72,11 +124,22 @@ class CalculationDispatcher(Dispatcher):
 
 # serialize the json to a hashable form for LRU caching
 def get_sensitivity(thejson):
+    """
+    serialize json to a hashable form for LRU caching and call method that does the actual work
+    :param thejson: json input from application front end
+    :return: sensitivity object
+    """
     return cached_sensitivity(pickle.dumps(thejson))
 
 
 @functools.lru_cache
 def cached_sensitivity(json_pickle):
+    """
+    use pickled json object to satisfy LRU cache requirements
+    unpickle, and calculate sensitivity object
+    :param json_pickle: input json in pickled format
+    :return: sensitivity object
+    """
     thejson = pickle.loads(json_pickle)
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
@@ -103,20 +166,26 @@ def cached_sensitivity(json_pickle):
 
 
 def calculate(thejson):
+    """
+    calculate antenna data based upon json request from application front end
+    :param thejson: json data
+    :return: json output or json-formatted error
+    """
+
     v = Validator(thejson)
     if not v.valid_groups():
         return jsonify(error="Invalid JSON schema", errormsg=v.errorMsg)
     else:
         print("JSON SCHEMA VALIDATED")
 
-    if 'calculation' not in thejson:
+    if KW_CALCULATION not in thejson:
         return jsonify(error="calculation type not provided")
 
-    print("Going to run calculation " + thejson['calculation'] + " on schema ", thejson)
-    calculator = CalculationFactory().get(thejson['calculation'])
+    print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
+    calculator = CalculationFactory().get(thejson[KW_CALCULATION])
 
     if calculator is None:
-        return jsonify({"error": "unknown calculation", "calculation": thejson['calculation']})
+        return jsonify({KW_ERROR: "unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]})
 
     results = calculator(thejson)
 
@@ -127,22 +196,43 @@ def calculate(thejson):
 
 
 def hash_json(thejson):
+    """
+    create a unique hash from json for fingerprinting / model identification for front end
+    :param thejson: json to hash
+    :return: hex-formatted string with digest of input json
+    """
     hashfunc = md5()
     hashfunc.update(pickle.dumps(thejson))
     return hashfunc.hexdigest()
 
 
-# hashes the input request json and adds a "modelID": "base64 md5" to the dict prior to jsonification
 def add_hash(thejson, d: dict):
+    """
+    add hash to the dictionary 'd' (to be jsonified for client return)
+    :param thejson: input json to be hashed
+    :param d: dictionary containing json being built for client return
+    :return: updated dictionary with a modelID k/v pair added.  Format: "modelID": "base64 md5"
+    """
     d["modelID"] = hash_json(thejson)
 
 
 def add_calculation_type(thejson, d: dict):
-    d["calculation"] = thejson['calculation']
+    """
+    Add the calculation type requested (and returned)
+    :param thejson:
+    :param d:
+    :return:
+    """
+    d[KW_CALCULATION] = thejson[KW_CALCULATION]
 
 
-# remove ungraphable infinity values
 def filter_infinity(list1: list, list2: list):
+    """
+    remove ungraphable infinity values
+    :param list1:
+    :param list2:
+    :return:
+    """
     return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
 
 
@@ -184,10 +274,6 @@ def handle_output(calculation):
     return jsonify({"key": "value"})
 
 
-def one_d_cut(thejson):
-    pass
-
-
 # note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
 # schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 #
@@ -195,17 +281,13 @@ def one_d_cut(thejson):
 #
 class CalculationFactory(FactoryManager):
     def __init__(self):
-        super().__init__()
+        super().__init__(KW_CALCULATION)
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
 
         #
-        calculation_schemas = get_schema_names('calculation')
+        calculation_schemas = get_schema_names(KW_CALCULATION)
         for c in calculation_schemas:
             print("Got schema=", c)
-
-        # now check the directory
-        # for f in getattr(globals()):
-        #     print(f)
 
         # find all of the methods in this class.  Nomenclature is '_name_of_schema_on_disk'
         allmethods = {}
@@ -473,19 +555,19 @@ class CalculationFactory(FactoryManager):
 
 class LocationFactory(FactoryManager):
     def __init__(self):
-        super().__init__()
+        super().__init__("location")
         self.add('Latitude', LatitudeDispatcher)
 
 
 class BeamFactory(FactoryManager):
     def __init__(self):
-        super().__init__()
+        super().__init__("beam")
         self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
 
 
 class AntennaFactory(FactoryManager):
     def __init__(self):
-        super().__init__()
+        super().__init__("antenna")
         self.add('hera', HeraAntennaDispatcher)
 
 
