@@ -60,7 +60,14 @@ render() {
 							          "m",
 							          "s"
 							        ]
-							      }
+							      },
+						"frequency": {
+							"type": "string",
+							        "default": "MHz",
+							        "enum": [
+							          "MHz"
+							        ]
+						}
 						}
      return (
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
@@ -86,7 +93,7 @@ render() {
   				<br></br><br></br>
 				  <label> Frequency </label>           
                 <input type = {"number"} min={0}required/>
-				<DropDown options={option.separation.enum}/>      
+				<DropDown options={option.frequency.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
