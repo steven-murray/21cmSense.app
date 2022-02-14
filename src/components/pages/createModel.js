@@ -2,6 +2,7 @@ import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
+import { withRouter } from 'react-router-dom';
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -44,12 +45,7 @@ Button.defaultProps = {
 
 };
 
-function clickMe() {
-  alert("You clicked me!");
-}
-
 class CreateModel extends React.Component {
-
 
 render() {
 		const option = {
@@ -105,7 +101,8 @@ render() {
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
 			<input type = {"text"} required/>
-			<Button onclick={clickMe} style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
+			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
+			<Button style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
 		</div>
   );
   }
