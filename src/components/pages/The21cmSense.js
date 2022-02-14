@@ -98,7 +98,7 @@ const saveImage = () => {
 const saveJSON = () => {
   saveAs(
     "",
-    "example.txt"
+    "example.json"
   );
 };
 
