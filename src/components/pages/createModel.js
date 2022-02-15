@@ -46,6 +46,13 @@ Button.defaultProps = {
 };
 
 class CreateModel extends React.Component {
+	constructor(props) {
+    super(props);
+    this.state = {
+     
+    }
+  }
+
 
 render() {
 		const option = {
