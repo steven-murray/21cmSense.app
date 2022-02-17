@@ -1,5 +1,5 @@
 import '../../App.css';
-import React, {useReducer, useState} from 'react';
+import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
 
@@ -56,6 +56,7 @@ class CreateModel extends React.Component {
 
 
 render() {
+		var handleToUpdate = this.props.handleToUpdate;
 		const option = {
 						 "separation": {
 							        "type": "string",
@@ -101,6 +102,9 @@ render() {
 			<input type = {"text"}  required/>
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
+			<button onClick={() => handleToUpdate('someVar')}>
+            Push me
+          </button>
 			</form>
 		</div>
   );

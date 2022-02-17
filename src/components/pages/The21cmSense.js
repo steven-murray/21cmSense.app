@@ -1,53 +1,85 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
-import Select from 'react-select';
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
-//import Plot from "react-plotly.js";
-// import exportFromJSON from 'export-from-json' 
+import '../../TestGraphDownload.js';
+import { saveAs } from "file-saver";
+//import { downloadData, downloadPlotImage, downloadParamValsJson } from '../Download.js'
+//import { Button } from '../Button.js'; 
+//import exportFromJSON from 'export-from-json';
+import styled from "styled-components";
 //import { Dropdown } from 'react-native-material-dropdown';
 //import {CSVLink, CSVDownload} from 'react-csv';
 
-function The21cmSense(){
+// const downloadOptions = {
+//   PlotImage: {
+//     name: 'PlotImage',
+//     displayName: 'Image of Plot',
+//     fileName: 'PlotImage.svg',
+//     loadingTitle: 'Creating plot image...',
+//   },
+//   ParamValsJson: {
+//     name: 'ParamValsJson',
+//     displayName: 'Parameter Values in JSON Format',
+//     fileName: 'ParameterValues.json',
+//     loadingTitle: 'Loading parameter values...',
+//   }
+// };
 
-    //   <Plot
-    //   data={[
-    //     {
-    //       x: [1, 2, 3],
-    //       y: [2, 6, 3],
-    //       type: 'scatter',
-    //       mode: 'lines+markers',
-    //       marker: {color: 'red'},
-    //     },
-    //     {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-    //   ]}
-    //   layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-    // />
+const theme = {
+  cyan: {
+    default: "#F0FFFF",
+    hover: "#00FFFF"
+  }
+};
 
-    const data = [
-      {
-        label: "Download Image of Plot",
-        
-        // downloadGraph(fileName) {
-        //   if(this.graphPlotted) {
-        //     Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
-        //   }
-      },
-      {
-        label: "Download JSON Data",
-        //exportFromJSON({ data: JSONdata, fileName: 'download', exportType: exportFromJSON.types.xls })
-      },
-      {
-        label:"Export Plot Details to CSV"
-        //<CSVLink data={csvData} >Download me</CSVLink>
-      }
-    ];
-    const [UseSelectedOption, UseSetSelectedOption] = useState(null);
-    const handleChange = e => {
-      UseSetSelectedOption(e);
-    }
+const Button = styled.button`
+  background-color: ${(props) => theme[props.theme].default};
+  color: rgb(128, 0, 0);
+  padding: 5px 15px;
+  border-radius: 9px;
+  &:hover {
+    background-color: ${(props) => theme[props.theme].hover};
+  }
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+`;
+
+
+Button.defaultProps = {
+  theme: "cyan"
+
+};
+
+const saveImage = () => {
+  saveAs(
+    // img_png.attr("src", url),
+    // Plotly.toImage(gd,{format:'png',height:400,width:400}),
+    "example.png"
+  );
+};
+
+const saveJSON = () => {
+  saveAs(
+    "",
+    "example.json"
+  );
+};
+
+const saveCSV = () => {
+  saveAs(
+    "",
+    "example.csv"
+  );
+};
+
+class The21cmSense extends React.Component {
+
+  render() {
     return (
         <div>
             <div style={{
@@ -64,23 +96,19 @@ function The21cmSense(){
               </Panel>
               <br></br>
               <Panel  shaded >
-              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download </label>
-                <Select
-                  placeholder="Select Options"
-                  value={UseSelectedOption}
-                  options={data}
-                  onChange={handleChange}
-                />
+              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
+              <br></br><br></br>
+          
+        
+                <Button onClick={saveJSON} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Parameters in JSON</Button>
+           
+                <Button onClick={saveImage} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Image of Graph</Button>
+                
+                <Button onClick={saveCSV} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Graph Data in CSV</Button>
+             
 
-                {UseSelectedOption
-                && <div style={{ marginTop: 75, lineHeight: '25px' }}>
-                 <div style={{ marginTop: 10 }}><b>Label: </b> {UseSelectedOption.label}</div>
-                 {/* <Dropdown
-                //   label="Download"
-                //   data={data}
-                //   /> */}
-                  </div>
-                  }
+  				    <br></br><br></br><br></br>
+              
             </Panel>
             </div>
 
@@ -93,5 +121,6 @@ function The21cmSense(){
         </div>
 
     );
+  }
 }
 export default The21cmSense
