@@ -56,7 +56,6 @@ class CreateModel extends React.Component {
 
 
 render() {
-		var handleToUpdate = this.props.handleToUpdate;
 		const option = {
 						 "separation": {
 							        "type": "string",
@@ -102,9 +101,7 @@ render() {
 			<input type = {"text"}  required/>
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Save </Button>
-			<button onClick={() => handleToUpdate('someVar')}>
-            Push me
-          </button>
+			
 			</form>
 		</div>
   );
