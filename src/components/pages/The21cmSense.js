@@ -7,60 +7,27 @@ import { Link } from 'react-router-dom';
 import * as Plotly from 'plotly.js';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
+//import { downloadData, downloadPlotImage, downloadParamValsJson } from '../Download.js'
 //import { Button } from '../Button.js'; 
 //import exportFromJSON from 'export-from-json';
 import styled from "styled-components";
 //import { Dropdown } from 'react-native-material-dropdown';
 //import {CSVLink, CSVDownload} from 'react-csv';
 
-
-   //   <Plot
-    //   data={[
-    //     {
-    //       x: [1, 2, 3],
-    //       y: [2, 6, 3],
-    //       type: 'scatter',
-    //       mode: 'lines+markers',
-    //       marker: {color: 'red'},
-    //     },
-    //     {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-    //   ]}
-    //   layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-    // />
-
-    // const data = [
-    //   {
-    //     label: "Download Image of Plot",
-        
-    //     // downloadGraph(fileName) {
-    //     //   if(this.graphPlotted) {
-    //     //     Plotly.downloadGraph(this.graphPlotted, {format: 'png', filename: fileName})
-    //     //   }
-    //   },
-    //   {
-    //     label: "Download JSON Data",
-    //     //exportFromJSON({ data: JSONdata, fileName: 'download', exportType: exportFromJSON.types.xls })
-    //   },
-    //   {
-    //     label:"Export Plot Details to CSV"
-    //     //<CSVLink data={csvData} >Download me</CSVLink>
-    //   }
-    // ];
-    // const [UseSelectedOption, UseSetSelectedOption] = useState(null);
-    // const handleChange = e => {
-    //   UseSetSelectedOption(e);
-    // }
-// const DropDown = ({ selectedValue, options, onChange }) => {
-//   return (
-//     <select onChange={onChange} >
-//       {
-//         options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
-        
-//       }
-//     </select>
-//   );
-// }
-
+// const downloadOptions = {
+//   PlotImage: {
+//     name: 'PlotImage',
+//     displayName: 'Image of Plot',
+//     fileName: 'PlotImage.svg',
+//     loadingTitle: 'Creating plot image...',
+//   },
+//   ParamValsJson: {
+//     name: 'ParamValsJson',
+//     displayName: 'Parameter Values in JSON Format',
+//     fileName: 'ParameterValues.json',
+//     loadingTitle: 'Loading parameter values...',
+//   }
+// };
 
 const theme = {
   cyan: {
@@ -83,6 +50,7 @@ const Button = styled.button`
   }
 `;
 
+
 Button.defaultProps = {
   theme: "cyan"
 
@@ -90,7 +58,8 @@ Button.defaultProps = {
 
 const saveImage = () => {
   saveAs(
-    "",
+    // img_png.attr("src", url),
+    // Plotly.toImage(gd,{format:'png',height:400,width:400}),
     "example.png"
   );
 };
@@ -111,23 +80,7 @@ const saveCSV = () => {
 
 class The21cmSense extends React.Component {
 
-  onButtonClick() {
-    // Do anything
-    this.popupHandler("Update");
-    console.log('Button clicked');
-  }
   render() {
-    // const option = {
-    //   "download": {
-    //            "type": "string",
-    //            "default": "Please Select Download Option",
-    //            "dropdown": [
-    //              "Image of Graph",
-    //              "Parameters in JSON",
-    //              "Download Graph Data in CSV"
-    //            ]
-    //          },
-    //  }
     return (
         <div>
             <div style={{
@@ -146,16 +99,7 @@ class The21cmSense extends React.Component {
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
               <br></br><br></br>
-              {/* <DropDown options={option.download.dropdown}/>      */}
-              {/* <Button
-                onClicked={this.onButtonClick()}
-              />  */}
-              {/* <div>
-                <button onClick={saveFile}>Download Image of Graph</button>
-              </div>
-              <div>
-                <button onClick={saveFile}>Download Graph Data in CSV</button>
-              </div> */}
+          
         
                 <Button onClick={saveJSON} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Parameters in JSON</Button>
            
