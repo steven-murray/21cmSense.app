@@ -4,6 +4,7 @@ import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
+import * as Plotly from 'plotly.js';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 //import { downloadData, downloadPlotImage, downloadParamValsJson } from '../Download.js'
@@ -124,3 +125,4 @@ class The21cmSense extends React.Component {
   }
 }
 export default The21cmSense
+
