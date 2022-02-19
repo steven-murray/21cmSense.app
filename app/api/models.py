@@ -350,17 +350,8 @@ class CalculationFactory(FactoryManager):
         d.update(labels)
         return d
 
-    def one_d_noise_cut(thejson):
-        """1D noise cut
-
-        :param thejson:
-        :return:
-        """
-        sensitivity = get_sensitivity(thejson)
-
-    # done
     def _1D_noise_cut_of_2D_sensitivity(thejson):
-        """one_d_thermal_var
+        """_1D_noise_cut_of_2D_sensitivity includes thermal noise without sample variance
 
         :param thejson:
         :return:
@@ -379,9 +370,8 @@ class CalculationFactory(FactoryManager):
         # return jsonify(d)
         return d
 
-    # done
     def _1D_sample_variance_cut_of_2D_sensitivity(thejson):
-        """one_d_sample_var: includes sample-only variance
+        """_1D_sample_variance_cut_of_2D_sensitivity includes sample-only variance without thermal noise
 
         :param thejson:
         :return:
@@ -397,7 +387,7 @@ class CalculationFactory(FactoryManager):
         return d
 
     def two_d_sens(thejson):
-        """Return 2D cut of sensitivity
+        """Return 2D cylindrical visualization cut of sensitivity
 
         :param thejson:
         :return:
