@@ -79,8 +79,14 @@ const saveCSV = () => {
 };
 
 class The21cmSense extends React.Component {
-
+	constructor(props) {
+	    super(props);
+	    this.state = {
+	     modelName: ''
+	    }
+	  }
   render() {
+	const { modelName } = (this.props.location && this.props.location.state) || {};
     return (
         <div>
             <div style={{
@@ -94,6 +100,8 @@ class The21cmSense extends React.Component {
                 </Link>
             <br></br><br></br>
                 No models created yet. Please click "New Model"
+				<br></br><br></br>
+				{modelName}
               </Panel>
               <br></br>
               <Panel  shaded >
@@ -125,4 +133,4 @@ class The21cmSense extends React.Component {
   }
 }
 export default The21cmSense
- 
+
