@@ -9,6 +9,8 @@ from json import JSONDecodeError, JSONDecoder
 from flask import current_app
 from flask import jsonify
 
+import jsonschema
+
 from app.api.json_util import json_error
 from app.api.util import DebugPrint
 
@@ -114,24 +116,6 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
         return schema
 
 
-# load a validation schema.  It must either have the same name as the schema that is to be validated, or
-# be "default"
-def load_validation_schema(schemagroup: str, schemaname: str):
-    schema = load_schema_generic('validation-schema', schemagroup, schemaname)
-    if not schema:
-        schema = load_schema_generic('validation-schema', schemagroup, "default")
-        if not schema:
-            debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
-            return None
-    print("DEBUG: returning validation schema:", schema)
-    return schema
-
-
-def build_schema_for_validation(component, data_json, units_json):
-    return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
-    # return d
-
-
 # pass a dict such as:
 # { group: schema, [...] }
 # ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
@@ -184,3 +168,77 @@ def build_composite_schema(schema: JSONDecoder):
 
     return jsonify(newschema)
     # d[schema_name] = sch['description']
+
+
+class Validator:
+
+    def __init__(self, thejson):
+        self.thejson = thejson
+        pass
+
+    def valid_groups(self):
+        """
+        valid_groups determines if top-level json keywords are present
+
+        :return:
+        true if and only if only the required top level json groups are present.
+        Fails if extra groups are present
+        False if a required group is missing
+        """
+        self.error = False
+        self.errorMsg = ""
+
+        required = {'calculation', 'data', 'units'}
+        supplied = set(self.thejson.keys())
+
+        # sections provided but not allowed
+        surplus = supplied - required
+        if surplus:
+            self.error = True
+            self.errorMsg = "Surplus sections " + str(surplus)
+
+        # sections required but not provided (note: takes precedence over surplus sections to
+        #   simplify error reporting to client)
+        missing = required - supplied
+        if missing:
+            self.error = True
+            self.errorMsg = "Missing sections " + str(missing)
+
+        # prettier but we've already calculated surplus and missing so ought to save the set operation
+        #return required.intersection(supplied) == required
+        return not (surplus or missing)
+
+    # load a validation schema.  It must either have the same name as the schema that is to be validated, or
+    # be "default"
+    def load_validation_schema(schemagroup: str, schemaname: str):
+        schema = load_schema_generic('validation-schema', schemagroup, schemaname)
+        if not schema:
+            schema = load_schema_generic('validation-schema', schemagroup, "default")
+            if not schema:
+                debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
+                return None
+        print("DEBUG: returning validation schema:", schema)
+        return schema
+
+    def build_schema_for_validation(component, data_json, units_json):
+        return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
+        # return d
+
+    # schema must be in JSON and compatible with provided schema rules
+    def validate(self, schema, suppliedjson):
+        # sch=json.loads(schema)
+        # print("Schema=",sch)
+        # sch=json.loads(schema)
+        #        f = open("app/static/schema/hera-validation.json", 'r')
+        f = open("app/static/validation-schema/hera-validation.json", 'r')
+        sch = json.load(f)
+        print("We got this json:", suppliedjson)
+        try:
+            jsonschema.validate(instance=suppliedjson, schema=sch)
+            return suppliedjson
+        except jsonschema.ValidationError as e:
+            return None
+
+    def load_schemafile(self, schema_name):
+
+        pass

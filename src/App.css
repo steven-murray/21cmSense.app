@@ -47,12 +47,15 @@
 }
 
 label {
-    width:180px;
+    width:280px;
     clear:left;
     text-align:left;
-    padding-right:50px;
+    padding-left:50px;
 }
-
+select {
+    padding-right:50px;
+	float:right;
+}
 input, label {
     float:left;
 }
@@ -66,5 +69,10 @@ input, label {
     margin-right: 30px;
     margin-top: 20px;
     display: inline-block;
+}
+
+Button {
+	float:right;
+	
 }
 

@@ -6,12 +6,13 @@ import pickle
 from hashlib import md5
 
 # from app.api.errors import error
-import jsonschema
 import numpy
 
 from app.schema import *
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
 from .util import DebugPrint
+
+from app.schema import Validator
 
 debug = DebugPrint(9).debug_print
 
@@ -101,6 +102,12 @@ def cached_sensitivity(json_pickle):
 
 
 def calculate(thejson):
+    v = Validator(thejson)
+    if not v.valid_groups():
+        return jsonify(error="INVALID JSON SCHEMA", errormsg=v.errorMsg)
+    else:
+        print("JSON SCHEMA VALIDATED")
+
     if 'calculation' not in thejson:
         return jsonify(error="calculation type not provided")
 
@@ -155,21 +162,21 @@ def filter_infinity(list1: list, list2: list):
 #     d.update(labels)
 #     return d
 
-    # prototype debugging output
-    # print(pprint.pprint(d))
-    #
-    # print("Astropy quantity breakdown:")
-    # print("type of k1d=", type(sensitivity.k1d))
-    # print("value=", sensitivity.k1d.value)
-    # print("unit=", sensitivity.k1d.unit)
-    #
-    # print("type of power=", type(power_std))
-    # print("value=", power_std.value)
-    # print("unit=", power_std.unit)
+# prototype debugging output
+# print(pprint.pprint(d))
+#
+# print("Astropy quantity breakdown:")
+# print("type of k1d=", type(sensitivity.k1d))
+# print("value=", sensitivity.k1d.value)
+# print("unit=", sensitivity.k1d.unit)
+#
+# print("type of power=", type(power_std))
+# print("value=", power_std.value)
+# print("unit=", power_std.unit)
 
-    # add_hash(thejson, d)
-    # return jsonify(d)
-    # return jsonify({"a": "b"})
+# add_hash(thejson, d)
+# return jsonify(d)
+# return jsonify({"a": "b"})
 
 
 def one_d_noise_cut(thejson):
@@ -388,6 +395,8 @@ def handle_output(calculation):
 
 def one_d_cut(thejson):
     pass
+
+
 # note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
 # schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 class CalculationFactory(FactoryManager):
@@ -404,14 +413,13 @@ class CalculationFactory(FactoryManager):
         # for f in getattr(globals()):
         #     print(f)
 
-        allmethods=[]
+        allmethods = []
         for m in dir(CalculationFactory):
             if not m.startswith('__'):
-                print("Got method=",m)
+                print("Got method=", m)
                 allmethods.append(m)
 
-
-        lookfor=["one_d_cut","two_d_cut"]
+        lookfor = ["one_d_cut", "two_d_cut"]
         for s in lookfor:
             try:
                 method = getattr(CalculationFactory, s)
@@ -420,12 +428,11 @@ class CalculationFactory(FactoryManager):
 
             # this function does not exist
             except AttributeError as e:
-                print("Missing method for schema "+s)
+                print("Missing method for schema " + s)
                 pass
 
         for m in allmethods:
-            print("Missing schema for method "+m)
-
+            print("Missing schema for method " + m)
 
         #        self.add('1D-cut-of-2D-sensitivity', one_d_cut).\
         self.add('1D-cut-of-2D-sensitivity', method).add(
@@ -447,7 +454,6 @@ class CalculationFactory(FactoryManager):
         :param thejson:
         :return:
         """
-
 
         labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
                   "xscale": "log", "yscale": "log"}
@@ -519,28 +525,3 @@ class Factory:
         )
 
         return sensitivity
-
-
-class Validator:
-
-    def __init__(self):
-        pass
-
-    # schema must be in JSON and compatible with provided schema rules
-    def validate(self, schema, suppliedjson):
-        # sch=json.loads(schema)
-        # print("Schema=",sch)
-        # sch=json.loads(schema)
-        #        f = open("app/static/schema/hera-validation.json", 'r')
-        f = open("app/static/validation-schema/hera-validation.json", 'r')
-        sch = json.load(f)
-        print("We got this json:", suppliedjson)
-        try:
-            jsonschema.validate(instance=suppliedjson, schema=sch)
-            return suppliedjson
-        except jsonschema.ValidationError as e:
-            return None
-
-    def load_schemafile(self, schema_name):
-
-        pass
