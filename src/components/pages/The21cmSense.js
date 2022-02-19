@@ -132,4 +132,4 @@ class The21cmSense extends React.Component {
     );
   }
 }
-export default The21cmSense
+export default The21cmSense;
