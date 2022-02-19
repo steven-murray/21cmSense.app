@@ -5,6 +5,8 @@ from flask import request
 import numpy as np
 from . import models
 from . import api
+# from .models import AntennaFactory, BeamFactory, CalculationFactory
+
 
 from .models import *
 from .json_util import json_error
@@ -50,8 +52,6 @@ def api_return():
                 if schema_group in req:
                     print("json return for component %s=" % schema_group, req[schema_group]);
             return build_composite_schema(req)
-        # return jsonify("blah")
-        # return current_app.send_static_file('schema/an
 
 
 @api.route('/schema/<schemagroup>/get/<schemaname>')
