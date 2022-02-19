@@ -123,6 +123,8 @@ class The21cmSense extends React.Component {
 
             <div className = "graph">
                 <Panel shaded>
+                    <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
+                    <br></br><br></br>
                     This is the panel for graph
                 </Panel>
             </div>
@@ -132,5 +134,4 @@ class The21cmSense extends React.Component {
     );
   }
 }
-export default The21cmSense
-
+export default The21cmSense;
