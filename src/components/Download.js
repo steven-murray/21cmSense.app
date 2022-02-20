@@ -10,12 +10,6 @@ import Debug from 'debug';
 const debug = Debug('downloads.js');
 debug.enabled = false;
 
-/**
- * Adds inline CSS styles to the D3 SVG element by extracting
- * style properties using Window.getComputedStyles.
- *
- * @param {Array} elements array of elements and style properties
- */
 function addInlineCSS(elements) {
   if (elements && elements.length) {
     elements.forEach((d) => {

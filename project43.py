@@ -19,5 +19,3 @@ if (__name__ == '__main__'):
     app.run(host=bind_address, port=args.port, debug=True)
 else:
     print("Note: WSGI application should be started with 'wsgi.py'")
-
-
