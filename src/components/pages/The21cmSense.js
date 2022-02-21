@@ -82,7 +82,7 @@ class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
 	    this.state = {
-	     modelName: ''
+	     modelName: []
 	    }
 	  }
   render() {
