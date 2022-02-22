@@ -82,7 +82,7 @@ class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
 	    this.state = {
-	     modelName: []
+	     modelName: ["Item1", "Item2"]
 	    }
 	  }
   render() {
@@ -101,7 +101,9 @@ class The21cmSense extends React.Component {
             <br></br><br></br>
                 No models created yet. Please click "New Model"
 				<br></br><br></br>
-				{modelName}
+				{this.state.modelName.map((subItems, sIndex) => {
+		            return <li key={sIndex}> {subItems}</li>
+		          })}
               </Panel>
               <br></br>
               <Panel  shaded >
