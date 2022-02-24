@@ -236,7 +236,20 @@ def filter_infinity(list1: list, list2: list):
     return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
 
 
-# moved to CalculationFactor for now
+def quantity_list_to_scalar(l: list):
+    """
+    convert all AstroPy 'quantity' objects to scalars and return new list
+    :param l:
+    :return: list of scalars
+    """
+    newl=[]
+    for t in l:
+        newl.append(t.value)
+    return newl
+
+
+
+# moved to CalculationFactory for now
 # def one_d_cut(thejson):
 #     """one_d_cut: includes thermal noise and sample variance
 #
@@ -323,13 +336,12 @@ class CalculationFactory(FactoryManager):
         # self.add('1D-cut-of-2D-sensitivity', method).add(
         #     '1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
         #     '1D-sample-variance-cut-of-2D-sensitivity', one_d_sample_var).add(
-        #     '2D-sensitivity', one_d_cut).add('2D-sensitivity-vs-k', one_d_cut).add(
-        #     '2D-sensitivity-vs-z', one_d_cut).add('antenna-positions', one_d_cut).add(
-        #     'calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut).add('baselines-distributions',
-        #                                                                         baselines_distributions)
+        #     '2D-sensitivity', one_d_cut).add('antenna-positions', one_d_cut).add(
+        #     'calculations', one_d_cut).add('k-vs-redshift-plot', one_d_cut).add(
+        #     'baselines-distributions', baselines_distributions)
 
         """
-        1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json 2D-sensitivity-vs-k.json 2D-sensitivity-vs-z.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
+        1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
         """
 
     def _1D_cut_of_2D_sensitivity(thejson):
@@ -412,47 +424,30 @@ class CalculationFactory(FactoryManager):
         # cbar.set_label("Number of baselines in group", fontsize=15)
         # plt.tight_layout();
 
-    def two_d_sens_z(thejson):
-        """Return 2D cut of sensitivity -z
-
-        :param thejson:
-        :return:
-        """
-        labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
-        sensitivity = get_sensitivity(thejson)
-        power_std = sensitivity.calculate_sensitivity_1d()
-        (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
-        d = {"x": xseries, "y": yseries,
-             "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
-        d.update(labels)
-        return d
-
-    def two_d_sens_k(thejson):
-        """Return 2D cut of sensitivity -z
-
-        :param thejson:
-        :return:
-        """
-
-        sensitivity = get_sensitivity(thejson)
-        sense2d = sensitivity.calculate_sensitivity_2d()
-
-        # dict of arrays
-        # sensitivity.plot_sense_2d(sense2d)
-
-    def ant_pos(thejson):
+    def _antenna_positions(thejson):
         """Antenna position
 
         :param thejson:
         :return:
         """
-        labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
-        print("in antenna position")
+        labels = {"xlabel": "m", "ylabel": "m", "xscale": "log", "yscale": "log"}
+
         sensitivity = get_sensitivity(thejson)
-        power_std = sensitivity.calculate_sensitivity_1d()
-        (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
+        observatory = sensitivity.observation.observatory
+
+        (xseries, yseries) = filter_infinity(observatory.antpos[:, 0], observatory.antpos[:, 1])
+        xunit=xseries[0].unit.to_string()
+        yunit=yseries[0].unit.to_string()
+        xseries=quantity_list_to_scalar(xseries)
+        yseries=quantity_list_to_scalar(yseries)
+
+        # suggested plotting
+        #plt.scatter(Observatory.antpos[:, 0], Observatory.antpos[:, 1])
+
+        # power_std = sensitivity.calculate_sensitivity_1d()
+        # (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
         d = {"x": xseries, "y": yseries,
-             "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+             "xunit": xunit, "yunit": yunit}
         d.update(labels)
         return d
 
@@ -477,7 +472,7 @@ class CalculationFactory(FactoryManager):
     # [-126. -112.  -98. ...  -14.    0.    0.]
     # [-126. -112.  -98. ...  -14.    0.    0.]] m
 
-    def baselines_distributions(thejson):
+    def _baselines_distributions(thejson):
         """Baselines distributions
 
         :param thejson:
