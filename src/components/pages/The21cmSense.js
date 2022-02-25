@@ -4,30 +4,10 @@ import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
-import * as Plotly from 'plotly.js';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
-//import { downloadData, downloadPlotImage, downloadParamValsJson } from '../Download.js'
-//import { Button } from '../Button.js'; 
-//import exportFromJSON from 'export-from-json';
 import styled from "styled-components";
-//import { Dropdown } from 'react-native-material-dropdown';
-//import {CSVLink, CSVDownload} from 'react-csv';
 
-// const downloadOptions = {
-//   PlotImage: {
-//     name: 'PlotImage',
-//     displayName: 'Image of Plot',
-//     fileName: 'PlotImage.svg',
-//     loadingTitle: 'Creating plot image...',
-//   },
-//   ParamValsJson: {
-//     name: 'ParamValsJson',
-//     displayName: 'Parameter Values in JSON Format',
-//     fileName: 'ParameterValues.json',
-//     loadingTitle: 'Loading parameter values...',
-//   }
-// };
 
 const theme = {
   cyan: {
