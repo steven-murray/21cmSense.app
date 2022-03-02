@@ -26,7 +26,7 @@ class FactoryManager:
     def __init__(self, schemagroup):
         self.d = {}
         if not schemagroup:
-            assert(schemagroup), "Factory manager initialized without a schema group name"
+            assert (schemagroup), "Factory manager initialized without a schema group name"
         else:
             self.schemagroup = schemagroup
 
@@ -49,7 +49,6 @@ class FactoryManager:
             return self.d[key]
         else:
             return None
-
 
     def map_schema_to_methods(self):
         schemas = get_schema_names(self.schemagroup)
@@ -87,7 +86,6 @@ class FactoryManager:
             print("Missing group " + self.schemagroup + " schema for method " + m)
 
 
-
 # This class simplifies the handling of data and unit data
 class Dispatcher:
     def __init__(self, data_json, units_json):
@@ -95,11 +93,11 @@ class Dispatcher:
         self.units_json = units_json
 
 
-
 class GaussianBeamDispatcher(Dispatcher):
     """
     Makes a py21cmSense library call to the GaussianBeam class
     """
+
     def get(self):
         return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
@@ -113,6 +111,7 @@ class HeraAntennaDispatcher(Dispatcher):
     """
     makes a py21cmSense call to the hera antenna class
     """
+
     def get(self):
         j = self.data_json
         return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
@@ -242,45 +241,10 @@ def quantity_list_to_scalar(l: list):
     :param l:
     :return: list of scalars
     """
-    newl=[]
+    newl = []
     for t in l:
         newl.append(t.value)
     return newl
-
-
-
-# moved to CalculationFactory for now
-# def one_d_cut(thejson):
-#     """one_d_cut: includes thermal noise and sample variance
-#
-#     :param thejson:
-#     :return:
-#     """
-#     labels = {"title": "1D cut", "plottype": "line", "xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$",
-#               "xscale": "log", "yscale": "log"}
-#     sensitivity = get_sensitivity(thejson)
-#     power_std = sensitivity.calculate_sensitivity_1d()
-#     (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
-#     d = {"x": xseries, "y": yseries,
-#          "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
-#     d.update(labels)
-#     return d
-
-# prototype debugging output
-# print(pprint.pprint(d))
-#
-# print("Astropy quantity breakdown:")
-# print("type of k1d=", type(sensitivity.k1d))
-# print("value=", sensitivity.k1d.value)
-# print("unit=", sensitivity.k1d.unit)
-#
-# print("type of power=", type(power_std))
-# print("value=", power_std.value)
-# print("unit=", power_std.unit)
-
-# add_hash(thejson, d)
-# return jsonify(d)
-# return jsonify({"a": "b"})
 
 
 def handle_output(calculation):
@@ -297,41 +261,6 @@ class CalculationFactory(FactoryManager):
         super().__init__(KW_CALCULATION)
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
 
-        #
-        calculation_schemas = get_schema_names(KW_CALCULATION)
-        for c in calculation_schemas:
-            print("Got schema=", c)
-
-        # find all of the methods in this class.  Nomenclature is '_name_of_schema_on_disk'
-        allmethods = {}
-        for m in dir(CalculationFactory):
-            if not m.startswith('__') and m.startswith('_'):
-                print("Got method=", m)
-                allmethods[m.upper()] = m
-
-        # lookfor = ["one_d_cut", "two_d_cut"]
-        # a list of schema names; we will look for methods matching these
-        lookfor = calculation_schemas
-        print("Going to look for methods matching these schema:", lookfor)
-        for s in lookfor:
-
-            # transliterate "-" in schema to "_" in method and add leading underscore
-            method_name = "_" + s.replace("-", "_").upper()
-            if method_name in allmethods:
-
-                method = getattr(CalculationFactory, allmethods[method_name])
-                self.add(s, method)
-                print("Mapped method " + allmethods[method_name] + " to schema " + s)
-                allmethods.pop(method_name)
-
-            else:
-                print("Missing method for schema " + s)
-                # if method.__name__ in allmethods:
-                #     allmethods.remove(method.__name__)
-
-        for m in allmethods:
-            print("Missing schema for method " + m)
-
         #        self.add('1D-cut-of-2D-sensitivity', one_d_cut).\
         # self.add('1D-cut-of-2D-sensitivity', method).add(
         #     '1D-noise-cut-of-2D-sensitivity', one_d_thermal_var).add(
@@ -345,7 +274,6 @@ class CalculationFactory(FactoryManager):
         """
 
     def _1D_cut_of_2D_sensitivity(thejson):
-
         """one_d_cut: includes thermal noise and sample variance
 
         :param thejson:
@@ -361,6 +289,22 @@ class CalculationFactory(FactoryManager):
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
         d.update(labels)
         return d
+
+    # prototype debugging output
+    # print(pprint.pprint(d))
+    #
+    # print("Astropy quantity breakdown:")
+    # print("type of k1d=", type(sensitivity.k1d))
+    # print("value=", sensitivity.k1d.value)
+    # print("unit=", sensitivity.k1d.unit)
+    #
+    # print("type of power=", type(power_std))
+    # print("value=", power_std.value)
+    # print("unit=", power_std.unit)
+
+    # add_hash(thejson, d)
+    # return jsonify(d)
+    # return jsonify({"a": "b"})
 
     def _1D_noise_cut_of_2D_sensitivity(thejson):
         """_1D_noise_cut_of_2D_sensitivity includes thermal noise without sample variance
@@ -436,13 +380,13 @@ class CalculationFactory(FactoryManager):
         observatory = sensitivity.observation.observatory
 
         (xseries, yseries) = filter_infinity(observatory.antpos[:, 0], observatory.antpos[:, 1])
-        xunit=xseries[0].unit.to_string()
-        yunit=yseries[0].unit.to_string()
-        xseries=quantity_list_to_scalar(xseries)
-        yseries=quantity_list_to_scalar(yseries)
+        xunit = xseries[0].unit.to_string()
+        yunit = yseries[0].unit.to_string()
+        xseries = quantity_list_to_scalar(xseries)
+        yseries = quantity_list_to_scalar(yseries)
 
         # suggested plotting
-        #plt.scatter(Observatory.antpos[:, 0], Observatory.antpos[:, 1])
+        # plt.scatter(Observatory.antpos[:, 0], Observatory.antpos[:, 1])
 
         # power_std = sensitivity.calculate_sensitivity_1d()
         # (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
@@ -522,20 +466,20 @@ class CalculationFactory(FactoryManager):
     #         weights=baseline_group_counts
     #     )
 
-    def k_vs_redshift(thejson):
-        """K vs redshift
+    def _uv_grid_sampling(thejson):
+        """Return UV grid sampling data
 
         :param thejson:
         :return:
         """
-        labels = {"xlabel": "k [h/Mpc]", "ylabel": r"$\delta \Delta^2_{21}$", "xscale": "log", "yscale": "log"}
-        print("in one_d_cut: includes thermal noise and sample variance")
         sensitivity = get_sensitivity(thejson)
-        power_std = sensitivity.calculate_sensitivity_1d()
-        (xseries, yseries) = filter_infinity(sensitivity.k1d.value.tolist(), power_std.value.tolist())
-        d = {"x": xseries, "y": yseries,
-             "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
+        observation = sensitivity.observation
+
+        labels = {"title": "UV Grid Sampling", "plottype": "2DRaster", "xlabel": "", "xscale": "linear"}
+        x = observation.uv_coverage.tolist()
+        d = {"x": x, "xunit": ""}
         d.update(labels)
+        return d
 
 
 class LocationFactory(FactoryManager):
