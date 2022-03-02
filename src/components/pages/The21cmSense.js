@@ -74,15 +74,44 @@ class The21cmSense extends React.Component {
 		  	SeperationUnits: '',
 			DistanceUnits: '',
 			FrequencyUnits: '',
-			LatitudeUnits: ''
+			LatitudeUnits: '',
+			localStoragePairs: []
 	    }
 	  }
+	  
+	  componentDidMount() {
+	    this.getExistingArray();
+	  }
 	
+	  getExistingArray() {
+	
+	    for (var i = 0; i < localStorage.length; i++) {
+	
+	      var key = localStorage.key(i);
+	      var value = localStorage.getItem(key);
+	
+	      var updatedLocalStoragePairs = this.state.localStoragePairs;
+	      updatedLocalStoragePairs.push({ 'keyName': key, 'valueName': value });
+	
+	      this.setState({ localStoragePairs: updatedLocalStoragePairs });
+	    }
+	    console.log("complete localStoragePairs:", this.state.localStoragePairs);
+	
+	    if (localStorage.getItem('inputs')) {
+	      var storedInputs = localStorage.getItem('inputs');
+	      this.setState({ inputs: storedInputs }, function () { console.log("from localStorage We got:", this.state.inputs); });
+	    }
+	  }
+
+
   render() {
 	const {  modelName } = (this.props.location && this.props.location.state) || {};
 	
 	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
 	
+	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
+      return <tr key={index}> <td>{value.keyName}</td> </tr>
+    });
     return (
         <div>
             <div style={{
@@ -94,13 +123,13 @@ class The21cmSense extends React.Component {
               <Link to='/createModel'>
                     <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
                 </Link>
-            <br></br><br></br>
+              <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-				{ localStorage.getItem('NewModel_3')}			
+			  <tbody>
+		            {LocalSotrageContent}
+		      </tbody>		
 
-				<br></br><br></br>
-				
-              </Panel>
+			  </Panel>
               <br></br>
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
