@@ -64,15 +64,24 @@ class The21cmSense extends React.Component {
 	    super(props);
 		
 	    this.state = {
-	     modelName: "",
-		 array: []
+	     	modelName: '',
+		  	HexNumber: '',
+		  	Separation: '',
+		  	Distance: '',
+		 	DishSize: '',
+		  	Frequency: '',
+		  	Latitude: '',
+		  	SeperationUnits: '',
+			DistanceUnits: '',
+			FrequencyUnits: '',
+			LatitudeUnits: ''
 	    }
 	  }
 	
   render() {
-	const { modelName } = (this.props.location && this.props.location.state) || {};
+	const {  modelName } = (this.props.location && this.props.location.state) || {};
 	
-	localStorage.setItem('Data', JSON.stringify(modelName));
+	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
 	
     return (
         <div>
@@ -87,7 +96,7 @@ class The21cmSense extends React.Component {
                 </Link>
             <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-				{ localStorage.getItem('Data') }
+				{ localStorage.getItem('NewModel_3')}			
 
 				<br></br><br></br>
 				
