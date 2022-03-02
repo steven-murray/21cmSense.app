@@ -9,6 +9,7 @@ import { saveAs } from "file-saver";
 import styled from "styled-components";
 
 
+
 const theme = {
   cyan: {
     default: "#F0FFFF",
@@ -57,17 +58,22 @@ const saveCSV = () => {
     "example.csv"
   );
 };
-
+	
 class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
+		
 	    this.state = {
-	     modelName: ""
+	     modelName: "",
+		 array: []
 	    }
 	  }
 	
   render() {
-	const { modelName } = (this.props.location && this.props.location.state) || {}
+	const { modelName } = (this.props.location && this.props.location.state) || {};
+	
+	localStorage.setItem('Data', JSON.stringify(modelName));
+	
     return (
         <div>
             <div style={{
@@ -80,9 +86,11 @@ class The21cmSense extends React.Component {
                     <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
                 </Link>
             <br></br><br></br>
-                No models created yet. Please click "New Model"
+                No models created yet. Please click "New Model"<br></br><br></br>
+				{ localStorage.getItem('Data') }
+
 				<br></br><br></br>
-				{modelName}
+				
               </Panel>
               <br></br>
               <Panel  shaded >

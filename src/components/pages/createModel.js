@@ -4,20 +4,6 @@ import { Panel } from 'rsuite';
 import styled from "styled-components";
 import { withRouter } from 'react-router-dom';
 
-const headers = [
-  
-];
- 
-const data = [
-  
-];
- 
-const csvReport = {
-  data: data,
-  headers: headers,
-  filename: 'datas.csv'
-};
-
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
