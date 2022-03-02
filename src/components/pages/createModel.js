@@ -2,8 +2,9 @@ import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
-import {Redirect} from 'react-router-dom';
 import { withRouter } from 'react-router-dom';
+
+
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
     <select onChange={onChange} >
@@ -49,7 +50,18 @@ class CreateModel extends React.Component {
 	 constructor(props) {
 	    super(props);
 	    this.state = {
-	      modelName: ''
+	      	modelName: '',
+		  	HexNumber: '',
+		  	Separation: '',
+		  	Distance: '',
+		 	 DishSize: '',
+		  	Frequency: '',
+		  	Latitude: '',
+		  	SeperationUnits: '',
+			DistanceUnits: '',
+			FrequencyUnits: '',
+			LatitudeUnits: ''
+		  
 	    }
 	  }
 	handleOnSubmit = (event) => {
@@ -95,31 +107,31 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
-                <input type = {"number"} min={3}   required/>
+                <input name = "HexNumber" type = {"number"} min={3}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input type = {"number"} min={0}   required/>
-				<DropDown options={option.separation.enum}/>      
+                <input name = "Separation" type = {"number"} min={0}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "SeperationUnits" options={option.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
 				<label> Distance </label>           
-                <input type = {"number"} min={0}   required/>
-				<DropDown options={option.separation.enum}/>      
+                <input name = "Distance" type = {"number"} min={0}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "DistanceUnits" options={option.separation.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input type = {"number"} min={0}   required/>
-				<DropDown options={option.separation.enum}/>      
+                <input name = "DishSize" type = {"number"} min={0}   onChange={this.handleInputChange}  required/>
+				<DropDown name = "DishSizeUnits" options={option.separation.enum}/>      
   				<br></br><br></br>
-				  <label> Frequency </label>           
-                <input type = {"number"} min={0} required/>
-				<DropDown options={option.frequency.enum}/>      
+				<label> Frequency </label>           
+                <input name = "Frequency" type = {"number"} min={0}  onChange={this.handleInputChange} required/>
+				<DropDown name = "FrequencyUnits" options={option.frequency.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input type = {"number"} min={-180} max = {180}   required/>
-				<DropDown options={option.separation.enum}/>      
+				<input name = "Latitude"  type = {"number"} min={-180} max = {180}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "LatitudeUnits" options={option.separation.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
