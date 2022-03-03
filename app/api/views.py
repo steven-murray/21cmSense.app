@@ -58,8 +58,8 @@ def api_return():
 def get_schema(schemagroup, schemaname):
     """Return a specific schema within a group
 
-    Tests
-    -----
+    See Also
+    --------
     test_get_schema
     test_get_nonexistent_schema
     test_get_nonexistent_schema_group
@@ -71,11 +71,12 @@ def get_schema(schemagroup, schemaname):
 def get_schema_group(schemagroup):
     """List all of the schemas in a schema group
 
-    Tests
-    -----
+    See Also
+    --------
     test_get_schema_group
 
-    :return:
+    Returns
+    -------
     List all of the schemas in a schema group in JSON format
     """
     return get_schema_names_json(schemagroup)
@@ -85,8 +86,8 @@ def get_schema_group(schemagroup):
 def list_all_schema_groups():
     """List all supported schema groups
 
-    Tests
-    -----
+    See Also
+    --------
     test_list_all_schema_groups
     """
     lst = models.get_schema_groups()
