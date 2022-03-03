@@ -11,8 +11,8 @@ from flask import jsonify
 
 import jsonschema
 
-from .api.json_util import json_error
-from .api.util import DebugPrint
+from .json_util import json_error
+from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
 
