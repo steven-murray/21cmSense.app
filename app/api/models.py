@@ -3,10 +3,13 @@
 #
 import functools
 import pickle
+from collections import namedtuple
 from hashlib import md5
 
 # from app.api.errors import error
 import numpy
+
+from functools import cached_property
 
 from app.schema import *
 from py21cmsense import GaussianBeam, Observatory, Observation, PowerSpectrum, hera
@@ -30,7 +33,17 @@ class FactoryManager:
         else:
             self.schemagroup = schemagroup
 
-        self.map_schema_to_methods()
+        lookup_list=self.map_schema_to_methods()
+        self.add_all(lookup_list)
+
+    def add_all(self, maplist):
+        """
+        adds mappings from maplist, which contains (keyword, func) mappings
+        :param maplist:
+        :return:
+        """
+        for t in maplist:
+            self.add(t[0],t[1])
 
     def add(self, key, f):
         # if key not in self.d:
@@ -50,7 +63,15 @@ class FactoryManager:
         else:
             return None
 
+    @cached_property
     def map_schema_to_methods(self):
+        """
+        Map on-disk schema to class methods based on name
+
+        :return: list of ("name", function) tuples for lookups
+        """
+        lookup_list = []
+
         schemas = get_schema_names(self.schemagroup)
         for c in schemas:
             print("Got schema=", c)
@@ -73,7 +94,8 @@ class FactoryManager:
             if method_name in allmethods:
 
                 method = getattr(CalculationFactory, allmethods[method_name])
-                self.add(s, method)
+                # self.add(s, method)
+                lookup_list.append((s, method))
                 print("Mapped group " + self.schemagroup + " method " + allmethods[method_name] + " to schema " + s)
                 allmethods.pop(method_name)
 
@@ -84,6 +106,8 @@ class FactoryManager:
 
         for m in allmethods:
             print("Missing group " + self.schemagroup + " schema for method " + m)
+
+        return lookup_list
 
 
 # This class simplifies the handling of data and unit data
@@ -116,9 +140,6 @@ class HeraAntennaDispatcher(Dispatcher):
         j = self.data_json
         return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
 
-
-class CalculationDispatcher(Dispatcher):
-    pass
 
 
 # serialize the json to a hashable form for LRU caching
@@ -161,8 +182,6 @@ def cached_sensitivity(json_pickle):
     )
     return sensitivity
 
-    # plt.plot(sensitivity.k1d, power_std)
-
 
 def calculate(thejson):
     """
@@ -178,13 +197,15 @@ def calculate(thejson):
         print("JSON SCHEMA VALIDATED")
 
     if KW_CALCULATION not in thejson:
-        return jsonify(error="calculation type not provided")
+        return jsonify(error="Calculation type not provided")
 
     print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
+
+    # get proper function for this calculation
     calculator = CalculationFactory().get(thejson[KW_CALCULATION])
 
     if calculator is None:
-        return jsonify({KW_ERROR: "unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]})
+        return jsonify({KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]})
 
     results = calculator(thejson)
 

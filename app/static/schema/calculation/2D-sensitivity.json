@@ -2,7 +2,7 @@
   "schema": "2D-sensitivity",
   "group": "calculations",
   "description": "2D Sensitivity",
-  "depends": [
+  "required": [
     "antenna",
     "beam",
     "location"
