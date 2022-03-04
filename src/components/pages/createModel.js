@@ -63,6 +63,7 @@ class CreateModel extends React.Component {
 			LatitudeUnits: ''
 		  
 	    }
+
 	  }
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
@@ -74,11 +75,11 @@ class CreateModel extends React.Component {
 	
 	handleInputChange = (event) => {
 	    const { name, value } = event.target;
-	    this.setState((prevState) => ({
-	      ...prevState,
-	      [name]: value
-	    }));
-	  };
+			this.setState((prevState) => ({
+			      ...prevState,
+			      [name]: value
+			    }));
+		};
 
 render() {
 		
@@ -100,6 +101,9 @@ render() {
 							        ]
 						}
 						}
+						
+		
+	
 		
      return (
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
@@ -136,9 +140,10 @@ render() {
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"} onChange={this.handleInputChange} required/>
+			<input  name = "modelName" type = {"text"}  value={this.state.modelName} onChange={this.handleInputChange} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
-			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"> Save </Button>
+			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
+				disabled={localStorage.getItem(this.state.modelName)} > Save </Button>
 			
 			</form>
 		</div>
