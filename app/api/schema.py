@@ -6,19 +6,29 @@ import json
 import os
 from json import JSONDecodeError, JSONDecoder
 
-from flask import current_app
-from flask import jsonify
-
 import jsonschema
+from flask import current_app, jsonify
 
+from .constants import SCHEMA_REL_DIR
 from .json_util import json_error
 from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
 
 
-# get a list of the schema names within a schema group
 def get_schema_names(schemagroup):
+    """get a list of the schema names within a schema group
+
+    Parameters
+    ----------
+    schemagroup
+        Schema group to check
+    Returns
+    -------
+    list
+        List of schema within the specified schema group
+
+    """
     try:
         dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
     except FileNotFoundError:
@@ -27,8 +37,20 @@ def get_schema_names(schemagroup):
     return schemas
 
 
-# get schema names in proper format for return to client
 def get_schema_names_json(schemagroup):
+    """get schema names in proper format for return to client
+
+    Parameters
+    ----------
+    schemagroup
+        Schema group to check
+
+    Returns
+    -------
+    json
+        List of schema within specified schema group (for return to client)
+
+    """
     j = get_schema_names(schemagroup)
     if j is None:
         return jsonify(error="Schema group does not exist.", schemagroup=schemagroup)
@@ -36,13 +58,31 @@ def get_schema_names_json(schemagroup):
         return jsonify(j)
 
 
-# returns a list of all schemas in the provided schema group along with a textual description (appropriate for display
-# in a user interface) of the schema
-# ex:
-# {
-#   "1D-cut-of-2D-sensitivity": "1D cut of 2D sensitivity"
-# }
 def get_schema_descriptions_json(schemagroup):
+    """returns a list of all schemas in the provided schema group along with a textual description
+        of the schema
+
+    The list is appropriate for display in a user interface
+
+    Examples
+    ________
+    Example::
+
+        {
+            '1D-cut-of-2D-sensitivity: '1D cut of 2D sensitivity'
+        }
+
+    Parameters
+    ----------
+    schemagroup
+        Schema group to check
+
+    Returns
+    -------
+    json
+        Textual list of all schemas in provided schemagroup
+
+    """
     d = {}
     schema_names = get_schema_names(schemagroup)
     if schema_names is None:
@@ -74,14 +114,27 @@ def get_schema_descriptions_json(schemagroup):
 
 
 def get_schema_groups():
+    """List all all available schema groups
+
+    Returns
+    -------
+    list
+        List of available schema groups
+
+    """
     dirs = os.listdir(current_app.root_path + '/static/schema')
-    # print("schema groups")
-    # for dd in d:
-    #     print(dd)
     return dirs
 
 
 def get_schema_groups_json():
+    """List of all available schema groups
+
+    Returns
+    -------
+    json
+        List of available schema groups
+
+    """
     d = get_schema_groups()
     j = {}
     j['required'] = list(d)
@@ -89,16 +142,48 @@ def get_schema_groups_json():
 
 
 def load_schema(schemagroup: str, schemaname: str):
+    """Load schema from persistent storage
+
+    Parameters
+    ----------
+    schemagroup
+        Group for schema file
+    schemaname
+        Schema within group
+
+    Returns
+    -------
+    json
+        Contents of requested schema file or None if file does not exist
+
+    """
     l = load_schema_generic('schema', schemagroup, schemaname)
     debug("loaded schema=" + str(l), 9)
     return l
 
 
 def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
+    """
+
+    Parameters
+    ----------
+    schemadir
+        Static filesystem location for schema files, relative to app package
+    schemagroup
+        Group for schema file
+    schemaname
+        Schema within group
+
+    Returns
+    -------
+    json
+        Contents of requested schema file or None if file does not exist
+
+    """
     try:
-        p = "app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
+        p = SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
         debug("going to load schema from path: " + p, 3)
-        f = open("app/static/" + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
+        f = open(SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
         schema = json.load(f)
         f.close()
     except (JSONDecodeError, IOError) as e:
@@ -108,11 +193,28 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
         return schema
 
 
-# pass a dict such as:
-# { group: schema, [...] }
-# ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
-# schema should already be a json object
 def build_composite_schema(schema: JSONDecoder):
+    """Build a composite schema based on a JSON request
+
+    Parameters
+    ----------
+    schema
+        JSON dictionary containing the schema groups and schema files desired in composite schema
+
+    Notes
+    -----
+    pass a dict such as:
+    { group: schema, [...] }
+    ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
+    schema should already be a json object
+
+
+    Returns
+    -------
+    json
+        Dynamically constructe composite schema
+
+    """
     # get calculation type
     if 'calculation' not in schema:
         return json_error("error", "specified schema missing 'calculation' key")
@@ -169,13 +271,14 @@ class Validator:
         pass
 
     def valid_groups(self):
-        """
-        valid_groups determines if top-level json keywords are present
+        """valid_groups determines if top-level json keywords are present
 
-        :return:
-        true if and only if only the required top level json groups are present.
-        Fails if extra groups are present
-        False if a required group is missing
+        Returns
+        -------
+        bool
+            true if and only if only the required top level json groups are present.
+            Fails if extra groups are present
+            False if a required group is missing
         """
         self.error = False
         self.errorMsg = ""
@@ -207,7 +310,7 @@ class Validator:
         if not schema:
             schema = load_schema_generic('validation-schema', schemagroup, "default")
             if not schema:
-                debug(1, "Cannot locate schema for %s/%s" % (schemagroup, schemaname))
+                debug("Cannot locate schema for %s/%s" % (schemagroup, schemaname), 1)
                 return None
         print("DEBUG: returning validation schema:", schema)
         return schema

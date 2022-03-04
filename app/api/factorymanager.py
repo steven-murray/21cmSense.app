@@ -4,6 +4,13 @@ from app.api.schema import get_schema_names
 
 
 class FactoryManager:
+    """Class to manage methods for callbacks
+
+    Attributes
+    ----------
+    maplist : dict
+        Mapping of names to methods
+    """
     def __init__(self, schemagroup):
         self.d = {}
         if not schemagroup:
@@ -15,27 +22,70 @@ class FactoryManager:
         self.add_all(lookup_list)
 
     def add_all(self, maplist):
-        """
-        adds mappings from maplist, which contains (keyword, func) mappings
-        :param maplist:
-        :return:
+        """adds mappings from maplist, which contains (keyword, func) mappings
+
+        Parameters
+        ----------
+        maplist
+            dict with (keyword, func) mappings
+
         """
         for t in maplist:
             self.add(t[0],t[1])
 
     def add(self, key, f):
+        """Add single keyword, function mapping
+
+        Parameters
+        ----------
+        key : string
+            key
+        f : function
+            function to map to
+
+        Returns
+        -------
+        FactoryManager
+            returns a reference to this object as a builder pattern
+        """
         # if key not in self.d:
         # allow updating/overwriting
         self.d[key] = f
         return self
 
     def knows(self, key):
+        """Whether this object has a mapping for key
+
+        Parameters
+        ----------
+        key
+            key to check
+
+        Returns
+        -------
+        bool
+            true if mapping exists, false otherwise
+
+        """
         if key in self.d:
             return True
         else:
             return False
 
     def get(self, key):
+        """Get function mapped to key
+
+        Parameters
+        ----------
+        key
+            key to check
+
+        Returns
+        -------
+        function
+            function mapped to key or None if no match on key
+
+        """
         if self.knows(key):
             return self.d[key]
         else:
@@ -43,10 +93,12 @@ class FactoryManager:
 
     @cached_property
     def map_schema_to_methods(self):
-        """
-        Map on-disk schema to class methods based on name
+        """Map on-disk schema to class methods based on name
 
-        :return: list of ("name", function) tuples for lookups
+        Returns
+        -------
+        list
+            list of ("name", function) tuples for lookups
         """
         lookup_list = []
 

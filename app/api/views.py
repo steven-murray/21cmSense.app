@@ -1,28 +1,33 @@
 #
 # views.py
 #
-from flask import request
 import numpy as np
-from . import models
-from . import api
-# from .models import AntennaFactory, BeamFactory, CalculationFactory
+from flask import request
 
-
+from . import api, models
 from .models import *
-from .json_util import json_error
 
 
 @api.route('/')
 def welcome():
+    """
+
+    Returns
+    -------
+    string
+        Welcome message
+    """
     return 'Welcome to Project 43!'
 
 
 @api.route('/ping')
 def ping():
-    """
-    ping test
-    :return:
-    pong
+    """API ping test
+
+    Returns
+    -------
+    json
+        "pong"
     """
     return {
         "pong": "",
@@ -32,13 +37,26 @@ def ping():
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
     """Return a list of all of the schema in a schema group along with user-friendly descriptions
+
+    Parameters
+    ----------
+    schemagroup
+        name of schema group to return descriptions for
+
+    Returns
+    -------
+
     """
     return get_schema_descriptions_json(schemagroup)
 
 
 @api.route('/customschema', methods=['POST'])
 def api_return():
-    """Return a custom schema
+    """
+
+    Returns
+    -------
+    A custom schema
     """
     if request.method == 'POST':
         lst = models.get_schema_groups()
@@ -58,6 +76,18 @@ def api_return():
 def get_schema(schemagroup, schemaname):
     """Return a specific schema within a group
 
+    Parameters
+    ----------
+    schemagroup
+        Name of schema group for requested schema
+    schemaname
+        Name of schema to return
+
+    Returns
+    -------
+    json
+        JSON containing a specific schema file
+
     See Also
     --------
     test_get_schema
@@ -71,13 +101,19 @@ def get_schema(schemagroup, schemaname):
 def get_schema_group(schemagroup):
     """List all of the schemas in a schema group
 
+    Parameters
+    ----------
+    schemagroup
+
     See Also
     --------
     test_get_schema_group
 
     Returns
     -------
-    List all of the schemas in a schema group in JSON format
+    json
+        List all of the schemas in a schema group in JSON format
+
     """
     return get_schema_names_json(schemagroup)
 
@@ -89,6 +125,12 @@ def list_all_schema_groups():
     See Also
     --------
     test_list_all_schema_groups
+
+    Returns
+    -------
+    json
+        List of all supported schema groups
+
     """
     lst = models.get_schema_groups()
     return jsonify(lst)
@@ -254,6 +296,11 @@ def testtest():
 @api.route("/21cm", methods=['POST'])
 def call_21cm():
     """Make a computation request to the 21cmSense library
+
+    Returns
+    -------
+    json
+        Response to front-end containing data for calculation, or error if input was not good
     """
     if request.is_json and request.json:
         req = request.get_json()

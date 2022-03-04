@@ -18,6 +18,9 @@ From the _Sphinx_ directory:
 
 
 # Sphinx setup
+
+% sphinx-quickstart
+
 Creating files:
 Sphinx/source/conf.py.
 Sphinx/source/index.rst.

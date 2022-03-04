@@ -36,14 +36,6 @@ app.api.factorymanager module
    :undoc-members:
    :show-inheritance:
 
-app.api.forms module
---------------------
-
-.. automodule:: app.api.forms
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 app.api.json\_util module
 -------------------------
 
