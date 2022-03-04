@@ -109,12 +109,12 @@ class The21cmSense extends React.Component {
 	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
 		
 	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
-      return <tr key={index}> <td>{value.keyName}</td> </tr>
+      return <tr key={index}> <td>{value.keyName} </td> </tr>
     });
     return (
         <div>
             <div style={{
-              display: 'inline-block', width: 700, paddingLeft: 55
+              display: 'inline-block', width: 700, paddingLeft: 35
             }}>
               <br></br>
               <Panel  shaded >
@@ -124,8 +124,8 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <tbody>
-		        {LocalSotrageContent}
+			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+		        {LocalSotrageContent }
 		      </tbody>		
 
 			  </Panel>
