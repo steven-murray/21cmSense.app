@@ -80,7 +80,7 @@ class The21cmSense extends React.Component {
 	  }
 	  
 	  componentDidMount() {
-	    this.getExistingArray();
+	    this.getExistingArray();		
 	  }
 	
 	  getExistingArray() {
@@ -106,16 +106,15 @@ class The21cmSense extends React.Component {
 
   render() {
 	const {  modelName } = (this.props.location && this.props.location.state) || {};
-	
 	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
-	
+		
 	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
       return <tr key={index}> <td>{value.keyName}</td> </tr>
     });
     return (
         <div>
             <div style={{
-              display: 'inline-block', width: 700, paddingLeft: 30
+              display: 'inline-block', width: 700, paddingLeft: 55
             }}>
               <br></br>
               <Panel  shaded >
@@ -126,7 +125,7 @@ class The21cmSense extends React.Component {
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
 			  <tbody>
-		            {LocalSotrageContent}
+		        {LocalSotrageContent}
 		      </tbody>		
 
 			  </Panel>
