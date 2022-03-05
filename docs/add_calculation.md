@@ -1,4 +1,5 @@
-To add a new calculation:
+# Overview
+## Adding a new calculation
 
 1. Create a JSON schema with the required data.
 
