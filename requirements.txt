@@ -20,3 +20,6 @@ Flask-Cors==3.0.10
 # for wsgi nginx proxying
 gunicorn==20.1.0
 
+# sphinx documentation requirements
+sphinx
+sphinxcontrib-napoleon

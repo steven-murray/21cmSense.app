@@ -1,14 +1,53 @@
 #!/bin/bash
-if [ "$1" = "-nc" ]
-then
-    NOCACHE="--no-cache"
+################################################
+# 
+# Project 43 Docker Build script
+# 
+# Docker configuration file is in p43/Dockerfile
+#
+################################################
+
+unset NOCACHE
+unset SSHARG
+
+while getopts ":nk" o; do
+    case ${o} in
+        n)
+            NOCACHE="--no-cache"
+            ;;
+        k)
+            SSHARG='--build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)"'
+            ;;
+        '?')
+            echo "Usage: $0 [-n] [-k]"
+            echo "      -n: no-cache (disable cached image for this build)"
+            echo "      -k: use keypair (clone from private repository)"
+            echo "      -K: no-keypair (clone from public repository) [default]"
+            exit 1
+            ;;
+    esac
+done
+
+if [ "$NOCACHE" ]; then
     echo Building image without cache.
 else
     echo Building image with cache.
 fi
 
-#docker build -t p43 --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" --squash .
+if [ "$SSHARG" ]; then
+    echo Using private key for repo clone.
+    DIR=key-based-build/
+else
+    echo "Assuming clone from public repository (not using a GitHub keypair)"
+    DIR=public-build/
+fi
 
-# no-cache
-docker build -t p43 $NOCACHE --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
+# copy support files (nginx config and init script) to proper build dir - maintain in only one place
+/bin/cp -f support_files/* $DIR
+
+echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
+
+
+
+#docker build -t p43 $NOCACHE --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
 
