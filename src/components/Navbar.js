@@ -41,6 +41,11 @@ function Navbar() {
 			    DynamicForm
 			  </Link>
 			</li>
+			<li className='nav-item'>
+			  <Link to='/PrintPage' className='nav-links' onClick={closeMobileMenu}>
+			    PrintPage
+			  </Link>
+			</li>
 		   </ul>
 		 </div>
 	    </nav>
