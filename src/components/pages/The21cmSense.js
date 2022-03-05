@@ -4,30 +4,11 @@ import { Panel } from 'rsuite';
 import '../rsuite-default.css';
 import { GiInfo } from "react-icons/gi";
 import { Link } from 'react-router-dom';
-import * as Plotly from 'plotly.js';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
-//import { downloadData, downloadPlotImage, downloadParamValsJson } from '../Download.js'
-//import { Button } from '../Button.js'; 
-//import exportFromJSON from 'export-from-json';
 import styled from "styled-components";
-//import { Dropdown } from 'react-native-material-dropdown';
-//import {CSVLink, CSVDownload} from 'react-csv';
 
-// const downloadOptions = {
-//   PlotImage: {
-//     name: 'PlotImage',
-//     displayName: 'Image of Plot',
-//     fileName: 'PlotImage.svg',
-//     loadingTitle: 'Creating plot image...',
-//   },
-//   ParamValsJson: {
-//     name: 'ParamValsJson',
-//     displayName: 'Parameter Values in JSON Format',
-//     fileName: 'ParameterValues.json',
-//     loadingTitle: 'Loading parameter values...',
-//   }
-// };
+
 
 const theme = {
   cyan: {
@@ -77,20 +58,63 @@ const saveCSV = () => {
     "example.csv"
   );
 };
-
+	
 class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
+		
 	    this.state = {
-	     modelName: ''
+	     	modelName: '',
+		  	HexNumber: '',
+		  	Separation: '',
+		  	Distance: '',
+		 	DishSize: '',
+		  	Frequency: '',
+		  	Latitude: '',
+		  	SeperationUnits: '',
+			DistanceUnits: '',
+			FrequencyUnits: '',
+			LatitudeUnits: '',
+			localStoragePairs: []
 	    }
 	  }
+	  
+	  componentDidMount() {
+	    this.getExistingArray();		
+	  }
+	
+	  getExistingArray() {
+	
+	    for (var i = 0; i < localStorage.length; i++) {
+	
+	      var key = localStorage.key(i);
+	      var value = localStorage.getItem(key);
+	
+	      var updatedLocalStoragePairs = this.state.localStoragePairs;
+	      updatedLocalStoragePairs.push({ 'keyName': key, 'valueName': value });
+	
+	      this.setState({ localStoragePairs: updatedLocalStoragePairs });
+	    }
+	    console.log("complete localStoragePairs:", this.state.localStoragePairs);
+	
+	    if (localStorage.getItem('inputs')) {
+	      var storedInputs = localStorage.getItem('inputs');
+	      this.setState({ inputs: storedInputs }, function () { console.log("from localStorage We got:", this.state.inputs); });
+	    }
+	  }
+
+
   render() {
-	const { modelName } = (this.props.location && this.props.location.state) || {};
+	const {  modelName } = (this.props.location && this.props.location.state) || {};
+	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
+		
+	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
+      return <tr key={index}> <td>{value.keyName} </td> </tr>
+    });
     return (
         <div>
             <div style={{
-              display: 'inline-block', width: 700, paddingLeft: 30
+              display: 'inline-block', width: 700, paddingLeft: 35
             }}>
               <br></br>
               <Panel  shaded >
@@ -98,11 +122,13 @@ class The21cmSense extends React.Component {
               <Link to='/createModel'>
                     <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
                 </Link>
-            <br></br><br></br>
-                No models created yet. Please click "New Model"
-				<br></br><br></br>
-				{modelName}
-              </Panel>
+              <br></br><br></br>
+                No models created yet. Please click "New Model"<br></br><br></br>
+			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+		        {LocalSotrageContent }
+		      </tbody>		
+
+			  </Panel>
               <br></br>
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
