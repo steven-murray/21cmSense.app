@@ -194,7 +194,7 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
 
 
 def build_composite_schema(schema: JSONDecoder):
-    """Build a composite schema based on a JSON request
+    """Build a composite schema from parts based on a JSON request
 
     Parameters
     ----------
@@ -208,11 +208,10 @@ def build_composite_schema(schema: JSONDecoder):
     ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
     schema should already be a json object
 
-
     Returns
     -------
     json
-        Dynamically constructe composite schema
+        json schema object or json formatted error if request was invalid
 
     """
     # get calculation type
@@ -265,6 +264,8 @@ def build_composite_schema(schema: JSONDecoder):
 
 
 class Validator:
+    """Validate a submitted JSON schema prior to using for calculation
+    """
 
     def __init__(self, thejson):
         self.thejson = thejson
