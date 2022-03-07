@@ -1,10 +1,8 @@
 # API
 
-## users and models
+# Users
 
-### Users
-
-#### create a new User ID
+## Create a new User ID
 **POST** `/users`
 
 Body:
@@ -23,7 +21,7 @@ Return:
 }
 ```
 
-#### get username for a user ID
+## Get username for a user ID
 **GET** `/users/<userid>/username`
 
 Response:
@@ -38,7 +36,7 @@ Return:
 ```
 
 
-#### delete a user
+## Delete a user
 **DELETE** `/users/<userid>`
 
 Response:
@@ -46,9 +44,9 @@ Response:
 
 
 
-### Models
+# Models
 
-#### create a model ID
+## Create a model ID
 **POST** `/models/<userid>/models`
 
 Body:
@@ -71,7 +69,7 @@ Return:
 }
 ```
 
-#### get (retrieve) a model
+## Get (retrieve) a model
 **GET** `/models/<userid>/models/<modelid>`
 
 Response:
@@ -84,7 +82,7 @@ Return:
 }
 ```
 
-#### update or create a model
+## Update or create a model
 **PUT** `/models/<userid>/models/<modelid>`
 
 Body:
@@ -99,16 +97,16 @@ Response:
 
 ``204 No Content`` (if model was updated)
 
-#### delete a model
+## Delete a model
 **DELETE** `/models/<userid>/models/<modelid>`
 
 Response:
 ``204 No Content``
 
 
-## schema
+# schema
 
-### Get a list of schema groups
+## Get a list of schema groups
 
 **GET** `/api-1.0/schema`
 
@@ -130,7 +128,7 @@ Return:
 ]
 ```
 
-### Get a list of schemas in a group
+## Get a list of schemas in a group
 
 **GET** `/api-1.0/schema/{group}`
 
@@ -147,7 +145,7 @@ Return:
 ]
 ```
 
-### Get descriptions for all schemas in a group
+## Get descriptions for all schemas in a group
 
 **GET** `http://localhost:5000/api-1.0/schema/{group}/descriptions`
 
@@ -177,7 +175,7 @@ Return:
 ``http://localhost:5000/api-1.0/schema
 ``
 
-### Get the required elements groups for a calculation
+## Get the required elements groups for a calculation
 
 **GET** /api-1.0/schema/calculation/get/baselines-distributions
 
@@ -195,7 +193,7 @@ Return:
 ```
 
 
-### Get a specific schema from a group
+## Get a specific schema from a group
 
 **GET** `/api-1.0/schema/{group}/get/{schema_name}`
 
