@@ -1,5 +1,103 @@
 # API
 
+## users and models
+
+### Users
+
+#### create a new User ID
+**POST** `/users`
+
+Body:
+```json
+{ "username":"the username" }
+```
+
+Response: 
+``201 Created``
+
+Return:
+```json
+{
+  "uid": "unique uid",
+  "username": "user name"
+}
+```
+
+#### get username for a user ID
+**GET** `/users/<userid>/username`
+
+Response:
+``200 OK``
+
+Return:
+```json
+{
+  "uid": "unique uid",
+  "username": "user name"
+}
+```
+
+
+### Models
+
+#### create a model ID
+**POST** `/models/<userid>/models`
+
+Body:
+```json
+{
+  "modelname": "model name"
+}
+```
+
+Response:
+``201 Created``
+
+Return:
+```json
+{
+  "uid": "unique uid",
+  "username": "user name"
+  "modelid": "model id",
+  "modelname": "model name"
+}
+```
+
+#### get (retrieve) a model
+**GET** `/models/<userid>/models/<modelid>`
+
+Response:
+``200 OK``
+
+Return:
+```
+{
+  JSON Schema that was previously stored
+}
+```
+
+#### update or create a model
+**PUT** `/models/<userid>/models/<modelid>`
+
+Body:
+```
+{
+  JSON schema to store
+}
+```
+
+Response:
+``201 OK`` (if model was stored for first time)
+
+``204 No Content`` (if model was updated)
+
+#### delete a model
+**DELETE** `/models/<userid>/models/<modelid>`
+
+Response:
+``204 No Content``
+
+
 ## schema
 
 ### Get a list of schema groups
