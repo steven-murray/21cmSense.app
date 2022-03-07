@@ -304,6 +304,13 @@ class Validator:
         # return required.intersection(supplied) == required
         return not (surplus or missing)
 
+    # TODO
+    # we need to ensure all of the required sections are present in this json
+    # then we need to break it apart (e.g., antenna, beam, location) and verify each of those
+    # sections against their individual validation schemas
+    def valid_sections(self):
+        pass
+
     # load a validation schema.  It must either have the same name as the schema that is to be validated, or
     # be "default"
     def load_validation_schema(schemagroup: str, schemaname: str):

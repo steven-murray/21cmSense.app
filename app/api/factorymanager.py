@@ -11,6 +11,7 @@ class FactoryManager:
     maplist : dict
         Mapping of names to methods
     """
+
     def __init__(self, schemagroup):
         self.d = {}
         if not schemagroup:
@@ -18,7 +19,7 @@ class FactoryManager:
         else:
             self.schemagroup = schemagroup
 
-        lookup_list=self.map_schema_to_methods()
+        lookup_list = self.map_schema_to_methods
         self.add_all(lookup_list)
 
     def add_all(self, maplist):
@@ -31,7 +32,7 @@ class FactoryManager:
 
         """
         for t in maplist:
-            self.add(t[0],t[1])
+            self.add(t[0], t[1])
 
     def add(self, key, f):
         """Add single keyword, function mapping
@@ -139,4 +140,3 @@ class FactoryManager:
             print("Missing group " + self.schemagroup + " schema for method " + m)
 
         return lookup_list
-

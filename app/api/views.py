@@ -6,6 +6,7 @@ from flask import request
 
 from . import api, models
 from .models import *
+from .calculation import *
 
 
 @api.route('/')
@@ -32,6 +33,21 @@ def ping():
     return {
         "pong": "",
     }
+
+
+# redis cache the models
+
+@api.route('/create_user/<username>')
+def create_user(username):
+    pass
+
+@api.route('/models/<userid>')
+def list_models(userid):
+    pass
+
+@api.route('/models/<userid>/<modelid>')
+def get_model(userid, modelid):
+    pass
 
 
 @api.route('/schema/<schemagroup>/descriptions')
