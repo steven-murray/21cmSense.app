@@ -108,11 +108,27 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
         return schema
 
 
-# pass a dict such as:
-# { group: schema, [...] }
-# ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
-# schema should already be a json object
 def build_composite_schema(schema: JSONDecoder):
+    """Build a composite schema from parts
+
+    Parameters
+    ----------
+    schema
+        json object containing required parts of a schema
+
+    Notes
+    -----
+    pass a dict such as:
+    { group: schema, [...] }
+    ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
+    schema should already be a json object
+
+    Returns
+    -------
+    json
+        json schema object or json formatted error if request was invalid
+
+    """
     # get calculation type
     if 'calculation' not in schema:
         return json_error("error", "specified schema missing 'calculation' key")
@@ -163,19 +179,23 @@ def build_composite_schema(schema: JSONDecoder):
 
 
 class Validator:
+    """Validate a submitted JSON schema prior to using for calculation
+    """
 
     def __init__(self, thejson):
         self.thejson = thejson
         pass
 
     def valid_groups(self):
-        """
-        valid_groups determines if top-level json keywords are present
+        """valid_groups determines if top-level json keywords are present
 
-        :return:
-        true if and only if only the required top level json groups are present.
-        Fails if extra groups are present
-        False if a required group is missing
+        Returns
+        -------
+        bool
+            true if and only if only the required top level json groups are present.
+            Fails if extra groups are present
+            False if a required group is missing
+
         """
         self.error = False
         self.errorMsg = ""

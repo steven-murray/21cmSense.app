@@ -26,7 +26,7 @@ class FactoryManager:
     def __init__(self, schemagroup):
         self.d = {}
         if not schemagroup:
-            assert(schemagroup), "Factory manager initialized without a schema group name"
+            assert (schemagroup), "Factory manager initialized without a schema group name"
         else:
             self.schemagroup = schemagroup
 
@@ -49,7 +49,6 @@ class FactoryManager:
             return self.d[key]
         else:
             return None
-
 
     def map_schema_to_methods(self):
         schemas = get_schema_names(self.schemagroup)
@@ -87,7 +86,6 @@ class FactoryManager:
             print("Missing group " + self.schemagroup + " schema for method " + m)
 
 
-
 # This class simplifies the handling of data and unit data
 class Dispatcher:
     def __init__(self, data_json, units_json):
@@ -95,11 +93,11 @@ class Dispatcher:
         self.units_json = units_json
 
 
-
 class GaussianBeamDispatcher(Dispatcher):
     """
     Makes a py21cmSense library call to the GaussianBeam class
     """
+
     def get(self):
         return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
 
@@ -113,6 +111,7 @@ class HeraAntennaDispatcher(Dispatcher):
     """
     makes a py21cmSense call to the hera antenna class
     """
+
     def get(self):
         j = self.data_json
         return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
