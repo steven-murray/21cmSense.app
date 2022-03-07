@@ -38,6 +38,14 @@ Return:
 ```
 
 
+#### delete a user
+**DELETE** `/users/<userid>`
+
+Response:
+``204 No Content``
+
+
+
 ### Models
 
 #### create a model ID
