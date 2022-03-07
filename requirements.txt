@@ -6,7 +6,7 @@ pyuvdata==2.2.4
 numpy==1.21.4
 scipy==1.7.2
 PyYAML==6.0
-astropy==4.3.1
+astropy>=5.0
 matplotlib==3.4.3
 
 # project reqs

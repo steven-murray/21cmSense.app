@@ -13,3 +13,8 @@ class DebugPrint:
     def debug_print(self, msg, debug_level: int = 3):
         if 0 < debug_level <= self.get_level():
             print("DEBUG(", debug_level, "): " + msg, sep="")
+
+
+
+def get_unit_string(obj_with_unit):
+    return obj_with_unit.unit.to_string()
