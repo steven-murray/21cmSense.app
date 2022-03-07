@@ -35,18 +35,42 @@ def ping():
     }
 
 
-# redis cache the models
+# redis cache the model
 
-@api.route('/create_user/<username>')
+
+@api.route('/users', methods=['POST'])
 def create_user(username):
     pass
 
-@api.route('/models/<userid>')
+@api.route('/users/<userid>/username', methods=['GET'])
+def get_username(userid):
+    pass
+
+@api.route('/users/<userid>', methods=['DELETE'])
+def delete_user(userid):
+    pass
+
+@api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
     pass
 
-@api.route('/models/<userid>/<modelid>')
-def get_model(userid, modelid):
+# GET -> retrieve a model
+# PUT -> update a model with the same modelid
+# DELETE -> delete a model
+# accepts:
+# modelid
+# returns:
+# OK / ERROR
+@api.route('/models/<userid>/models/<modelid>', methods=['GET', 'PUT', 'DELETE'])
+def model_control(userid, modelid):
+    pass
+
+# accepts:
+#{'modelname':'modelname'}
+# returns:
+#{'modelid':modelid, 'modelname':'modelname'}
+@api.route('/models/<userid>/models', methods=['POST'])
+def create_model(userid):
     pass
 
 
