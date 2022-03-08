@@ -54,17 +54,32 @@ class CreateModel extends React.Component {
 		  	HexNumber: '',
 		  	Separation: '',
 		  	Distance: '',
-		 	 DishSize: '',
+		 	DishSize: '',
 		  	Frequency: '',
 		  	Latitude: '',
 		  	SeperationUnits: '',
 			DistanceUnits: '',
 			FrequencyUnits: '',
-			LatitudeUnits: ''
-		  
+			LatitudeUnits: '',
+			
+		  	Antenna: [],
+			DataisLoaded: false
 	    }
 
 	  }
+
+	 componentDidMount(){
+
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              Antenna: json,
+							  DataisLoaded: true
+                          });
+                      })
+    }
+
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -83,7 +98,10 @@ class CreateModel extends React.Component {
 
 render() {
 		
-		
+		const { Antenna,DataisLoaded } = this.state;              
+ 		if (!DataisLoaded) return <div>
+			<h1> Please wait some time.... </h1> </div> ;
+			
 		const option = {
 						 "separation": {
 							        "type": "string",
@@ -103,7 +121,7 @@ render() {
 						}
 						
 		
-	
+		
 		
      return (
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
@@ -111,14 +129,14 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {"number"} min={3}  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum} placeholder = {Antenna.data.antenna.hex_num.help }  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {"number"} min={0}  onChange={this.handleInputChange}   required/>
-				<DropDown name = "SeperationUnits" options={option.separation.enum}  onChange={this.handleInputChange}  />      
+                <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum} placeholder = {Antenna.data.antenna.separation.help}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} default = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
 				<label> Distance </label>           
-                <input name = "Distance" type = {"number"} min={0}  onChange={this.handleInputChange}   required/>
+                <input name = "Distance" type = {Antenna.data.antenna.dl.type} min = {Antenna.data.antenna.dl.minimum} placeholder = {Antenna.data.antenna.dl.help} onChange={this.handleInputChange}   required/>
 				<DropDown name = "DistanceUnits" options={option.separation.enum}/>      
   				<br></br><br></br>
 			</Panel>
