@@ -95,6 +95,15 @@ def model_exists(modelid):
         return False
 
 
+def modelname_exists(userid, modelname):
+    models=r.smembers(user_key(userid))
+    for m in models:
+        if r.hget(model_key(m), 'modelname') == modelname:
+            return True
+
+    return False
+
+
 @api.route('/users', methods=['POST'])
 def create_user():
     """create a user for tracking models
@@ -220,14 +229,19 @@ def create_model(userid):
     if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
         json = request.get_json()
         modelid = str(uuid.uuid4())
+        modelname=json['modelname']
+
+        # if model name exists, return conflict error
+        if modelname_exists(userid, modelname):
+            return {'error':'duplicate model name'}, HTTP_CONFLICT
 
         # create the model
-        r.hset(model_key(modelid), 'modelname', json['modelname'])
+        r.hset(model_key(modelid), 'modelname', modelname)
         rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
 
         # add to the user's models
         r.sadd(user_key(userid), modelid)
-        return {'userid': userid, 'modelid': modelid, 'modelname': json['modelname']}, HTTP_CREATED
+        return {'userid': userid, 'modelid': modelid, 'modelname': modelname}, HTTP_CREATED
     else:
         return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
 
