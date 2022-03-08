@@ -19,23 +19,6 @@ Response:
 ``400 Bad Request`` (if JSON is invalid)
 
 
-## Get username for a user ID
-**GET** `/users/<userid>/username`
-
-Response:
-``200 OK`` (if username exists)
-
-Return:
-```json
-{
-  "userid": "unique userid",
-  "username": "user name"
-}
-```
-
-Response:
-``404 Not Found`` (if userid does not exist)
-
 ## Delete a user
 **DELETE** `/users/<userid>`
 

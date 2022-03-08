@@ -146,15 +146,6 @@ def create_user():
 # mimetype="application/json")
 
 
-@api.route('/users/<userid>/username', methods=['GET'])
-def get_username(userid):
-    name = r.get(user_key(userid))
-    if name is not None:
-        return {'uuid': userid, 'username': name}, HTTP_OK
-    else:
-        return "", HTTP_NOT_FOUND
-
-
 @api.route('/users/<userid>', methods=['DELETE'])
 def delete_user(userid):
     # remove all model references for the user
@@ -185,8 +176,8 @@ def model_get(userid, modelid):
         return "", HTTP_NOT_FOUND
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
-    name=r.hget(model_key(modelid), 'modelname')
-    data=rpickle.hget(model_key(modelid), 'data')
+    name = r.hget(model_key(modelid), 'modelname')
+    data = rpickle.hget(model_key(modelid), 'data')
 
     if data:
         # recall that is pickled into a string
