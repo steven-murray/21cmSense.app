@@ -46,7 +46,7 @@ Response:
 
 # Models
 
-## Create a model ID
+## Create a new model
 **POST** `/models/<userid>/models`
 
 Body:
@@ -60,8 +60,6 @@ Body:
 Response:
 ``201 Created`` (if created successfully)
 
-``409 Conflict`` (if model name already exists)
-
 Return:
 ```json
 {
@@ -72,11 +70,19 @@ Return:
 }
 ```
 
+Response:
+``409 Conflict`` (if model name already exists)
+
+Return:
+```json
+{"error":"Model name already exists"}
+```
+
 ## Get (retrieve) a model
 **GET** `/models/<userid>/models/<modelid>`
 
 Response:
-``200 OK``
+``200 OK`` (if (userid, model) pair exists)
 
 Return:
 ```
@@ -84,6 +90,9 @@ Return:
   JSON Schema that was previously stored
 }
 ```
+
+Response:
+``400 Bad Request`` (if modelID or userID do not exist)
 
 ## Update a model
 **PUT** `/models/<userid>/models/<modelid>`
@@ -96,17 +105,20 @@ Body:
 ```
 
 Response:
+``204 No Content`` (if model was updated)
+
 ``400 Bad Request`` (if modelID or userID do not exist)
 
 ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-diagram/blob/master/httpdd.graffle.png)
 
-``204 No Content`` (if model was updated)
 
 ## Delete a model
 **DELETE** `/models/<userid>/models/<modelid>`
 
 Response:
-``204 No Content``
+``204 No Content`` (if model was deleted)
+
+``400 Bad Request`` (if modelID or userID do not exist)
 
 
 # schema
