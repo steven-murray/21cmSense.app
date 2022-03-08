@@ -21,7 +21,8 @@ RUN apt-get update -y && \
     apt-get install -y libhdf5-dev && \
     apt-get install -y nginx && \
     apt install -y vim && \
-    apt install -y netcat
+    apt install -y netcat && \
+    apt install -y redis
 
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \

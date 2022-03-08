@@ -16,7 +16,7 @@ while getopts ":nk" o; do
             NOCACHE="--no-cache"
             ;;
         k)
-            SSHARG='--build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)"'
+            SSHARG=1
             ;;
         '?')
             echo "Usage: $0 [-n] [-k]"
@@ -47,7 +47,10 @@ fi
 
 echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
 
+if [ "$SSHARG" ]; then
+    docker build -t p43 ${NOCACHE} --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" ${DIR}
+else
+    docker build -t p43 ${NOCACHE} ${DIR}
+fi
 
-
-#docker build -t p43 $NOCACHE --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" p43/
 
