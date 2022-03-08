@@ -53,7 +53,7 @@ Body:
 ```
 {
   "modelname": "model name",
-  "model": { json schema }
+  "data": { json schema }
 }
 ```
 
@@ -64,11 +64,14 @@ Return:
 ```json
 {
   "userid": "unique userid",
-  "username": "user name"
   "modelid": "model id",
   "modelname": "model name"
 }
 ```
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
 
 Response:
 ``409 Conflict`` (if model name already exists)
@@ -113,7 +116,7 @@ Response:
 Return:
 ```json
 {
-  "JSON Schema that was previously stored"
+  "data": "JSON Schema that was previously stored"
 }
 ```
 
@@ -124,9 +127,9 @@ Response:
 **PUT** `/models/<userid>/models/<modelid>`
 
 Body:
-```
+```json
 {
-  JSON schema to store
+  "data": "JSON schema to store"
 }
 ```
 

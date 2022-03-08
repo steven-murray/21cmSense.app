@@ -90,10 +90,10 @@ def create_user():
         req = request.get_json()
         userid = str(uuid.uuid4())
         r.sadd(user_key(userid), '')
-        return {'uuid': userid}, 201
+        return {'uuid': userid}, HTTP_CREATED
 
     else:
-        return {'error': 'missing request body or bad request'}, 400
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
 
 
 # As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
@@ -119,31 +119,31 @@ def create_user():
 def get_username(userid):
     name = r.get(user_key(userid))
     if name is not None:
-        return {'uuid': userid, 'username': name}, 200
+        return {'uuid': userid, 'username': name}, HTTP_OK
     else:
-        return "", 404
+        return "", HTTP_NOT_FOUND
 
 
 @api.route('/users/<userid>', methods=['DELETE'])
 def delete_user(userid):
     # remove all model references for the user
-    models=list(r.smembers(user_key(userid)))
+    models = list(r.smembers(user_key(userid)))
     if models:
         r.delete(*models)
     # and remove the user
     r.delete(user_key(userid))
-    return "", 204
+    return "", HTTP_NO_CONTENT
 
 
 @api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
     # r.hmset('model:'+modelnum, 'name', 'the name of the model')
     # r.hmset('model:'+modelnum, 'data', '{json for this model}')
-    l=[]
-    models=r.smembers(user_key(userid))
+    l = []
+    models = r.smembers(user_key(userid))
     for m in models:
-        l.append({'name':r.hmget(model_key(m), 'name'), 'modelid':m})
-    return l, 200
+        l.append({'name': r.hmget(model_key(m), 'name'), 'modelid': m})
+    return l, HTTP_OK
 
 
 # GET -> retrieve a model
@@ -153,9 +153,29 @@ def list_models(userid):
 # modelid
 # returns:
 # OK / ERROR
-@api.route('/models/<userid>/models/<modelid>', methods=['GET', 'PUT', 'DELETE'])
-def model_control(userid, modelid):
-    pass
+@api.route('/models/<userid>/models/<modelid>', methods=['GET'])
+def model_get(userid, modelid):
+    # request for a model
+    if not (request.is_json and request.json):
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+    data = r.hget(model_key(modelid), 'data')
+    if data:
+        return {'data': data}, HTTP_OK
+    else:
+        return "", HTTP_NOT_FOUND
+
+
+@api.route('/models/<userid>/models/<modelid>', methods=['PUT'])
+def model_create_update(userid, modelid):
+    if not (request.is_json and request.json and 'data' in request.get_json()):
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+    r.hmset(model_key(modelid), 'name', )
+
+
+@api.route('/models/<userid>/models/<modelid>', methods=['DELETE'])
+def model_delete(userid, modelid):
+    r.delete(model_key(modelid))
+    return "", HTTP_NO_CONTENT
 
 
 # accepts:
@@ -164,7 +184,16 @@ def model_control(userid, modelid):
 # {'modelid':modelid, 'modelname':'modelname'}
 @api.route('/models/<userid>/models', methods=['POST'])
 def create_model(userid):
-    pass
+    # this user isn't registered...
+    if not r.smembers(userid):
+        return "", HTTP_NOT_FOUND
+
+    if request.method == 'POST' and request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
+        json=request.get_json()
+        modelid=str(uuid.uuid4())
+        r.hset(model_key(modelid), 'name', json['name'])
+        r.hset(model_key(modelid), 'data', json['data'])
+        return {'userid':userid, 'modelid':modelid, 'modelname':json['modelname']}, HTTP_NO_CONTENT
 
 
 @api.route('/schema/<schemagroup>/descriptions')
