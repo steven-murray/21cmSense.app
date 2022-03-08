@@ -1,5 +1,51 @@
-from .models import *
+from flask import jsonify
+
 from .factorymanager import FactoryManager
+from .constants import *
+from .models import add_calculation_type, add_hash
+from .schema import Validator
+from .sensitivity import get_sensitivity
+from .util import filter_infinity
+
+
+def calculate(thejson):
+    """calculate antenna data based upon json request from application front end
+
+    Parameters
+    ----------
+    thejson
+        json data
+
+    Returns
+    -------
+    json
+        Calculated output or json-formatted error
+
+    """
+    v = Validator(thejson)
+    if not v.valid_groups():
+        return jsonify(error="Invalid JSON schema", errormsg=v.errorMsg)
+    else:
+        print("JSON SCHEMA VALIDATED")
+
+    if KW_CALCULATION not in thejson:
+        return jsonify(error="Calculation type not provided")
+
+    print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
+
+    # get proper function for this calculation
+    calculator = CalculationFactory().get(thejson[KW_CALCULATION])
+
+    if calculator is None:
+        return jsonify({KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]})
+
+    results = calculator(thejson)
+
+    add_hash(thejson, results)
+    add_calculation_type(thejson, results)
+
+    return jsonify(results)
+
 
 
 # note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
@@ -24,7 +70,7 @@ class CalculationFactory(FactoryManager):
         1D-cut-of-2D-sensitivity.json 1D-noise-cut-of-2D-sensitivity.json 1D-sample-variance-cut-of-2D-sensitivity.json 2D-sensitivity.json antenna-positions.json baselines-distributions.json calculations.json k-vs-redshift-plot.json
         """
 
-    def _1D_cut_of_2D_sensitivity(thejson):
+    def _1D_cut_of_2D_sensitivity(self, thejson):
         """one_d_cut: includes thermal noise and sample variance
 
         :param thejson:
@@ -57,7 +103,7 @@ class CalculationFactory(FactoryManager):
     # return jsonify(d)
     # return jsonify({"a": "b"})
 
-    def _1D_noise_cut_of_2D_sensitivity(thejson):
+    def _1D_noise_cut_of_2D_sensitivity(self, thejson):
         """_1D_noise_cut_of_2D_sensitivity includes thermal noise without sample variance
 
         :param thejson:
@@ -77,7 +123,7 @@ class CalculationFactory(FactoryManager):
         # return jsonify(d)
         return d
 
-    def _1D_sample_variance_cut_of_2D_sensitivity(thejson):
+    def _1D_sample_variance_cut_of_2D_sensitivity(self, thejson):
         """_1D_sample_variance_cut_of_2D_sensitivity includes sample-only variance without thermal noise
 
         :param thejson:
@@ -93,7 +139,7 @@ class CalculationFactory(FactoryManager):
         d.update(labels)
         return d
 
-    def two_d_sens(thejson):
+    def two_d_sens(self, thejson):
         """Return 2D cylindrical visualization cut of sensitivity
 
         :param thejson:
@@ -119,7 +165,7 @@ class CalculationFactory(FactoryManager):
         # cbar.set_label("Number of baselines in group", fontsize=15)
         # plt.tight_layout();
 
-    def _antenna_positions(thejson):
+    def _antenna_positions(self, thejson):
         """Antenna position
 
         :param thejson:
@@ -167,7 +213,7 @@ class CalculationFactory(FactoryManager):
     # [-126. -112.  -98. ...  -14.    0.    0.]
     # [-126. -112.  -98. ...  -14.    0.    0.]] m
 
-    def _baselines_distributions(thejson):
+    def _baselines_distributions(self, thejson):
         """Baselines distributions
 
         :param thejson:
@@ -217,7 +263,7 @@ class CalculationFactory(FactoryManager):
     #         weights=baseline_group_counts
     #     )
 
-    def _uv_grid_sampling(thejson):
+    def _uv_grid_sampling(self, thejson):
         """Return UV grid sampling data
 
         :param thejson:
