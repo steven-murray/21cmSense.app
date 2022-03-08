@@ -9,8 +9,9 @@
 
 unset NOCACHE
 unset SSHARG
+BRANCH=master
 
-while getopts ":nk" o; do
+while getopts ":nkb:" o; do
     case ${o} in
         n)
             NOCACHE="--no-cache"
@@ -18,15 +19,21 @@ while getopts ":nk" o; do
         k)
             SSHARG=1
             ;;
+        b)
+            BRANCH="$OPTARG"
+            ;;
         '?')
-            echo "Usage: $0 [-n] [-k]"
+            echo "Usage: $0 [-n] [-k] [-b branch]"
             echo "      -n: no-cache (disable cached image for this build)"
             echo "      -k: use keypair (clone from private repository)"
             echo "      -K: no-keypair (clone from public repository) [default]"
+            echo "      -b: branch from repo to use for build [default=master]"
             exit 1
             ;;
     esac
 done
+
+BRANCHARG="--build-arg branch=$BRANCH"
 
 if [ "$NOCACHE" ]; then
     echo Building image without cache.
@@ -45,12 +52,12 @@ fi
 # copy support files (nginx config and init script) to proper build dir - maintain in only one place
 /bin/cp -f support_files/* $DIR
 
-echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
+#echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
 
 if [ "$SSHARG" ]; then
-    docker build -t p43 ${NOCACHE} --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" ${DIR}
+    docker build -t p43 ${NOCACHE} $BRANCHARG --build-arg ssh_prv_key="$(cat ~/.ssh/id_ed25519_docker_github)" --build-arg ssh_pub_key="$(cat ~/.ssh/id_ed25519_docker_github.pub)" ${DIR}
 else
-    docker build -t p43 ${NOCACHE} ${DIR}
+    docker build -t p43 ${NOCACHE} $BRANCHARG ${DIR}
 fi
 
 

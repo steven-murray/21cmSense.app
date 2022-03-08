@@ -1,5 +1,7 @@
-# use python 3.9.8
-FROM python:3.9.8-bullseye
+# use python 3.10.2
+FROM python:3.10.2-bullseye
+
+ARG branch
 
 # os-level dependency for hd5 library
 RUN apt-get update -y && \
@@ -22,7 +24,7 @@ RUN git clone git@github.com:bpape1usa/SER401-Project43.git
 COPY docker-run-app.sh /home/app/SER401-Project43
 
 RUN cd SER401-Project43 && \
-    git checkout bpape1-s7 && \
+    git checkout ${branch} && \
     pip install -r requirements.txt && \
     cd ..
 
