@@ -47,7 +47,7 @@ Response:
 # Models
 
 ## Create a new model
-**POST** `/models/<userid>/models`
+**POST** `/users/<userid>/models`
 
 Body:
 ```
@@ -83,7 +83,7 @@ Return:
 
 
 ## Get a list of models
-**GET** `/models/<userid>/models`
+**GET** `/users/<userid>/models`
 
 Response:
 ``200 OK`` (if (userid, model) pair exists)
@@ -93,11 +93,11 @@ Return:
 {
   "models": [
     {
-      "name": "model 1 name",
+      "modelname": "model 1 name",
       "modelid": "model 1 ID"
     },
     {
-      "name": "model 2 name",
+      "modelname": "model 2 name",
       "modelid": "model 1 ID"
     }
   ]
@@ -108,7 +108,7 @@ Response:
 ``404 Not Found`` (if userid does not exist)
 
 ## Get (retrieve) a model
-**GET** `/models/<userid>/models/<modelid>`
+**GET** `/users/<userid>/models/<modelid>`
 
 Response:
 ``200 OK`` (if (userid, model) pair exists)
@@ -116,6 +116,7 @@ Response:
 Return:
 ```json
 {
+  "modelname": "name of model",
   "data": "JSON Schema that was previously stored"
 }
 ```
@@ -124,11 +125,12 @@ Response:
 ``400 Bad Request`` (if modelID or userID do not exist)
 
 ## Update a model
-**PUT** `/models/<userid>/models/<modelid>`
+**PUT** `/users/<userid>/models/<modelid>`
 
 Body:
 ```json
 {
+  "modelname": "name of model",
   "data": "JSON schema to store"
 }
 ```
@@ -142,7 +144,7 @@ ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-d
 
 
 ## Delete a model
-**DELETE** `/models/<userid>/models/<modelid>`
+**DELETE** `/users/<userid>/models/<modelid>`
 
 Response:
 ``204 No Content`` (if model was deleted)

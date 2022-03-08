@@ -11,7 +11,8 @@ from .calculation import *
 import redis
 import uuid
 
-r = redis.Redis()
+r = redis.Redis(decode_responses=True)
+rpickle = redis.Redis(decode_responses=False)
 
 
 @api.route('/')
@@ -50,18 +51,48 @@ def ping():
 # key to a set="user:"+userIDhash = "model:modelIDhash"
 # (r.sadd (userkey, modelstring)
 # a model is a hash with two entries: name and data
-# r.hmset('model:'+modelnum, 'name', 'the name of the model')
+# r.hmset('model:'+modelnum, 'modelname', 'the name of the model')
 # r.hmset('model:'+modelnum, 'data', '{json for this model}')
 # key=u+":"+m
 # r.set(key,p)
 # return: pickle.loads(r.get(key))
 
-def user_key(userid):
+def user_key(userid: str) -> str:
     return "user" + ":" + userid
 
 
-def model_key(modelid):
+def model_key(modelid: str) -> str:
     return "model" + ":" + modelid
+
+
+def strip_tag(key: str) -> str:
+    """
+
+    Parameters
+    ----------
+    key
+        tag:data key from redis
+
+    Returns
+    -------
+    str
+        data portion only
+    """
+    return key.split(':')[1]
+
+
+def user_exists(userid):
+    if r.exists(user_key(userid)):
+        return True
+    else:
+        return False
+
+
+def model_exists(modelid):
+    if r.exists(model_key(modelid)):
+        return True
+    else:
+        return False
 
 
 @api.route('/users', methods=['POST'])
@@ -137,43 +168,50 @@ def delete_user(userid):
 
 @api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
-    # r.hmset('model:'+modelnum, 'name', 'the name of the model')
+    # r.hmset('model:'+modelnum, 'modelname', 'the name of the model')
     # r.hmset('model:'+modelnum, 'data', '{json for this model}')
     l = []
     models = r.smembers(user_key(userid))
     for m in models:
-        l.append({'name': r.hmget(model_key(m), 'name'), 'modelid': m})
-    return l, HTTP_OK
+        # don't return the empty model used as a set placeholder for the userid key
+        if m:
+            l.append({'modelname': r.hget(model_key(m), 'modelname'), 'modelid': m})
+    return {'models': l}, HTTP_OK
 
 
-# GET -> retrieve a model
-# PUT -> update a model with the same modelid
-# DELETE -> delete a model
-# accepts:
-# modelid
-# returns:
-# OK / ERROR
-@api.route('/models/<userid>/models/<modelid>', methods=['GET'])
+@api.route('/users/<userid>/models/<modelid>', methods=['GET'])
 def model_get(userid, modelid):
-    # request for a model
-    if not (request.is_json and request.json):
-        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
-    data = r.hget(model_key(modelid), 'data')
+    if not user_exists(userid) or not model_exists(modelid):
+        return "", HTTP_NOT_FOUND
+    # request for a model. Note we can't use hmget because pickled data cannot automatically
+    # be utf-8 decoded
+    name=r.hget(model_key(modelid), 'modelname')
+    data=rpickle.hget(model_key(modelid), 'data')
+
     if data:
-        return {'data': data}, HTTP_OK
+        # recall that is pickled into a string
+        data = pickle.loads(data)
+        return {'modelname': name, 'data': data}, HTTP_OK
     else:
         return "", HTTP_NOT_FOUND
 
 
-@api.route('/models/<userid>/models/<modelid>', methods=['PUT'])
-def model_create_update(userid, modelid):
+@api.route('/users/<userid>/models/<modelid>', methods=['PUT'])
+def model_update(userid, modelid):
+    if not user_exists(userid) or not model_exists(modelid):
+        return "", HTTP_NOT_FOUND
     if not (request.is_json and request.json and 'data' in request.get_json()):
         return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
-    r.hmset(model_key(modelid), 'name', )
+    req = request.get_json()
+    r.hset(model_key(modelid), 'modelname', req['modelname'])
+    rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
 
 
-@api.route('/models/<userid>/models/<modelid>', methods=['DELETE'])
+@api.route('/users/<userid>/models/<modelid>', methods=['DELETE'])
 def model_delete(userid, modelid):
+    if not user_exists(userid) or not model_exists(modelid):
+        return "", HTTP_NOT_FOUND
+    r.srem(user_key(userid), modelid)
     r.delete(model_key(modelid))
     return "", HTTP_NO_CONTENT
 
@@ -182,18 +220,25 @@ def model_delete(userid, modelid):
 # {'modelname':'modelname'}
 # returns:
 # {'modelid':modelid, 'modelname':'modelname'}
-@api.route('/models/<userid>/models', methods=['POST'])
+@api.route('/users/<userid>/models', methods=['POST'])
 def create_model(userid):
     # this user isn't registered...
-    if not r.smembers(userid):
+    if not user_exists(userid):
         return "", HTTP_NOT_FOUND
 
-    if request.method == 'POST' and request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
-        json=request.get_json()
-        modelid=str(uuid.uuid4())
-        r.hset(model_key(modelid), 'name', json['name'])
-        r.hset(model_key(modelid), 'data', json['data'])
-        return {'userid':userid, 'modelid':modelid, 'modelname':json['modelname']}, HTTP_NO_CONTENT
+    if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
+        json = request.get_json()
+        modelid = str(uuid.uuid4())
+
+        # create the model
+        r.hset(model_key(modelid), 'modelname', json['modelname'])
+        rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
+
+        # add to the user's models
+        r.sadd(user_key(userid), modelid)
+        return {'userid': userid, 'modelid': modelid, 'modelname': json['modelname']}, HTTP_CREATED
+    else:
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
 
 
 @api.route('/schema/<schemagroup>/descriptions')
