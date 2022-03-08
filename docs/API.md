@@ -25,6 +25,8 @@ Response:
 Response:
 ``204 No Content``
 
+Response:
+``404 Not Found`` (if userid does not exist)
 
 
 # Models
@@ -55,6 +57,8 @@ Return:
 Response:
 ``400 Bad Request`` (if JSON is invalid)
 
+Response:
+``404 Not Found`` (if userid does not exist)
 
 Response:
 ``409 Conflict`` (if model name already exists)
@@ -105,7 +109,7 @@ Return:
 ```
 
 Response:
-``400 Bad Request`` (if modelID or userID do not exist)
+``404 Bad Request`` (if modelID or userID do not exist)
 
 ## Update a model
 **PUT** `/users/<userid>/models/<modelid>`
@@ -121,7 +125,11 @@ Body:
 Response:
 ``204 No Content`` (if model was updated)
 
-``400 Bad Request`` (if modelID or userID do not exist)
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+Response:
+``404 Not Found`` (if userid or modelid does not exist)
 
 ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-diagram/blob/master/httpdd.graffle.png)
 
@@ -130,9 +138,7 @@ ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-d
 **DELETE** `/users/<userid>/models/<modelid>`
 
 Response:
-``204 No Content`` (if model was deleted)
-
-``400 Bad Request`` (if modelID or userID do not exist)
+``204 No Content`` (in all cases, including for invalid userid or modelid)
 
 
 # schema
