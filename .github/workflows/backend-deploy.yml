@@ -20,7 +20,7 @@ jobs:
       - name: CreateDocs
         uses: ammaraskar/sphinx-action@0.4
         with:
-          docs_folder: Sphinx/source
+          docs_folder: /Sphinx/source/
       - name: DeployServer
         uses:  appleboy/ssh-action@master
         with:
