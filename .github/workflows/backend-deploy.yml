@@ -21,6 +21,7 @@ jobs:
         uses: ammaraskar/sphinx-action@0.4
         with:
           docs_folder: /Sphinx/source/
+          pre-build-command: sphinx-apidoc -f -o ../Sphinx/source .
       - name: DeployServer
         uses:  appleboy/ssh-action@master
         with:
