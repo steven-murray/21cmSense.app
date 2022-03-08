@@ -50,14 +50,17 @@ Response:
 **POST** `/models/<userid>/models`
 
 Body:
-```json
+```
 {
-  "modelname": "model name"
+  "modelname": "model name",
+  "model": { json schema }
 }
 ```
 
 Response:
-``201 Created``
+``201 Created`` (if created successfully)
+
+``409 Conflict`` (if model name already exists)
 
 Return:
 ```json
@@ -82,7 +85,7 @@ Return:
 }
 ```
 
-## Update or create a model
+## Update a model
 **PUT** `/models/<userid>/models/<modelid>`
 
 Body:
@@ -93,7 +96,9 @@ Body:
 ```
 
 Response:
-``201 OK`` (if model was stored for first time)
+``400 Bad Request`` (if modelID or userID do not exist)
+
+ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-diagram/blob/master/httpdd.graffle.png)
 
 ``204 No Content`` (if model was updated)
 
