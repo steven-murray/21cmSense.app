@@ -2,7 +2,7 @@
 # views.py
 #
 import numpy as np
-from flask import json, request
+from flask import current_app, json, request
 
 from . import api, models
 from .json_util import json_error
@@ -10,6 +10,8 @@ from .models import *
 from .calculation import *
 import redis
 import uuid
+
+from .schema import build_composite_schema, get_schema_descriptions_json, get_schema_groups, get_schema_names_json
 
 r = redis.Redis(decode_responses=True)
 rpickle = redis.Redis(decode_responses=False)
@@ -168,8 +170,6 @@ def delete_user(userid):
 
 @api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
-    # r.hmset('model:'+modelnum, 'modelname', 'the name of the model')
-    # r.hmset('model:'+modelnum, 'data', '{json for this model}')
     l = []
     models = r.smembers(user_key(userid))
     for m in models:
@@ -189,7 +189,7 @@ def model_get(userid, modelid):
     data = rpickle.hget(model_key(modelid), 'data')
 
     if data:
-        # recall that is pickled into a string
+        # recall that json payload is pickled into a string
         data = pickle.loads(data)
         return {'modelname': name, 'data': data}, HTTP_OK
     else:
@@ -344,7 +344,7 @@ def list_all_schema_groups():
         List of all supported schema groups
 
     """
-    lst = models.get_schema_groups()
+    lst = get_schema_groups()
     return jsonify(lst)
 
 

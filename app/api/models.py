@@ -55,6 +55,7 @@ class HeraAntennaDispatcher(Dispatcher):
 
     def get(self):
         j = self.data_json
+        u = self.units_json
 
         # TODO - extract units from JSON
         return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),

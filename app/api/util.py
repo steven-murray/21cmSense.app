@@ -1,3 +1,6 @@
+import numpy
+
+
 class DebugPrint:
     level = 0
 

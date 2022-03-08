@@ -50,9 +50,10 @@ def cached_sensitivity(json_pickle):
 
     a = antenna.get()
     b = beam.get()
-    l = thejson['data']['location']['latitude']
-    t=400*units.K
-    obs = Observatory(antpos=a, beam=b, latitude=l, Trcv=t)
+    lat = thejson['data']['location']['latitude'] * units.rad
+    print("lat is = ", lat)
+    t = 400 * units.K
+    obs = Observatory(antpos=a, beam=b, latitude=lat, Trcv=t)
 
     pass
     pass
@@ -61,7 +62,8 @@ def cached_sensitivity(json_pickle):
         observation=Observation(
             observatory=Observatory(
                 antpos=antenna.get(), beam=beam.get(),
-                latitude=thejson['data']['location']['latitude']
+                # TODO - add in units
+                latitude=thejson['data']['location']['latitude'] * units.rad
             )
         )
     )
