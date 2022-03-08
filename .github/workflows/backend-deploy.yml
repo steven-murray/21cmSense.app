@@ -1,4 +1,4 @@
-name: execute remote ssh to pull updates from master
+name: Create Docs and SSH into Server
 on:
   push:
     branches:
@@ -18,15 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: CreateDocs
-        uses: cascode-labs/build-sphinx-action/action.yml@v0
+        uses: ammaraskar/sphinx-action@0.4
         with:
-          docs_path: Sphinx/source .
-          conda_build_env_filepath: '{NEW_CONDA_BUILD_ENV_FILEPATH}'
-          conda_build_env_name: '{NEW_CONDA_BUILD_ENV_NAME}'
-          base_env_prefix: '{NEW_BASE_ENV_PREFIX}'
-          artifact_name: '{NEW_ARTIFACT_NAME}'
-          package_folder_path: '{NEW_PACKAGE_FOLDER_PATH}'
-          package_name: '{NEW_PACKAGE_NAME}'
+          docs_folder: Sphinx/source
       - name: DeployServer
         uses:  appleboy/ssh-action@master
         with:
