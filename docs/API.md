@@ -5,36 +5,36 @@
 ## Create a new User ID
 **POST** `/users`
 
-Body:
-```json
-{ "username":"the username" }
-```
-
 Response: 
 ``201 Created``
 
 Return:
 ```json
 {
-  "uid": "unique uid",
-  "username": "user name"
+  "userid": "unique userid",
 }
 ```
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
 
 ## Get username for a user ID
 **GET** `/users/<userid>/username`
 
 Response:
-``200 OK``
+``200 OK`` (if username exists)
 
 Return:
 ```json
 {
-  "uid": "unique uid",
+  "userid": "unique userid",
   "username": "user name"
 }
 ```
 
+Response:
+``404 Not Found`` (if userid does not exist)
 
 ## Delete a user
 **DELETE** `/users/<userid>`
@@ -63,7 +63,7 @@ Response:
 Return:
 ```json
 {
-  "uid": "unique uid",
+  "userid": "unique userid",
   "username": "user name"
   "modelid": "model id",
   "modelname": "model name"
@@ -78,6 +78,32 @@ Return:
 {"error":"Model name already exists"}
 ```
 
+
+## Get a list of models
+**GET** `/models/<userid>/models`
+
+Response:
+``200 OK`` (if (userid, model) pair exists)
+
+Return:
+```json
+{
+  "models": [
+    {
+      "name": "model 1 name",
+      "modelid": "model 1 ID"
+    },
+    {
+      "name": "model 2 name",
+      "modelid": "model 1 ID"
+    }
+  ]
+}
+```
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
 ## Get (retrieve) a model
 **GET** `/models/<userid>/models/<modelid>`
 
@@ -85,9 +111,9 @@ Response:
 ``200 OK`` (if (userid, model) pair exists)
 
 Return:
-```
+```json
 {
-  JSON Schema that was previously stored
+  "JSON Schema that was previously stored"
 }
 ```
 

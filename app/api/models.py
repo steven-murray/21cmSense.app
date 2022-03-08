@@ -6,6 +6,7 @@ import pickle
 from hashlib import md5
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
+from astropy import units
 # from .calculation import CalculationFactory
 from .constants import *
 from .factorymanager import FactoryManager
@@ -34,7 +35,9 @@ class GaussianBeamDispatcher(Dispatcher):
     """
 
     def get(self):
-        return GaussianBeam(frequency=self.data_json['frequency'], dish_size=self.data_json['dish_size'])
+        # TODO - extract units from JSON
+        return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit("MHz"),
+                            dish_size=self.data_json['dish_size'] * units.Unit("m"))
 
 
 class LatitudeDispatcher(Dispatcher):
@@ -52,7 +55,10 @@ class HeraAntennaDispatcher(Dispatcher):
 
     def get(self):
         j = self.data_json
-        return hera(hex_num=j['hex_num'], separation=j['separation'], dl=j['separation'], units='m')
+
+        # TODO - extract units from JSON
+        return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
+                    dl=j['separation'] * units.Unit("m"))
 
 
 def hash_json(thejson):

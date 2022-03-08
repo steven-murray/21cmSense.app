@@ -2,11 +2,16 @@
 # views.py
 #
 import numpy as np
-from flask import request
+from flask import json, request
 
 from . import api, models
+from .json_util import json_error
 from .models import *
 from .calculation import *
+import redis
+import uuid
+
+r = redis.Redis()
 
 
 @api.route('/')
@@ -37,22 +42,109 @@ def ping():
 
 # redis cache the model
 
+# r=redis.Redis()
+# u=username_hash
+# m=modelname_hash
+# p = pickle.dumps(json_dict)
+# all of a user's models
+# key to a set="user:"+userIDhash = "model:modelIDhash"
+# (r.sadd (userkey, modelstring)
+# a model is a hash with two entries: name and data
+# r.hmset('model:'+modelnum, 'name', 'the name of the model')
+# r.hmset('model:'+modelnum, 'data', '{json for this model}')
+# key=u+":"+m
+# r.set(key,p)
+# return: pickle.loads(r.get(key))
+
+def user_key(userid):
+    return "user" + ":" + userid
+
+
+def model_key(modelid):
+    return "model" + ":" + modelid
+
 
 @api.route('/users', methods=['POST'])
-def create_user(username):
-    pass
+def create_user():
+    """create a user for tracking models
+
+    Parameters
+    ----------
+    username
+        username
+
+    Notes
+    -----
+    Expects json body of { "username":"the username" }
+
+    Returns
+    -------
+    json::
+        {
+          "uuid": "unique uid",
+          "username": "user name"
+        }
+
+    """
+    if request.method == 'POST' and request.is_json and request.json and 'username' in request.get_json():
+        req = request.get_json()
+        userid = str(uuid.uuid4())
+        r.sadd(user_key(userid), '')
+        return {'uuid': userid}, 201
+
+    else:
+        return {'error': 'missing request body or bad request'}, 400
+
+
+# As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
+
+# status_code = flask.Response(status=201)
+# return status_code
+#
+# return Response("{'a':'b'}", status=201, mimetype='application/json')
+
+# notfound = 404
+# return xyz, notfound
+
+# return html_page_str, 200, {'ContentType': 'text/html'}
+# return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
+# return Response(json.dumps({'Error': 'Error in payload'}),
+# status=422,
+# mimetype="application/json")
+
 
 @api.route('/users/<userid>/username', methods=['GET'])
 def get_username(userid):
-    pass
+    name = r.get(user_key(userid))
+    if name is not None:
+        return {'uuid': userid, 'username': name}, 200
+    else:
+        return "", 404
+
 
 @api.route('/users/<userid>', methods=['DELETE'])
 def delete_user(userid):
-    pass
+    # remove all model references for the user
+    models=list(r.smembers(user_key(userid)))
+    if models:
+        r.delete(*models)
+    # and remove the user
+    r.delete(user_key(userid))
+    return "", 204
+
 
 @api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
-    pass
+    # r.hmset('model:'+modelnum, 'name', 'the name of the model')
+    # r.hmset('model:'+modelnum, 'data', '{json for this model}')
+    l=[]
+    models=r.smembers(user_key(userid))
+    for m in models:
+        l.append({'name':r.hmget(model_key(m), 'name'), 'modelid':m})
+    return l, 200
+
 
 # GET -> retrieve a model
 # PUT -> update a model with the same modelid
@@ -65,10 +157,11 @@ def list_models(userid):
 def model_control(userid, modelid):
     pass
 
+
 # accepts:
-#{'modelname':'modelname'}
+# {'modelname':'modelname'}
 # returns:
-#{'modelid':modelid, 'modelname':'modelname'}
+# {'modelid':modelid, 'modelname':'modelname'}
 @api.route('/models/<userid>/models', methods=['POST'])
 def create_model(userid):
     pass
