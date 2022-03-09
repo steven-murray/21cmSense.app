@@ -63,6 +63,7 @@ class CreateModel extends React.Component {
 			LatitudeUnits: '',
 			
 		  	Antenna: [],
+			Beam: [],
 			DataisLoaded: false
 	    }
 
@@ -70,16 +71,33 @@ class CreateModel extends React.Component {
 
 	 componentDidMount(){
 
+			this.getAntennaData();
+			
+			this.getBeamData();
+    }
+
+	getAntennaData(){
             fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              Antenna: json,
-							  DataisLoaded: true
+                              Antenna: json
                           });
-                      })
-    }
+                      })		
+	}
 
+	getBeamData(){
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/beam/get/GaussianBeam")
+                      .then((ress) => ress.json())
+                      .then((jsons) => {
+                          this.setState({
+                              Beam: jsons,
+							  DataisLoaded: true		
+                          });
+                      })		
+	}
+	
+	
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -98,7 +116,8 @@ class CreateModel extends React.Component {
 
 render() {
 		
-		const { Antenna,DataisLoaded } = this.state;              
+		const { Antenna} = this.state;      
+		const { Beam, DataisLoaded} = this.state;           
  		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
 			
@@ -126,6 +145,7 @@ render() {
      return (
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
 			<br></br>
+			
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
@@ -135,14 +155,10 @@ render() {
                 <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum} placeholder = {Antenna.data.antenna.separation.help}  onChange={this.handleInputChange}   required/>
 				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} default = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
-				<label> Distance </label>           
-                <input name = "Distance" type = {Antenna.data.antenna.dl.type} min = {Antenna.data.antenna.dl.minimum} placeholder = {Antenna.data.antenna.dl.help} onChange={this.handleInputChange}   required/>
-				<DropDown name = "DistanceUnits" options={option.separation.enum}/>      
-  				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {"number"} min={0}   onChange={this.handleInputChange}  required/>
+                <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
 				<DropDown name = "DishSizeUnits" options={option.separation.enum}/>      
   				<br></br><br></br>
 				<label> Frequency </label>           
