@@ -98,7 +98,7 @@ def model_exists(modelid):
 
 
 def modelname_exists(userid, modelname):
-    models=r.smembers(user_key(userid))
+    models = r.smembers(user_key(userid))
     for m in models:
         if r.hget(model_key(m), 'modelname') == modelname:
             return True
@@ -179,10 +179,9 @@ def list_models(userid):
     return {'models': l}, HTTP_OK
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=['GET'])
-def model_get(userid, modelid):
-    if not user_exists(userid) or not model_exists(modelid):
-        return "", HTTP_NOT_FOUND
+def get_model_json(modelid):
+    if not model_exists(modelid):
+        return None, None
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
     name = r.hget(model_key(modelid), 'modelname')
@@ -191,6 +190,17 @@ def model_get(userid, modelid):
     if data:
         # recall that json payload is pickled into a string
         data = pickle.loads(data)
+        return name, data
+    else:
+        return None, None
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=['GET'])
+def model_get(userid, modelid):
+    if not user_exists(userid):
+        return "", HTTP_NOT_FOUND
+    (name, data) = get_model_json(modelid)
+    if data is not None:
         return {'modelname': name, 'data': data}, HTTP_OK
     else:
         return "", HTTP_NOT_FOUND
@@ -229,11 +239,11 @@ def create_model(userid):
     if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
         json = request.get_json()
         modelid = str(uuid.uuid4())
-        modelname=json['modelname']
+        modelname = json['modelname']
 
         # if model name exists, return conflict error
         if modelname_exists(userid, modelname):
-            return {'error':'duplicate model name'}, HTTP_CONFLICT
+            return {'error': 'duplicate model name'}, HTTP_CONFLICT
 
         # create the model
         r.hset(model_key(modelid), 'modelname', modelname)
@@ -503,6 +513,20 @@ def testtest():
         return json.dumps(d)
 
     return jsonify("test succeeded.")
+
+
+@api.route("/21cm/model/<modelid>", methods=['POST'])
+def call_21cm_with_model(modelid):
+    if request.is_json and request.json:
+        req = request.get_json()
+        calc=req[KW_CALCULATION]
+        (name, data) = get_model_json(modelid)
+        if name is None:
+            return {"error": "Model does not exist", "modelid": modelid}
+        data[KW_CALCULATION]=calc
+        return calculate(data)
+    else:
+        return json_error("error", "Bad request body")
 
 
 @api.route("/21cm", methods=['POST'])

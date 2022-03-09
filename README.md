@@ -78,6 +78,8 @@ listening on 0.0.0.0 (all interfaces), use `-p 8081:80/tcp`.
 -d detaches the container after run
 
 
+To build a docker container for running the application, using `nginx` as a webserver utilizing the `wsgi` interface to the python code, please see the README.md file in the docker-dist directory.
+
 
 ## How to run the Web application 
 

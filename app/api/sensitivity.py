@@ -1,3 +1,5 @@
+from astropy.units import UnitConversionError
+
 from .models import *
 from .models import AntennaFactory
 
@@ -16,7 +18,11 @@ def get_sensitivity(thejson):
         sensitivity object
 
     """
-    return cached_sensitivity(pickle.dumps(thejson))
+    # TODO - do better with exception
+    try:
+        return cached_sensitivity(pickle.dumps(thejson))
+    except Exception as e:
+        pass
 
 
 @functools.lru_cache
@@ -40,31 +46,49 @@ def cached_sensitivity(json_pickle):
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
-    # location_obj = Loc
+    location_obj = LocationFactory().get(thejson['data']['location']['schema'])
     # print("antenna obj=", antenna_obj)
     # print("beam_obj=", beam_obj)
 
     # create an antenna object and calculate antenna parameters based on submitted data
     antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
     beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
+    dl = thejson['data']['location']
+    ul = thejson['units']['location']
+    location = location_obj(thejson['data']['location'], thejson['units']['location'])
 
-    a = antenna.get()
-    b = beam.get()
-    lat = thejson['data']['location']['latitude'] * units.rad
-    print("lat is = ", lat)
-    t = 400 * units.K
-    obs = Observatory(antpos=a, beam=b, latitude=lat, Trcv=t)
+    # we will build the objects incrementally for better error reporting.
+    # TODO handle return on exceptions
+    try:
+        a = antenna.get()
+    except UnitConversionError as e:
+        raise TypeError("Invalid units passed to antenna object") from e
+    except (ValueError, AssertionError) as e:
+        raise ValueError("Out of range value passed to antenna object") from e
+    except Exception as e:
+        raise Exception("Unknown error on antenna object") from e
 
-    pass
-    pass
+    try:
+        b = beam.get()
+    except Exception as e:
+        pass
+    try:
+        lat = location.get()
+    except Exception as e:
+        pass
 
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=antenna.get(), beam=beam.get(),
-                # TODO - add in units
-                latitude=thejson['data']['location']['latitude'] * units.rad
-            )
-        )
-    )
+    # t = 400 * units.K
+    obs = Observatory(antpos=a, beam=b, latitude=lat)
+
+    sensitivity=PowerSpectrum(observation=Observation(observatory=obs))
+
+    # sensitivity = PowerSpectrum(
+    #     observation=Observation(
+    #         observatory=Observatory(
+    #             antpos=antenna.get(), beam=beam.get(),
+    #             TODO - add in units
+                # latitude=thejson['data']['location']['latitude'] * units.rad
+            # )
+        # )
+    # )
     return sensitivity

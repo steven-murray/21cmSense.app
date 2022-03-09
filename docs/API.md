@@ -140,6 +140,23 @@ ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-d
 Response:
 ``204 No Content`` (in all cases, including for invalid userid or modelid)
 
+## Calculate from a saved model
+
+**POST** `/21cm/model/<modelid>`
+
+Body:
+```json
+{"calculation":"name-of-calculation"}
+```
+
+Returns:
+
+``200 OK`` (if model exists)
+
+Response body contains data or error if appropriate
+
+``404 Not Found`` (if model id does not exist)
+
 
 # schema
 

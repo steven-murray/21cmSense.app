@@ -3,6 +3,7 @@
 #
 import functools
 import pickle
+from abc import abstractmethod
 from hashlib import md5
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
@@ -28,27 +29,36 @@ class Dispatcher:
         self.data_json = data_json
         self.units_json = units_json
 
+    @abstractmethod
+    def get(self):
+        pass
 
+
+## 2022-03-08 moved to BeamDispatcher class
 class GaussianBeamDispatcher(Dispatcher):
     """
     Makes a py21cmSense library call to the GaussianBeam class
     """
 
     def get(self):
-        # TODO - extract units from JSON
-        return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit("MHz"),
-                            dish_size=self.data_json['dish_size'] * units.Unit("m"))
+        # TODO - add error checking on units
+        # return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit("MHz"),
+        #                     dish_size=self.data_json['dish_size'] * units.Unit("m"))
+        return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit(self.units_json['frequency']),
+                            dish_size=self.data_json['dish_size'] * units.Unit(self.units_json['dish_size']))
 
 
+## 2022-03-08 moved to LocationDispatcher class
 class LatitudeDispatcher(Dispatcher):
     """Handles latitude
 
     """
 
     def get(self):
-        return self.data_json['location']['latitude']
+        return self.data_json['latitude'] * units.Unit(self.units_json['latitude'])
 
 
+## 2022-03-08 moved to AntennaDispatcher class
 class HeraAntennaDispatcher(Dispatcher):
     """makes a py21cmSense call to the hera antenna class
     """
@@ -57,9 +67,11 @@ class HeraAntennaDispatcher(Dispatcher):
         j = self.data_json
         u = self.units_json
 
-        # TODO - extract units from JSON
-        return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
-                    dl=j['separation'] * units.Unit("m"))
+        # TODO - error checking on units
+        # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
+        #             dl=j['separation'] * units.Unit("m"))
+        return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
+                    dl=j['dl'] * units.Unit(u['dl']))
 
 
 def hash_json(thejson):
@@ -126,19 +138,54 @@ def add_calculation_type(thejson, d: dict):
 class LocationFactory(FactoryManager):
     def __init__(self):
         super().__init__("location")
-        self.add('Latitude', LatitudeDispatcher)
+        # self.add('latitude', LatitudeDispatcher)
+
+    class _latitude(Dispatcher):
+        """Handles latitude
+
+        """
+
+        def get(self):
+            return self.data_json['latitude'] * units.Unit(self.units_json['latitude'])
 
 
 class BeamFactory(FactoryManager):
     def __init__(self):
         super().__init__("beam")
-        self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
+        # self.add('GaussianBeam', GaussianBeamDispatcher).add('FakeBeam', GaussianBeamDispatcher)
+
+    class _GaussianBeam(Dispatcher):
+        """
+        Makes a py21cmSense library call to the GaussianBeam class
+        """
+
+        def get(self):
+            # TODO - add error checking on units
+            # return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit("MHz"),
+            #                     dish_size=self.data_json['dish_size'] * units.Unit("m"))
+            return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit(self.units_json['frequency']),
+                                dish_size=self.data_json['dish_size'] * units.Unit(self.units_json['dish_size']))
 
 
 class AntennaFactory(FactoryManager):
     def __init__(self):
         super().__init__("antenna")
-        self.add('hera', HeraAntennaDispatcher)
+        # self.add('ahera', HeraAntennaDispatcher)
+        # print("ANTENNA DICT=",self.d)
+
+    class _hera(Dispatcher):
+        """makes a py21cmSense call to the hera antenna class
+        """
+
+        def get(self):
+            j = self.data_json
+            u = self.units_json
+
+            # TODO - error checking on units
+            # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
+            #             dl=j['separation'] * units.Unit("m"))
+            return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
+                        dl=j['dl'] * units.Unit(u['dl']))
 
 
 class Factory:
