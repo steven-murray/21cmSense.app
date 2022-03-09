@@ -1,4 +1,4 @@
-from functools import cached_property
+from functools import cache, cached_property
 
 from app.api.schema import get_schema_names
 
@@ -19,7 +19,7 @@ class FactoryManager:
         else:
             self.schemagroup = schemagroup
 
-        lookup_list = self.map_schema_to_methods
+        lookup_list = self.map_schema_to_methods(self.schemagroup)
         self.add_all(lookup_list)
 
     def add_all(self, maplist):
@@ -92,8 +92,9 @@ class FactoryManager:
         else:
             return None
 
-    @cached_property
-    def map_schema_to_methods(self):
+    # @cached_property
+    @cache
+    def map_schema_to_methods(self, schemagroup):
         """Map on-disk schema to class methods based on name
 
         Returns
@@ -103,7 +104,7 @@ class FactoryManager:
         """
         lookup_list = []
 
-        schemas = get_schema_names(self.schemagroup)
+        schemas = get_schema_names(schemagroup)
         for c in schemas:
             print("Got schema=", c)
 
@@ -128,15 +129,15 @@ class FactoryManager:
                 method = getattr(self, allmethods[method_name])
                 # self.add(s, method)
                 lookup_list.append((s, method))
-                print("Mapped group " + self.schemagroup + " method " + allmethods[method_name] + " to schema " + s)
+                print("Mapped group " + schemagroup + " method " + allmethods[method_name] + " to schema " + s)
                 allmethods.pop(method_name)
 
             else:
-                print("Missing group " + self.schemagroup + " method for schema " + s)
+                print("Missing group " + schemagroup + " method for schema " + s)
                 # if method.__name__ in allmethods:
                 #     allmethods.remove(method.__name__)
 
         for m in allmethods:
-            print("Missing group " + self.schemagroup + " schema for method " + m)
+            print("Missing group " + schemagroup + " schema for method " + m)
 
         return lookup_list

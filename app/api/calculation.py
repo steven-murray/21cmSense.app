@@ -47,7 +47,6 @@ def calculate(thejson):
     return jsonify(results)
 
 
-
 # note that the keys below, e.g., '1D-cut-of-2D-sensitivity', must match the NAME prefix of a .json file in the
 # schema directories.  ex: static/schema/calculation/1D-cut-of-2D-sensitivity.json
 #
