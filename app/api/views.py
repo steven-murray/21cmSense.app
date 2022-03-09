@@ -15,6 +15,10 @@ from .schema import build_composite_schema, get_schema_descriptions_json, get_sc
 
 r = redis.Redis(decode_responses=True)
 rpickle = redis.Redis(decode_responses=False)
+# try:
+#     r.ping()
+# except ConnectionError:
+#     return {"error":"redis database not available"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/')
@@ -129,9 +133,12 @@ def create_user():
 
     """
     if request.method == 'POST':
-        userid = str(uuid.uuid4())
-        r.sadd(user_key(userid), '')
-        return {'uuid': userid}, HTTP_CREATED
+        try:
+            userid = str(uuid.uuid4())
+            r.sadd(user_key(userid), '')
+            return {'uuid': userid}, HTTP_CREATED
+        except redis.ConnectionError:
+            return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 # As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
@@ -155,24 +162,30 @@ def create_user():
 
 @api.route('/users/<userid>', methods=['DELETE'])
 def delete_user(userid):
-    # remove all model references for the user
-    models = list(r.smembers(user_key(userid)))
-    if models:
-        r.delete(*models)
-    # and remove the user
-    r.delete(user_key(userid))
-    return "", HTTP_NO_CONTENT
+    try:
+        # remove all model references for the user
+        models = list(r.smembers(user_key(userid)))
+        if models:
+            r.delete(*models)
+        # and remove the user
+        r.delete(user_key(userid))
+        return "", HTTP_NO_CONTENT
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/models', methods=['GET'])
 def list_models(userid):
-    l = []
-    models = r.smembers(user_key(userid))
-    for m in models:
-        # don't return the empty model used as a set placeholder for the userid key
-        if m:
-            l.append({'modelname': r.hget(model_key(m), 'modelname'), 'modelid': m})
-    return {'models': l}, HTTP_OK
+    try:
+        l = []
+        models = r.smembers(user_key(userid))
+        for m in models:
+            # don't return the empty model used as a set placeholder for the userid key
+            if m:
+                l.append({'modelname': r.hget(model_key(m), 'modelname'), 'modelid': m})
+        return {'models': l}, HTTP_OK
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 def get_model_json(modelid):
@@ -193,33 +206,42 @@ def get_model_json(modelid):
 
 @api.route('/users/<userid>/models/<modelid>', methods=['GET'])
 def model_get(userid, modelid):
-    if not user_exists(userid):
-        return "", HTTP_NOT_FOUND
-    (name, data) = get_model_json(modelid)
-    if data is not None:
-        return {'modelname': name, 'data': data}, HTTP_OK
-    else:
-        return "", HTTP_NOT_FOUND
+    try:
+        if not user_exists(userid):
+            return "", HTTP_NOT_FOUND
+        (name, data) = get_model_json(modelid)
+        if data is not None:
+            return {'modelname': name, 'data': data}, HTTP_OK
+        else:
+            return "", HTTP_NOT_FOUND
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/models/<modelid>', methods=['PUT'])
 def model_update(userid, modelid):
-    if not user_exists(userid) or not model_exists(modelid):
-        return "", HTTP_NOT_FOUND
-    if not (request.is_json and request.json and 'data' in request.get_json()):
-        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
-    req = request.get_json()
-    r.hset(model_key(modelid), 'modelname', req['modelname'])
-    rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
+    try:
+        if not user_exists(userid) or not model_exists(modelid):
+            return "", HTTP_NOT_FOUND
+        if not (request.is_json and request.json and 'data' in request.get_json()):
+            return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+        req = request.get_json()
+        r.hset(model_key(modelid), 'modelname', req['modelname'])
+        rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/models/<modelid>', methods=['DELETE'])
 def model_delete(userid, modelid):
-    if not user_exists(userid) or not model_exists(modelid):
-        return "", HTTP_NOT_FOUND
-    r.srem(user_key(userid), modelid)
-    r.delete(model_key(modelid))
-    return "", HTTP_NO_CONTENT
+    try:
+        if not user_exists(userid) or not model_exists(modelid):
+            return "", HTTP_NOT_FOUND
+        r.srem(user_key(userid), modelid)
+        r.delete(model_key(modelid))
+        return "", HTTP_NO_CONTENT
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 # accepts:
@@ -228,28 +250,31 @@ def model_delete(userid, modelid):
 # {'modelid':modelid, 'modelname':'modelname'}
 @api.route('/users/<userid>/models', methods=['POST'])
 def create_model(userid):
-    # this user isn't registered...
-    if not user_exists(userid):
-        return "", HTTP_NOT_FOUND
+    try:
+        # this user isn't registered...
+        if not user_exists(userid):
+            return "", HTTP_NOT_FOUND
 
-    if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
-        json = request.get_json()
-        modelid = str(uuid.uuid4())
-        modelname = json['modelname']
+        if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
+            json = request.get_json()
+            modelid = str(uuid.uuid4())
+            modelname = json['modelname']
 
-        # if model name exists, return conflict error
-        if modelname_exists(userid, modelname):
-            return {'error': 'duplicate model name'}, HTTP_CONFLICT
+            # if model name exists, return conflict error
+            if modelname_exists(userid, modelname):
+                return {'error': 'duplicate model name'}, HTTP_CONFLICT
 
-        # create the model
-        r.hset(model_key(modelid), 'modelname', modelname)
-        rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
+            # create the model
+            r.hset(model_key(modelid), 'modelname', modelname)
+            rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
 
-        # add to the user's models
-        r.sadd(user_key(userid), modelid)
-        return {'userid': userid, 'modelid': modelid, 'modelname': modelname}, HTTP_CREATED
-    else:
-        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+            # add to the user's models
+            r.sadd(user_key(userid), modelid)
+            return {'userid': userid, 'modelid': modelid, 'modelname': modelname}, HTTP_CREATED
+        else:
+            return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+    except redis.ConnectionError:
+        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -515,11 +540,11 @@ def testtest():
 def call_21cm_with_model(modelid):
     if request.is_json and request.json:
         req = request.get_json()
-        calc=req[KW_CALCULATION]
+        calc = req[KW_CALCULATION]
         (name, data) = get_model_json(modelid)
         if name is None:
             return {"error": "Model does not exist", "modelid": modelid}
-        data[KW_CALCULATION]=calc
+        data[KW_CALCULATION] = calc
         return calculate(data)
     else:
         return json_error("error", "Bad request body")
