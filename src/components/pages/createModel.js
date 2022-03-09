@@ -149,21 +149,21 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum} placeholder = {Antenna.data.antenna.hex_num.help }  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum} placeholder = {Antenna.data.antenna.separation.help}  onChange={this.handleInputChange}   required/>
+                <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
 				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} default = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
                 <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
-				<DropDown name = "DishSizeUnits" options={option.separation.enum}/>      
+				<DropDown name = "DishSizeUnits"  type = {Beam.units.beam.dish_size.type}  options={Beam.units.beam.dish_size.enum}  />      
   				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {"number"} min={0}  onChange={this.handleInputChange} required/>
-				<DropDown name = "FrequencyUnits" options={option.frequency.enum}/>      
+                <input name = "Frequency" type = {Beam.data.beam.frequency.type} min={Beam.data.beam.frequency.minimum}  onChange={this.handleInputChange} required/>
+				<DropDown name = "FrequencyUnits"   type = {Beam.units.beam.frequency.type}  options={Beam.units.beam.frequency.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
