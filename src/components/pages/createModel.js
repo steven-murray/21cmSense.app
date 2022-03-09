@@ -64,6 +64,7 @@ class CreateModel extends React.Component {
 			
 		  	Antenna: [],
 			Beam: [],
+			Location: [],
 			DataisLoaded: false
 	    }
 
@@ -71,9 +72,9 @@ class CreateModel extends React.Component {
 
 	 componentDidMount(){
 
-			this.getAntennaData();
-			
+			this.getAntennaData();			
 			this.getBeamData();
+			this.getLocationData();
     }
 
 	getAntennaData(){
@@ -91,13 +92,21 @@ class CreateModel extends React.Component {
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
-                              Beam: jsons,
-							  DataisLoaded: true		
+                              Beam: jsons		
                           });
                       })		
 	}
 	
-	
+	getLocationData(){
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/location/get/latitude")
+                      .then((resss) => resss.json())
+                      .then((jsonss) => {
+                          this.setState({
+                              Location: jsonss,
+							  DataisLoaded: true		
+                          });
+                      })		
+	}
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -117,7 +126,8 @@ class CreateModel extends React.Component {
 render() {
 		
 		const { Antenna} = this.state;      
-		const { Beam, DataisLoaded} = this.state;           
+		const { Beam} = this.state; 
+		const { Location, DataisLoaded} = this.state;          
  		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
 			
@@ -168,8 +178,8 @@ render() {
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {"number"} min={-180} max = {180}  onChange={this.handleInputChange}   required/>
-				<DropDown name = "LatitudeUnits" options={option.separation.enum}/>      
+				<input name = "Latitude"  type = {Location.data.location.latitude.type} min={Location.data.location.latitude.__minimum} max = {Location.data.location.latitude.__maximum}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "LatitudeUnits"   type = {Location.units.location.latitude.type}  options={Location.units.location.latitude.enum}/>      
   				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
