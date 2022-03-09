@@ -128,14 +128,10 @@ def create_user():
         }
 
     """
-    if request.method == 'POST' and request.is_json and request.json and 'username' in request.get_json():
-        req = request.get_json()
+    if request.method == 'POST':
         userid = str(uuid.uuid4())
         r.sadd(user_key(userid), '')
         return {'uuid': userid}, HTTP_CREATED
-
-    else:
-        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
 
 
 # As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
