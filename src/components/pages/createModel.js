@@ -61,7 +61,7 @@ class CreateModel extends React.Component {
 			DistanceUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
-			
+			userID:'',
 		  	Antenna: [],
 			Beam: [],
 			Location: [],
@@ -70,13 +70,23 @@ class CreateModel extends React.Component {
 
 	  }
 
-	 componentDidMount(){
+	 componentDidMount(){	
 
+			this.generateUserID();
 			this.getAntennaData();			
 			this.getBeamData();
 			this.getLocationData();
     }
 
+	generateUserID(){
+		const requestOptions = {
+	        method: 'POST'
+	    };
+	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
+	        .then(response => response.json())
+	        .then(data => this.setState({ userID: data.uuid }));		
+	}
+	
 	getAntennaData(){
             fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
@@ -124,40 +134,20 @@ class CreateModel extends React.Component {
 		};
 
 render() {
-		
+		const {userID} = this.state;
 		const { Antenna} = this.state;      
 		const { Beam} = this.state; 
 		const { Location, DataisLoaded} = this.state;          
  		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
-			
-		const option = {
-						 "separation": {
-							        "type": "string",
-							        "default": "m",
-							        "enum": [
-							          "m",
-							          "s"
-							        ]
-							      },
-						"frequency": {
-							"type": "string",
-							        "default": "MHz",
-							        "enum": [
-							          "MHz"
-							        ]
-						}
-						}
-						
-		
-		
-		
+	
      return (
+	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
 			<br></br>
 			
 			<form onSubmit={this.handleOnSubmit} >
-      		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+      		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
                 <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
