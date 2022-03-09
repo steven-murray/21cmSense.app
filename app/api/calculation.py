@@ -24,7 +24,7 @@ def calculate(thejson):
     """
     v = Validator(thejson)
     if not v.valid_groups():
-        return jsonify(error="Invalid JSON schema", errormsg=v.errorMsg)
+        return {"error":"Invalid JSON schema", "errormsg":v.errorMsg}, HTTP_BAD_REQUEST
     else:
         print("JSON SCHEMA VALIDATED")
 
@@ -37,7 +37,7 @@ def calculate(thejson):
     calculator = CalculationFactory().get(thejson[KW_CALCULATION])
 
     if calculator is None:
-        return jsonify({KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]})
+        return {KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
 
     results = calculator(thejson)
 
