@@ -2,9 +2,20 @@
 # unstated reqs for 21cmSense
 pyuvdata==2.2.4
 
+# for mac m1:
+# hdf5 dependency
+# brew install hdf5
+# export HDF5_DIR=/opt/homebrew/Cellar/hdf5/1.13.0/
+# pip install --no-binary=h5py h5py
+# scipy: (installs 1.8.0 at the moment)
+# pip install scipy --compile --pre
+# numpy: (installs 1.22.3 at the moment)
+# pip install numpy --compile --pre
+
 # 21cmSense reqs
-numpy==1.21.4
-scipy==1.7.2
+wheel
+numpy>=1.21.4
+scipy>=1.7.2
 PyYAML==6.0
 astropy>=5.0
 matplotlib==3.4.3
