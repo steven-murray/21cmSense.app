@@ -57,7 +57,7 @@ def ping():
 # key to a set="user:"+userIDhash = "model:modelIDhash"
 # (r.sadd (userkey, modelstring)
 # a model is a hash with two entries: name and data
-# r.hmset('model:'+modelnum, 'modelname', 'the name of the model')
+# r.hmset('model:'+modelnum, KW_MODELNAME, 'the name of the model')
 # r.hmset('model:'+modelnum, 'data', '{json for this model}')
 # key=u+":"+m
 # r.set(key,p)
@@ -104,13 +104,13 @@ def model_exists(modelid):
 def modelname_exists(userid, modelname):
     models = r.smembers(user_key(userid))
     for m in models:
-        if r.hget(model_key(m), 'modelname') == modelname:
+        if r.hget(model_key(m), KW_MODELNAME) == modelname:
             return True
 
     return False
 
 
-@api.route('/users', methods=['POST'])
+@api.route('/users', methods=[HTTP_POST])
 def create_user():
     """create a user for tracking models
 
@@ -132,13 +132,13 @@ def create_user():
         }
 
     """
-    if request.method == 'POST':
+    if request.method == HTTP_POST:
         try:
             userid = str(uuid.uuid4())
             r.sadd(user_key(userid), '')
             return {'uuid': userid}, HTTP_CREATED
         except redis.ConnectionError:
-            return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 # As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
@@ -151,16 +151,12 @@ def create_user():
 # notfound = 404
 # return xyz, notfound
 
-# return html_page_str, 200, {'ContentType': 'text/html'}
-# return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-
-
 # return Response(json.dumps({'Error': 'Error in payload'}),
 # status=422,
 # mimetype="application/json")
 
 
-@api.route('/users/<userid>', methods=['DELETE'])
+@api.route('/users/<userid>', methods=[HTTP_DELETE])
 def delete_user(userid):
     try:
         # remove all model references for the user
@@ -171,10 +167,10 @@ def delete_user(userid):
         r.delete(user_key(userid))
         return "", HTTP_NO_CONTENT
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models', methods=['GET'])
+@api.route('/users/<userid>/models', methods=[HTTP_GET])
 def list_models(userid):
     try:
         l = []
@@ -182,10 +178,10 @@ def list_models(userid):
         for m in models:
             # don't return the empty model used as a set placeholder for the userid key
             if m:
-                l.append({'modelname': r.hget(model_key(m), 'modelname'), 'modelid': m})
+                l.append({KW_MODELNAME: r.hget(model_key(m), KW_MODELNAME), 'modelid': m})
         return {'models': l}, HTTP_OK
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 def get_model_json(modelid):
@@ -193,7 +189,7 @@ def get_model_json(modelid):
         return None, None
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
-    name = r.hget(model_key(modelid), 'modelname')
+    name = r.hget(model_key(modelid), KW_MODELNAME)
     data = rpickle.hget(model_key(modelid), 'data')
 
     if data:
@@ -204,35 +200,35 @@ def get_model_json(modelid):
         return None, None
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=['GET'])
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_GET])
 def model_get(userid, modelid):
     try:
         if not user_exists(userid):
             return "", HTTP_NOT_FOUND
         (name, data) = get_model_json(modelid)
         if data is not None:
-            return {'modelname': name, 'data': data}, HTTP_OK
+            return {KW_MODELNAME: name, 'data': data}, HTTP_OK
         else:
             return "", HTTP_NOT_FOUND
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=['PUT'])
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_PUT])
 def model_update(userid, modelid):
     try:
         if not user_exists(userid) or not model_exists(modelid):
             return "", HTTP_NOT_FOUND
         if not (request.is_json and request.json and 'data' in request.get_json()):
-            return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
         req = request.get_json()
-        r.hset(model_key(modelid), 'modelname', req['modelname'])
+        r.hset(model_key(modelid), KW_MODELNAME, req[KW_MODELNAME])
         rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=['DELETE'])
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_DELETE])
 def model_delete(userid, modelid):
     try:
         if not user_exists(userid) or not model_exists(modelid):
@@ -241,40 +237,40 @@ def model_delete(userid, modelid):
         r.delete(model_key(modelid))
         return "", HTTP_NO_CONTENT
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 # accepts:
-# {'modelname':'modelname'}
+# {KW_MODELNAME:KW_MODELNAME}
 # returns:
-# {'modelid':modelid, 'modelname':'modelname'}
-@api.route('/users/<userid>/models', methods=['POST'])
+# {'modelid':modelid, KW_MODELNAME:KW_MODELNAME}
+@api.route('/users/<userid>/models', methods=[HTTP_POST])
 def create_model(userid):
     try:
         # this user isn't registered...
         if not user_exists(userid):
             return "", HTTP_NOT_FOUND
 
-        if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
+        if request.is_json and request.json and KW_MODELNAME in request.get_json() and 'data' in request.get_json():
             json = request.get_json()
             modelid = str(uuid.uuid4())
-            modelname = json['modelname']
+            modelname = json[KW_MODELNAME]
 
             # if model name exists, return conflict error
             if modelname_exists(userid, modelname):
-                return {'error': 'duplicate model name'}, HTTP_CONFLICT
+                return {KW_ERROR: 'duplicate model name'}, HTTP_CONFLICT
 
             # create the model
-            r.hset(model_key(modelid), 'modelname', modelname)
+            r.hset(model_key(modelid), KW_MODELNAME, modelname)
             rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
 
             # add to the user's models
             r.sadd(user_key(userid), modelid)
-            return {'userid': userid, 'modelid': modelid, 'modelname': modelname}, HTTP_CREATED
+            return {'userid': userid, 'modelid': modelid, KW_MODELNAME: modelname}, HTTP_CREATED
         else:
-            return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
     except redis.ConnectionError:
-        return {"error": "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -293,7 +289,7 @@ def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
 
 
-@api.route('/customschema', methods=['POST'])
+@api.route('/customschema', methods=[HTTP_POST])
 def api_return():
     """
 
@@ -301,7 +297,7 @@ def api_return():
     -------
     A custom schema
     """
-    if request.method == 'POST':
+    if request.method == HTTP_POST:
         lst = models.get_schema_groups()
 
         # we should be posted something like:
@@ -361,7 +357,7 @@ def get_schema_group(schemagroup):
     return get_schema_names_json(schemagroup)
 
 
-@api.route('/schema', methods=['GET'])
+@api.route('/schema', methods=[HTTP_GET])
 def list_all_schema_groups():
     """List all supported schema groups
 
@@ -379,7 +375,7 @@ def list_all_schema_groups():
     return jsonify(lst)
 
 
-@api.route("/test", methods=['GET', 'POST'])
+@api.route("/test", methods=[HTTP_GET, HTTP_POST])
 def testtest():
     if request.is_json and request.json:
         thisjson = request.get_data()
@@ -536,21 +532,21 @@ def testtest():
     return jsonify("test succeeded.")
 
 
-@api.route("/21cm/model/<modelid>", methods=['POST'])
+@api.route("/21cm/model/<modelid>", methods=[HTTP_POST])
 def call_21cm_with_model(modelid):
     if request.is_json and request.json:
         req = request.get_json()
         calc = req[KW_CALCULATION]
         (name, data) = get_model_json(modelid)
         if name is None:
-            return {"error": "Model does not exist", "modelid": modelid}
+            return {KW_ERROR: "Model does not exist", "modelid": modelid}
         data[KW_CALCULATION] = calc
         return calculate(data)
     else:
-        return json_error("error", "Bad request body")
+        return {KW_ERROR: "Bad request body"}, HTTP_BAD_REQUEST
 
 
-@api.route("/21cm", methods=['POST'])
+@api.route("/21cm", methods=[HTTP_POST])
 def call_21cm():
     """Make a computation request to the 21cmSense library
 
@@ -564,7 +560,7 @@ def call_21cm():
 
         return calculate(req)
     else:
-        return json_error("error", "request is not in json format")
+        return {KW_ERROR: "request is not in json format"}, HTTP_BAD_REQUEST
 
     # if request.is_json and request.json:
     #     req = request.get_json()
@@ -582,7 +578,7 @@ def call_21cm():
     #     return json_error("error", "unknown calculation type: " + key)
 
 
-@api.route("/21cm_default", methods=['GET', 'POST'])
+@api.route("/21cm_default", methods=[HTTP_GET, HTTP_POST])
 def to_cm_if():
     sensitivity = PowerSpectrum(
         observation=Observation(

@@ -1,7 +1,13 @@
 KW_CALCULATION = 'calculation'
 KW_ERROR = 'error'
+KW_MODELNAME='modelname'
 
 SCHEMA_REL_DIR = 'app/static/'
+
+HTTP_DELETE='DELETE'
+HTTP_GET='GET'
+HTTP_POST='POST'
+HTTP_PUT='PUT'
 
 HTTP_OK = 200
 HTTP_CREATED = 201
