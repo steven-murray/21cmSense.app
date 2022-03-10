@@ -1,14 +1,18 @@
+# keywords used in JSON schema and responses
 KW_CALCULATION = 'calculation'
 KW_ERROR = 'error'
-KW_MODELNAME='modelname'
+KW_MODELNAME = 'modelname'
 
+# relative path of schema directory
 SCHEMA_REL_DIR = 'app/static/'
 
-HTTP_DELETE='DELETE'
-HTTP_GET='GET'
-HTTP_POST='POST'
-HTTP_PUT='PUT'
+# HTTP request methods
+HTTP_DELETE = 'DELETE'
+HTTP_GET = 'GET'
+HTTP_POST = 'POST'
+HTTP_PUT = 'PUT'
 
+# HTTP response (status) codes
 HTTP_OK = 200
 HTTP_CREATED = 201
 HTTP_NO_CONTENT = 204

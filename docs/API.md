@@ -28,6 +28,7 @@ Response:
 Response:
 ``404 Not Found`` (if userid does not exist)
 
+NOTE: Deleting a user deletes ALL of their stored models.
 
 # Models
 
