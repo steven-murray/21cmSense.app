@@ -60,43 +60,35 @@ class CreateModel extends React.Component {
 			DistanceUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
-			userID:'',
-		  	Antenna: [],
+			Antenna: [],
 			Beam: [],
 			Location: [],
 			DataisLoaded: false,
-			newUser:'',
-			notice: '',
-			isCookieExist : false
+			
 	    }
 
 	  }
-
 	
 	 componentDidMount(){	
-			if (document.cookie.indexOf('user') > -1 ) {
+			if (document.cookie.indexOf('user') === -1 ) {
 				 this.setState({notice: "I got it"});
-				}
-				
-			
-			this.generateUserID();
+				this.generateUserID();
+			}			
 			this.getAntennaData();	
-			
-			
-    }
-
+	}
 
 	generateUserID(){
+		const { cookies } = this.props;
 		const requestOptions = {
 	        method: 'POST'
 	    };
 	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
 	        .then(response => response.json())
-	        .then(data => this.setState({ userID: data.uuid }));		
+	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ));
+		
+		
 	}
 	
-
-
 	getAntennaData(){
             fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
@@ -108,12 +100,6 @@ class CreateModel extends React.Component {
                       })		
 	}
 
-		
-    handleSetCookie = () => {
-	    const { cookies } = this.props;
-	    cookies.set("user",this.state.userID, { path: "/" }); // set the cookie
-	    this.setState({ user: cookies.get("user") });
-    };
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -132,7 +118,7 @@ class CreateModel extends React.Component {
 
 render() {
 	
-		const { newUser,notice,Antenna, DataisLoaded} = this.state;      
+		const { Antenna, DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
@@ -140,8 +126,7 @@ render() {
      return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br>
-		<button onClick={this.handleSetCookie}>Set Cookie</button>
+			<br></br>		
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
@@ -150,7 +135,7 @@ render() {
 				<label> Separation </label>           
                 <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
 				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} defaultValue = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
-  				<br></br><br></br>{notice}{newUser}
+  				<br></br><br></br>
 			</Panel>
 			
 			<br></br><br></br>
