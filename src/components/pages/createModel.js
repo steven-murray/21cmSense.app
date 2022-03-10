@@ -2,8 +2,8 @@ import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
-import { withRouter } from 'react-router-dom';
-
+import { withCookies, Cookies } from "react-cookie";
+import { instanceOf } from "prop-types";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -47,6 +47,12 @@ Button.defaultProps = {
 };
 
 class CreateModel extends React.Component {
+	
+	  static propTypes = {
+	    cookies: instanceOf(Cookies).isRequired
+	  };
+	
+	 
 	 constructor(props) {
 	    super(props);
 	    this.state = {
@@ -61,22 +67,37 @@ class CreateModel extends React.Component {
 			DistanceUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
-			
-		  	Antenna: [],
+			Antenna: [],
 			Beam: [],
 			Location: [],
-			DataisLoaded: false
+			DataisLoaded: false,
+			user: this.props.cookies.get("user") || ""
 	    }
 
 	  }
-
-	 componentDidMount(){
-
-			this.getAntennaData();			
+	
+	 componentDidMount(){	
+			if (document.cookie.indexOf('user') === -1 ) {
+				 this.setState({notice: "I got it"});
+				this.generateUserID();
+			}			
+			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
-    }
+	}
 
+	generateUserID(){
+		const { cookies } = this.props;
+		const requestOptions = {
+	        method: 'POST'
+	    };
+	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
+	        .then(response => response.json())
+	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ));
+		
+		
+	}
+	
 	getAntennaData(){
             fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
@@ -92,7 +113,7 @@ class CreateModel extends React.Component {
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
-                              Beam: jsons		
+                              Beam: jsons	
                           });
                       })		
 	}
@@ -107,6 +128,7 @@ class CreateModel extends React.Component {
                           });
                       })		
 	}
+	
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -124,46 +146,24 @@ class CreateModel extends React.Component {
 		};
 
 render() {
+		const { user } = this.state;
+		const { Antenna, Beam,Location, DataisLoaded} = this.state;      
 		
-		const { Antenna} = this.state;      
-		const { Beam} = this.state; 
-		const { Location, DataisLoaded} = this.state;          
- 		if (!DataisLoaded) return <div>
+		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
-			
-		const option = {
-						 "separation": {
-							        "type": "string",
-							        "default": "m",
-							        "enum": [
-							          "m",
-							          "s"
-							        ]
-							      },
-						"frequency": {
-							"type": "string",
-							        "default": "MHz",
-							        "enum": [
-							          "MHz"
-							        ]
-						}
-						}
-						
-		
-		
-		
+	
      return (
+	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br>
-			
+			<br></br><p>{user}</p> {/* access the cookie */}
 			<form onSubmit={this.handleOnSubmit} >
-      		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+      		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
                 <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
                 <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
-				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} default = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
+				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} defaultValue = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
@@ -187,7 +187,7 @@ render() {
 			<input  name = "modelName" type = {"text"}  value={this.state.modelName} onChange={this.handleInputChange} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={localStorage.getItem(this.state.modelName)} > Save </Button>
+				disabled={localStorage.getItem(this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
@@ -195,4 +195,4 @@ render() {
   }
 }
 	
-export default withRouter(CreateModel);	
+export default withCookies(CreateModel);	
