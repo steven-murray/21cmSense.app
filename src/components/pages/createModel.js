@@ -2,7 +2,7 @@ import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
-import { withCookies, Cookies } from "react-cookie";
+import { withCookies } from "react-cookie";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -63,7 +63,7 @@ class CreateModel extends React.Component {
 			Antenna: [],
 			Beam: [],
 			Location: [],
-			DataisLoaded: false,
+			DataisLoaded: false
 			
 	    }
 
@@ -75,6 +75,8 @@ class CreateModel extends React.Component {
 				this.generateUserID();
 			}			
 			this.getAntennaData();	
+			this.getBeamData();
+			this.getLocationData();
 	}
 
 	generateUserID(){
@@ -94,12 +96,32 @@ class CreateModel extends React.Component {
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              Antenna: json,
-							  DataisLoaded: true
+                              Antenna: json
                           });
                       })		
 	}
 
+	getBeamData(){
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/beam/get/GaussianBeam")
+                      .then((ress) => ress.json())
+                      .then((jsons) => {
+                          this.setState({
+                              Beam: jsons	
+                          });
+                      })		
+	}
+	
+	getLocationData(){
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/location/get/latitude")
+                      .then((resss) => resss.json())
+                      .then((jsonss) => {
+                          this.setState({
+                              Location: jsonss,
+							  DataisLoaded: true		
+                          });
+                      })		
+	}
+	
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -118,7 +140,7 @@ class CreateModel extends React.Component {
 
 render() {
 	
-		const { Antenna, DataisLoaded} = this.state;      
+		const { Antenna, Beam,Location, DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
@@ -137,7 +159,22 @@ render() {
 				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} defaultValue = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
   				<br></br><br></br>
 			</Panel>
-			
+			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+				<label> Dish Size </label>           
+                <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
+				<DropDown name = "DishSizeUnits"  type = {Beam.units.beam.dish_size.type}  options={Beam.units.beam.dish_size.enum}  />      
+  				<br></br><br></br>
+				<label> Frequency </label>           
+                <input name = "Frequency" type = {Beam.data.beam.frequency.type} min={Beam.data.beam.frequency.minimum}  onChange={this.handleInputChange} required/>
+				<DropDown name = "FrequencyUnits"   type = {Beam.units.beam.frequency.type}  options={Beam.units.beam.frequency.enum}/>      
+  				<br></br><br></br>
+			</Panel>
+			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+				<label> Latitude </label> 
+				<input name = "Latitude"  type = {Location.data.location.latitude.type} min={Location.data.location.latitude.__minimum} max = {Location.data.location.latitude.__maximum}  onChange={this.handleInputChange}   required/>
+				<DropDown name = "LatitudeUnits"   type = {Location.units.location.latitude.type}  options={Location.units.location.latitude.enum}/>      
+  				<br></br><br></br>
+			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
 			<input  name = "modelName" type = {"text"}  value={this.state.modelName} onChange={this.handleInputChange} required />
