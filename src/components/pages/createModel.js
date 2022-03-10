@@ -2,7 +2,8 @@ import '../../App.css';
 import React from 'react';
 import { Panel } from 'rsuite';
 import styled from "styled-components";
-import { withCookies } from "react-cookie";
+import { withCookies, Cookies } from "react-cookie";
+import { instanceOf } from "prop-types";
 
 const DropDown = ({ selectedValue, options, onChange }) => {
   return (
@@ -46,6 +47,12 @@ Button.defaultProps = {
 };
 
 class CreateModel extends React.Component {
+	
+	  static propTypes = {
+	    cookies: instanceOf(Cookies).isRequired
+	  };
+	
+	 
 	 constructor(props) {
 	    super(props);
 	    this.state = {
@@ -63,8 +70,8 @@ class CreateModel extends React.Component {
 			Antenna: [],
 			Beam: [],
 			Location: [],
-			DataisLoaded: false
-			
+			DataisLoaded: false,
+			user: this.props.cookies.get("user") || ""
 	    }
 
 	  }
@@ -139,7 +146,7 @@ class CreateModel extends React.Component {
 		};
 
 render() {
-	
+		const { user } = this.state;
 		const { Antenna, Beam,Location, DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
@@ -148,7 +155,7 @@ render() {
      return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br>		
+			<br></br><p>{user}</p> {/* access the cookie */}
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
