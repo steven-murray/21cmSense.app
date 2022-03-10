@@ -1,19 +1,20 @@
 #
 # views.py
 #
+import uuid
+
 import numpy as np
+import redis
 from flask import current_app, json, request
 
 from . import api, models
-from .json_util import json_error
-from .models import *
 from .calculation import *
-import redis
-import uuid
-
+from .models import *
 from .schema import build_composite_schema, get_schema_descriptions_json, get_schema_groups, get_schema_names_json
 
-r = redis.Redis(decode_responses=True)
+rdb = redis.Redis(decode_responses=True)
+
+# automatic UTF-8 decoding is not compatible with pickled strings.
 rpickle = redis.Redis(decode_responses=False)
 # try:
 #     r.ping()
@@ -88,23 +89,23 @@ def strip_tag(key: str) -> str:
 
 
 def user_exists(userid):
-    if r.exists(user_key(userid)):
+    if rdb.exists(user_key(userid)):
         return True
     else:
         return False
 
 
 def model_exists(modelid):
-    if r.exists(model_key(modelid)):
+    if rdb.exists(model_key(modelid)):
         return True
     else:
         return False
 
 
 def modelname_exists(userid, modelname):
-    models = r.smembers(user_key(userid))
+    models = rdb.smembers(user_key(userid))
     for m in models:
-        if r.hget(model_key(m), KW_MODELNAME) == modelname:
+        if rdb.hget(model_key(m), KW_MODELNAME) == modelname:
             return True
 
     return False
@@ -135,7 +136,7 @@ def create_user():
     if request.method == HTTP_POST:
         try:
             userid = str(uuid.uuid4())
-            r.sadd(user_key(userid), '')
+            rdb.sadd(user_key(userid), '')
             return {'uuid': userid}, HTTP_CREATED
         except redis.ConnectionError:
             return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
@@ -160,11 +161,11 @@ def create_user():
 def delete_user(userid):
     try:
         # remove all model references for the user
-        models = list(r.smembers(user_key(userid)))
+        models = list(rdb.smembers(user_key(userid)))
         if models:
-            r.delete(*models)
+            rdb.delete(*models)
         # and remove the user
-        r.delete(user_key(userid))
+        rdb.delete(user_key(userid))
         return "", HTTP_NO_CONTENT
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
@@ -174,11 +175,11 @@ def delete_user(userid):
 def list_models(userid):
     try:
         l = []
-        models = r.smembers(user_key(userid))
+        models = rdb.smembers(user_key(userid))
         for m in models:
             # don't return the empty model used as a set placeholder for the userid key
             if m:
-                l.append({KW_MODELNAME: r.hget(model_key(m), KW_MODELNAME), 'modelid': m})
+                l.append({KW_MODELNAME: rdb.hget(model_key(m), KW_MODELNAME), 'modelid': m})
         return {'models': l}, HTTP_OK
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
@@ -189,7 +190,7 @@ def get_model_json(modelid):
         return None, None
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
-    name = r.hget(model_key(modelid), KW_MODELNAME)
+    name = rdb.hget(model_key(modelid), KW_MODELNAME)
     data = rpickle.hget(model_key(modelid), 'data')
 
     if data:
@@ -222,7 +223,7 @@ def model_update(userid, modelid):
         if not (request.is_json and request.json and 'data' in request.get_json()):
             return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
         req = request.get_json()
-        r.hset(model_key(modelid), KW_MODELNAME, req[KW_MODELNAME])
+        rdb.hset(model_key(modelid), KW_MODELNAME, req[KW_MODELNAME])
         rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
@@ -233,8 +234,8 @@ def model_delete(userid, modelid):
     try:
         if not user_exists(userid) or not model_exists(modelid):
             return "", HTTP_NOT_FOUND
-        r.srem(user_key(userid), modelid)
-        r.delete(model_key(modelid))
+        rdb.srem(user_key(userid), modelid)
+        rdb.delete(model_key(modelid))
         return "", HTTP_NO_CONTENT
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
@@ -261,11 +262,11 @@ def create_model(userid):
                 return {KW_ERROR: 'duplicate model name'}, HTTP_CONFLICT
 
             # create the model
-            r.hset(model_key(modelid), KW_MODELNAME, modelname)
+            rdb.hset(model_key(modelid), KW_MODELNAME, modelname)
             rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
 
             # add to the user's models
-            r.sadd(user_key(userid), modelid)
+            rdb.sadd(user_key(userid), modelid)
             return {'userid': userid, 'modelid': modelid, KW_MODELNAME: modelname}, HTTP_CREATED
         else:
             return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
