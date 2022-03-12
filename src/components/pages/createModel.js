@@ -100,7 +100,7 @@ class CreateModel extends React.Component {
 		
 	}
 	
-	generateModel(){
+	generateModel(uid){
 		const requestmodel = {
 	        method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
@@ -110,7 +110,7 @@ class CreateModel extends React.Component {
 					})
 		};
 
-	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models', requestmodel)
+	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models', requestmodel)
 	  
 	       
 		
@@ -153,6 +153,8 @@ class CreateModel extends React.Component {
 	      pathname: '/The21cmSense',
 	      state : this.state
 	    });
+		
+		this.generateModel(this.state.user);
 	  };
 	
 	handleInputChange = (event) => {
@@ -205,7 +207,7 @@ render() {
 			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={localStorage.getItem(this.state.modelName)} onClick={this.generateModel()}> Save </Button>
+				disabled={localStorage.getItem(this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
