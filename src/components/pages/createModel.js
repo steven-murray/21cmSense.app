@@ -56,7 +56,7 @@ class CreateModel extends React.Component {
 	 constructor(props) {
 	    super(props);
 	    this.state = {
-	      	modelName: '',
+			modelName: '',
 		  	HexNumber: '',
 		  	Separation: '',
 		  	Distance: '',
@@ -69,18 +69,20 @@ class CreateModel extends React.Component {
 			LatitudeUnits: '',
 			Antenna: [],
 			Beam: [],
-			Location: [],
+			Location: [],			
 			DataisLoaded: false,
 			user: this.props.cookies.get("user") || ""
+			
 	    }
 
 	  }
 	
 	 componentDidMount(){	
 			if (document.cookie.indexOf('user') === -1 ) {
-				 this.setState({notice: "I got it"});
+				// this.setState({notice: "I got it"});
 				this.generateUserID();
-			}			
+			}		
+				
 			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
@@ -95,6 +97,22 @@ class CreateModel extends React.Component {
 	        .then(response => response.json())
 	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ));
 		
+		
+	}
+	
+	generateModel(){
+		const requestmodel = {
+	        method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+					  modelname: this.state.modelName,
+					  data: {"calculation": "1D-cut-of-2D-sensitivity"}
+					})
+		};
+
+	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models', requestmodel)
+	  
+	       
 		
 	}
 	
@@ -128,7 +146,7 @@ class CreateModel extends React.Component {
                           });
                       })		
 	}
-	
+		
 	handleOnSubmit = (event) => {
 	    event.preventDefault();
 	    this.props.history.push({
@@ -139,15 +157,15 @@ class CreateModel extends React.Component {
 	
 	handleInputChange = (event) => {
 	    const { name, value } = event.target;
-			this.setState((prevState) => ({
-			      ...prevState,
+			this.setState(() => ({
+			    
 			      [name]: value
 			    }));
 		};
 
 render() {
 		const { user } = this.state;
-		const { Antenna, Beam,Location, DataisLoaded} = this.state;      
+		const { Antenna,  Beam,Location, DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
@@ -155,7 +173,7 @@ render() {
      return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br><p>{user}</p> {/* access the cookie */}
+			<br></br><p>{user} </p> <br></br>
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
@@ -184,10 +202,10 @@ render() {
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"}  value={this.state.modelName} onChange={this.handleInputChange} required />
+			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={localStorage.getItem(this.state.modelName)}> Save </Button>
+				disabled={localStorage.getItem(this.state.modelName)} onClick={this.generateModel()}> Save </Button>
 			
 			</form>
 		</div>
