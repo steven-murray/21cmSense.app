@@ -46,6 +46,7 @@ class CreateModel extends React.Component {
 	    super(props);
 	    this.state = {
 			modelName: '',
+			models: [],
 		  	
 			HexNumber: '',
 			HexType:'',
@@ -87,7 +88,10 @@ class CreateModel extends React.Component {
 			if (document.cookie.indexOf('user') === -1 ) {
 				// this.setState({notice: "I got it"});
 				this.generateUserID();
-			}		
+			}	
+			
+			const {user}=this.state;	
+			this.getmodels(user);
 				
 			this.getAntennaData();	
 			this.getBeamData();
@@ -106,6 +110,16 @@ class CreateModel extends React.Component {
 		
 	}
 	
+	getmodels(uid){
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              models: json.models
+                          });   console.log(json);
+                      })		
+	}
+
 	generateModel(uid){
 		
 		const ml = {
@@ -270,7 +284,7 @@ render() {
 			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={localStorage.getItem(this.state.modelName)}> Save </Button>
+				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
