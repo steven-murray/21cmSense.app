@@ -65,16 +65,7 @@ class The21cmSense extends React.Component {
 		
 	    this.state = {
 	     	modelName: '',
-		  	HexNumber: '',
-		  	Separation: '',
-		  	Distance: '',
-		 	DishSize: '',
-		  	Frequency: '',
-		  	Latitude: '',
-		  	SeperationUnits: '',
-			DistanceUnits: '',
-			FrequencyUnits: '',
-			LatitudeUnits: '',
+		  	LatitudeUnits: '',
 			localStoragePairs: []
 	    }
 	  }

@@ -1,8 +1,166 @@
 # API
 
-## schema
+# Users
 
-### Get a list of schema groups
+## Create a new User ID
+**POST** `/users`
+
+Response: 
+``201 Created``
+
+Return:
+```json
+{
+  "userid": "unique userid",
+}
+```
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+
+## Delete a user
+**DELETE** `/users/<userid>`
+
+Response:
+``204 No Content``
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
+
+# Models
+
+## Create a new model
+**POST** `/users/<userid>/models`
+
+Body:
+```
+{
+  "modelname": "model name",
+  "data": { json schema }
+}
+```
+
+Response:
+``201 Created`` (if created successfully)
+
+Return:
+```json
+{
+  "userid": "unique userid",
+  "modelid": "model id",
+  "modelname": "model name"
+}
+```
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
+Response:
+``409 Conflict`` (if model name already exists)
+
+Return:
+```json
+{"error":"Model name already exists"}
+```
+
+
+## Get a list of models
+**GET** `/users/<userid>/models`
+
+Response:
+``200 OK`` (if (userid, model) pair exists)
+
+Return:
+```json
+{
+  "models": [
+    {
+      "modelname": "model 1 name",
+      "modelid": "model 1 ID"
+    },
+    {
+      "modelname": "model 2 name",
+      "modelid": "model 1 ID"
+    }
+  ]
+}
+```
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
+## Get (retrieve) a model
+**GET** `/users/<userid>/models/<modelid>`
+
+Response:
+``200 OK`` (if (userid, model) pair exists)
+
+Return:
+```json
+{
+  "modelname": "name of model",
+  "data": "JSON Schema that was previously stored"
+}
+```
+
+Response:
+``404 Bad Request`` (if modelID or userID do not exist)
+
+## Update a model
+**PUT** `/users/<userid>/models/<modelid>`
+
+Body:
+```json
+{
+  "modelname": "name of model",
+  "data": "JSON schema to store"
+}
+```
+
+Response:
+``204 No Content`` (if model was updated)
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+Response:
+``404 Not Found`` (if userid or modelid does not exist)
+
+ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-diagram/blob/master/httpdd.graffle.png)
+
+
+## Delete a model
+**DELETE** `/users/<userid>/models/<modelid>`
+
+Response:
+``204 No Content`` (in all cases, including for invalid userid or modelid)
+
+## Calculate from a saved model
+
+**POST** `/21cm/model/<modelid>`
+
+Body:
+```json
+{"calculation":"name-of-calculation"}
+```
+
+Returns:
+
+``200 OK`` (if model exists)
+
+Response body contains data or error if appropriate
+
+``404 Not Found`` (if model id does not exist)
+
+
+# schema
+
+## Get a list of schema groups
 
 **GET** `/api-1.0/schema`
 
@@ -24,7 +182,7 @@ Return:
 ]
 ```
 
-### Get a list of schemas in a group
+## Get a list of schemas in a group
 
 **GET** `/api-1.0/schema/{group}`
 
@@ -41,7 +199,7 @@ Return:
 ]
 ```
 
-### Get descriptions for all schemas in a group
+## Get descriptions for all schemas in a group
 
 **GET** `http://localhost:5000/api-1.0/schema/{group}/descriptions`
 
@@ -71,7 +229,7 @@ Return:
 ``http://localhost:5000/api-1.0/schema
 ``
 
-### Get the required elements groups for a calculation
+## Get the required elements groups for a calculation
 
 **GET** /api-1.0/schema/calculation/get/baselines-distributions
 
@@ -89,7 +247,7 @@ Return:
 ```
 
 
-### Get a specific schema from a group
+## Get a specific schema from a group
 
 **GET** `/api-1.0/schema/{group}/get/{schema_name}`
 

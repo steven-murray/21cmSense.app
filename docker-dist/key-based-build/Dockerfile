@@ -1,9 +1,10 @@
-# use python 3.9.8
-FROM python:3.9.8-bullseye
+# use python 3.10.2
+FROM python:3.10.2-bullseye
 
 # pass keys during build in order to clone from repo
 ARG ssh_prv_key
 ARG ssh_pub_key
+ARG branch
 
 # set up ssh configuration
 RUN mkdir -p /root/.ssh && chmod 0700 /root/.ssh
@@ -21,7 +22,8 @@ RUN apt-get update -y && \
     apt-get install -y libhdf5-dev && \
     apt-get install -y nginx && \
     apt install -y vim && \
-    apt install -y netcat
+    apt install -y netcat && \
+    apt install -y redis
 
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \
@@ -38,7 +40,7 @@ COPY docker-run-app.sh /home/app/SER401-Project43
 RUN rm -rf /root/.ssh/
 
 RUN cd SER401-Project43 && \
-    git checkout bpape1-s7 && \
+    git checkout ${branch} && \
     pip install -r requirements.txt && \
     cd ..
 

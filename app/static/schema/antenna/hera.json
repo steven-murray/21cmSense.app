@@ -13,7 +13,7 @@
       "separation": {
         "type": "number",
         "minimum": 0,
-        "help": "The distance between antennas along a side"
+        "help": "The distance between centers antennas along a side (must be greater to or equal to dish size)"
       },
       "dl": {
         "type": "float",

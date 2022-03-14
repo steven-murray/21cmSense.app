@@ -2,10 +2,19 @@
 # views.py
 #
 import numpy as np
-from flask import request
+from flask import current_app, json, request
 
 from . import api, models
+from .json_util import json_error
 from .models import *
+from .calculation import *
+import redis
+import uuid
+
+from .schema import build_composite_schema, get_schema_descriptions_json, get_schema_groups, get_schema_names_json
+
+r = redis.Redis(decode_responses=True)
+rpickle = redis.Redis(decode_responses=False)
 
 
 @api.route('/')
@@ -32,6 +41,219 @@ def ping():
     return {
         "pong": "",
     }
+
+
+# redis cache the model
+
+# r=redis.Redis()
+# u=username_hash
+# m=modelname_hash
+# p = pickle.dumps(json_dict)
+# all of a user's models
+# key to a set="user:"+userIDhash = "model:modelIDhash"
+# (r.sadd (userkey, modelstring)
+# a model is a hash with two entries: name and data
+# r.hmset('model:'+modelnum, 'modelname', 'the name of the model')
+# r.hmset('model:'+modelnum, 'data', '{json for this model}')
+# key=u+":"+m
+# r.set(key,p)
+# return: pickle.loads(r.get(key))
+
+def user_key(userid: str) -> str:
+    return "user" + ":" + userid
+
+
+def model_key(modelid: str) -> str:
+    return "model" + ":" + modelid
+
+
+def strip_tag(key: str) -> str:
+    """
+
+    Parameters
+    ----------
+    key
+        tag:data key from redis
+
+    Returns
+    -------
+    str
+        data portion only
+    """
+    return key.split(':')[1]
+
+
+def user_exists(userid):
+    if r.exists(user_key(userid)):
+        return True
+    else:
+        return False
+
+
+def model_exists(modelid):
+    if r.exists(model_key(modelid)):
+        return True
+    else:
+        return False
+
+
+def modelname_exists(userid, modelname):
+    models = r.smembers(user_key(userid))
+    for m in models:
+        if r.hget(model_key(m), 'modelname') == modelname:
+            return True
+
+    return False
+
+
+@api.route('/users', methods=['POST'])
+def create_user():
+    """create a user for tracking models
+
+    Parameters
+    ----------
+    username
+        username
+
+    Notes
+    -----
+    Expects json body of { "username":"the username" }
+
+    Returns
+    -------
+    json::
+        {
+          "uuid": "unique uid",
+          "username": "user name"
+        }
+
+    """
+    if request.method == 'POST' and request.is_json and request.json and 'username' in request.get_json():
+        req = request.get_json()
+        userid = str(uuid.uuid4())
+        r.sadd(user_key(userid), '')
+        return {'uuid': userid}, HTTP_CREATED
+
+    else:
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+
+
+# As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
+
+# status_code = flask.Response(status=201)
+# return status_code
+#
+# return Response("{'a':'b'}", status=201, mimetype='application/json')
+
+# notfound = 404
+# return xyz, notfound
+
+# return html_page_str, 200, {'ContentType': 'text/html'}
+# return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+
+
+# return Response(json.dumps({'Error': 'Error in payload'}),
+# status=422,
+# mimetype="application/json")
+
+
+@api.route('/users/<userid>', methods=['DELETE'])
+def delete_user(userid):
+    # remove all model references for the user
+    models = list(r.smembers(user_key(userid)))
+    if models:
+        r.delete(*models)
+    # and remove the user
+    r.delete(user_key(userid))
+    return "", HTTP_NO_CONTENT
+
+
+@api.route('/users/<userid>/models', methods=['GET'])
+def list_models(userid):
+    l = []
+    models = r.smembers(user_key(userid))
+    for m in models:
+        # don't return the empty model used as a set placeholder for the userid key
+        if m:
+            l.append({'modelname': r.hget(model_key(m), 'modelname'), 'modelid': m})
+    return {'models': l}, HTTP_OK
+
+
+def get_model_json(modelid):
+    if not model_exists(modelid):
+        return None, None
+    # request for a model. Note we can't use hmget because pickled data cannot automatically
+    # be utf-8 decoded
+    name = r.hget(model_key(modelid), 'modelname')
+    data = rpickle.hget(model_key(modelid), 'data')
+
+    if data:
+        # recall that json payload is pickled into a string
+        data = pickle.loads(data)
+        return name, data
+    else:
+        return None, None
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=['GET'])
+def model_get(userid, modelid):
+    if not user_exists(userid):
+        return "", HTTP_NOT_FOUND
+    (name, data) = get_model_json(modelid)
+    if data is not None:
+        return {'modelname': name, 'data': data}, HTTP_OK
+    else:
+        return "", HTTP_NOT_FOUND
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=['PUT'])
+def model_update(userid, modelid):
+    if not user_exists(userid) or not model_exists(modelid):
+        return "", HTTP_NOT_FOUND
+    if not (request.is_json and request.json and 'data' in request.get_json()):
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
+    req = request.get_json()
+    r.hset(model_key(modelid), 'modelname', req['modelname'])
+    rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=['DELETE'])
+def model_delete(userid, modelid):
+    if not user_exists(userid) or not model_exists(modelid):
+        return "", HTTP_NOT_FOUND
+    r.srem(user_key(userid), modelid)
+    r.delete(model_key(modelid))
+    return "", HTTP_NO_CONTENT
+
+
+# accepts:
+# {'modelname':'modelname'}
+# returns:
+# {'modelid':modelid, 'modelname':'modelname'}
+@api.route('/users/<userid>/models', methods=['POST'])
+def create_model(userid):
+    # this user isn't registered...
+    if not user_exists(userid):
+        return "", HTTP_NOT_FOUND
+
+    if request.is_json and request.json and 'modelname' in request.get_json() and 'data' in request.get_json():
+        json = request.get_json()
+        modelid = str(uuid.uuid4())
+        modelname = json['modelname']
+
+        # if model name exists, return conflict error
+        if modelname_exists(userid, modelname):
+            return {'error': 'duplicate model name'}, HTTP_CONFLICT
+
+        # create the model
+        r.hset(model_key(modelid), 'modelname', modelname)
+        rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
+
+        # add to the user's models
+        r.sadd(user_key(userid), modelid)
+        return {'userid': userid, 'modelid': modelid, 'modelname': modelname}, HTTP_CREATED
+    else:
+        return {'error': 'missing request body or bad request'}, HTTP_BAD_REQUEST
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -132,7 +354,7 @@ def list_all_schema_groups():
         List of all supported schema groups
 
     """
-    lst = models.get_schema_groups()
+    lst = get_schema_groups()
     return jsonify(lst)
 
 
@@ -291,6 +513,20 @@ def testtest():
         return json.dumps(d)
 
     return jsonify("test succeeded.")
+
+
+@api.route("/21cm/model/<modelid>", methods=['POST'])
+def call_21cm_with_model(modelid):
+    if request.is_json and request.json:
+        req = request.get_json()
+        calc=req[KW_CALCULATION]
+        (name, data) = get_model_json(modelid)
+        if name is None:
+            return {"error": "Model does not exist", "modelid": modelid}
+        data[KW_CALCULATION]=calc
+        return calculate(data)
+    else:
+        return json_error("error", "Bad request body")
 
 
 @api.route("/21cm", methods=['POST'])

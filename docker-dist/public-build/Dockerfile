@@ -1,12 +1,16 @@
-# use python 3.9.8
-FROM python:3.9.8-bullseye
+# use python 3.10.2
+FROM python:3.10.2-bullseye
+
+ARG branch
 
 # os-level dependency for hd5 library
 RUN apt-get update -y && \
     apt-get install -y libhdf5-dev && \
     apt-get install -y nginx && \
     apt install -y vim && \
-    apt install -y netcat
+    apt install -y netcat && \
+    apt install -y redis
+
 
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \
@@ -20,7 +24,7 @@ RUN git clone git@github.com:bpape1usa/SER401-Project43.git
 COPY docker-run-app.sh /home/app/SER401-Project43
 
 RUN cd SER401-Project43 && \
-    git checkout bpape1-s7 && \
+    git checkout ${branch} && \
     pip install -r requirements.txt && \
     cd ..
 
