@@ -5,17 +5,6 @@ import styled from "styled-components";
 import { withCookies, Cookies } from "react-cookie";
 import { instanceOf } from "prop-types";
 
-const DropDown = ({ selectedValue, options, onChange }) => {
-  return (
-    <select onChange={onChange} >
-      {
-        options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
-        
-      }
-    </select>
-  );
-}
-
 const theme = {
   blue: {
     default: "#9facde",
@@ -56,31 +45,54 @@ class CreateModel extends React.Component {
 	 constructor(props) {
 	    super(props);
 	    this.state = {
-	      	modelName: '',
-		  	HexNumber: '',
-		  	Separation: '',
-		  	Distance: '',
-		 	DishSize: '',
+			modelName: '',
+			models: [],
+		  	
+			HexNumber: '',
+			HexType:'',
+			HexMin:'',
+			
+		  	Separation: '',	
+			SepType:'',
+			SepMin:'',
+			SepEnum: [],
+			
+		  	DishSize: '',
+			DSType: '',
+			DSMin: '',
+			DSEnum: [],
+			
 		  	Frequency: '',
+			FreType: '',
+			FreMin: '',
+			FreEnum: [],
+			
 		  	Latitude: '',
+			LaType: '',
+			LaMin: '',
+			LaMax: '',
+			LaEnum: [],
+	
 		  	SeperationUnits: '',
-			DistanceUnits: '',
+			DishSizeUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
-			Antenna: [],
-			Beam: [],
-			Location: [],
+			
 			DataisLoaded: false,
 			user: this.props.cookies.get("user") || ""
+	
 	    }
-
 	  }
 	
 	 componentDidMount(){	
 			if (document.cookie.indexOf('user') === -1 ) {
-				 this.setState({notice: "I got it"});
+				// this.setState({notice: "I got it"});
 				this.generateUserID();
-			}			
+			}	
+			
+			const {user}=this.state;	
+			this.getmodels(user);
+				
 			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
@@ -98,12 +110,76 @@ class CreateModel extends React.Component {
 		
 	}
 	
+	getmodels(uid){
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              models: json.models
+                          });   console.log(json);
+                      })		
+	}
+
+	generateModel(uid){
+		
+		const ml = {
+					  "modelname": this.state.modelName,
+					  "data":{
+							  "calculation": "1D-cut-of-2D-sensitivity",
+							  "data":{
+							    "antenna":{
+							      "schema": "hera",
+							      "hex_num": this.state.HexNumber,
+							      "separation": this.state.Separation
+							    },
+							    "beam":{
+							      "schema":"GaussianBeam",
+							      "frequency": this.state.Frequency,
+							      "dish_size": this.state.DishSize
+							    },
+							    "location":{
+							      "schema": "latitude",
+							      "latitude": this.state.Latitude
+							    }
+							  },
+							  "units":{
+							    "antenna":{
+							      "hex_num": "m",
+							      "separation": this.state.SeperationUnits,
+							      "dl": "m"
+							    },
+							    "beam":{
+							      "frequency": this.state.FrequencyUnits,
+							      "dish_size": this.state.DishSizeUnits
+							    },
+							    "location":{
+							      "latitude": this.state.LatitudeUnits
+							    }
+							  }
+							}
+					}
+		
+		const requestmodel = {
+	        method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(ml)
+			};
+	
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models', requestmodel)
+		}
+	
 	getAntennaData(){
             fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              Antenna: json
+                              SeperationUnits: json.units.antenna.separation.default,
+							  HexType: json.data.antenna.hex_num.type,
+							  HexMin: json.data.antenna.hex_num.minimum,								
+							  SepType: json.data.antenna.separation.type,
+							  SepMin: json.data.antenna.separation.minimum,
+							  SepEnum: json.units.antenna.separation.enum
+							
                           });
                       })		
 	}
@@ -113,7 +189,15 @@ class CreateModel extends React.Component {
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
-                              Beam: jsons	
+                              FrequencyUnits : jsons.units.beam.frequency.default,
+							  DishSizeUnits : jsons.units.beam.dish_size.default,
+							  DSType: jsons.data.beam.dish_size.type,
+							  DSMin: jsons.data.beam.dish_size.minimum,
+							  DSEnum: jsons.units.beam.dish_size.enum,
+							  FreType: jsons.data.beam.frequency.type,
+							  FreMin: jsons.data.beam.frequency.minimum,
+							  FreEnum: jsons.units.beam.frequency.enum
+									
                           });
                       })		
 	}
@@ -123,71 +207,84 @@ class CreateModel extends React.Component {
                       .then((resss) => resss.json())
                       .then((jsonss) => {
                           this.setState({
-                              Location: jsonss,
+                              LatitudeUnits : jsonss.units.location.latitude.default,					
+							  LaType: jsonss.data.location.latitude.type,
+							  LaMin: jsonss.data.location.latitude.__minimum,
+							  LaMax: jsonss.data.location.latitude.__maximum,
+							  LaEnum: jsonss.units.location.latitude.enum,
 							  DataisLoaded: true		
                           });
                       })		
 	}
-	
+		
 	handleOnSubmit = (event) => {
-	    event.preventDefault();
-	    this.props.history.push({
+	    event.preventDefault();	
+			    this.props.history.push({
 	      pathname: '/The21cmSense',
 	      state : this.state
-	    });
+	    });	
+		this.generateModel(this.state.user);
 	  };
 	
 	handleInputChange = (event) => {
 	    const { name, value } = event.target;
-			this.setState((prevState) => ({
-			      ...prevState,
+			this.setState(() => ({
+			    
 			      [name]: value
 			    }));
 		};
-
+	
 render() {
-		const { user } = this.state;
-		const { Antenna, Beam,Location, DataisLoaded} = this.state;      
+		const { DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
 	
-     return (
+	
+	  return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br><p>{user}</p> {/* access the cookie */}
+			<br></br><br></br>
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum}  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
-				<DropDown name = "SeperationUnits" type = {Antenna.units.antenna.separation.type} defaultValue = {Antenna.units.antenna.separation.default} options={Antenna.units.antenna.separation.enum}  onChange={this.handleInputChange}  />      
-  				<br></br><br></br>
+                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin}  onChange={this.handleInputChange}   required/>
+				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
+			      {this.state.SepEnum.map(o => <option value={o.value}>{o}</option>)}
+			    </select>		
+				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
-				<DropDown name = "DishSizeUnits"  type = {Beam.units.beam.dish_size.type}  options={Beam.units.beam.dish_size.enum}  />      
-  				<br></br><br></br>
+                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin}   onChange={this.handleInputChange}  required/>
+				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
+			      {this.state.DSEnum.map(o => <option value={o.value}>{o}</option>)}
+			    </select>		
+				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {Beam.data.beam.frequency.type} min={Beam.data.beam.frequency.minimum}  onChange={this.handleInputChange} required/>
-				<DropDown name = "FrequencyUnits"   type = {Beam.units.beam.frequency.type}  options={Beam.units.beam.frequency.enum}/>      
-  				<br></br><br></br>
+                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin}  onChange={this.handleInputChange} required/>
+				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
+			      {this.state.FreEnum.map(o => <option value={o.value}>{o}</option>)}
+			    </select>
+				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {Location.data.location.latitude.type} min={Location.data.location.latitude.__minimum} max = {Location.data.location.latitude.__maximum}  onChange={this.handleInputChange}   required/>
-				<DropDown name = "LatitudeUnits"   type = {Location.units.location.latitude.type}  options={Location.units.location.latitude.enum}/>      
-  				<br></br><br></br>
+				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax}  onChange={this.handleInputChange}   required/>
+				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
+			      {this.state.LaEnum.map(o => <option value={o.value}>{o}</option>)}
+			    </select>				
+				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"}  value={this.state.modelName} onChange={this.handleInputChange} required />
+			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={localStorage.getItem(this.state.modelName)}> Save </Button>
+				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
