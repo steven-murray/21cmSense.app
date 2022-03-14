@@ -46,19 +46,37 @@ class CreateModel extends React.Component {
 	    super(props);
 	    this.state = {
 			modelName: '',
-		  	HexNumber: '',
-		  	Separation: '',
-		  	Distance: '',
-		 	DishSize: '',
+		  	
+			HexNumber: '',
+			HexType:'',
+			HexMin:'',
+			
+		  	Separation: '',	
+			SepType:'',
+			SepMin:'',
+			SepEnum: [],
+			
+		  	DishSize: '',
+			DSType: '',
+			DSMin: '',
+			DSEnum: [],
+			
 		  	Frequency: '',
+			FreType: '',
+			FreMin: '',
+			FreEnum: [],
+			
 		  	Latitude: '',
+			LaType: '',
+			LaMin: '',
+			LaMax: '',
+			LaEnum: [],
+	
 		  	SeperationUnits: '',
 			DishSizeUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
-			Antenna: [],
-			Beam: [],
-			Location: [],			
+			
 			DataisLoaded: false,
 			user: this.props.cookies.get("user") || ""
 	
@@ -98,8 +116,7 @@ class CreateModel extends React.Component {
 							    "antenna":{
 							      "schema": "hera",
 							      "hex_num": this.state.HexNumber,
-							      "separation": this.state.Separation,
-							      "dl": 12.02
+							      "separation": this.state.Separation
 							    },
 							    "beam":{
 							      "schema":"GaussianBeam",
@@ -142,8 +159,13 @@ class CreateModel extends React.Component {
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              Antenna: json,
-							  SeperationUnits: json.units.antenna.separation.default
+                              SeperationUnits: json.units.antenna.separation.default,
+							  HexType: json.data.antenna.hex_num.type,
+							  HexMin: json.data.antenna.hex_num.minimum,								
+							  SepType: json.data.antenna.separation.type,
+							  SepMin: json.data.antenna.separation.minimum,
+							  SepEnum: json.units.antenna.separation.enum
+							
                           });
                       })		
 	}
@@ -153,9 +175,14 @@ class CreateModel extends React.Component {
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
-                              Beam: jsons,
-							  FrequencyUnits : jsons.units.beam.frequency.default,
-							  DishSizeUnits : jsons.units.beam.dish_size.default
+                              FrequencyUnits : jsons.units.beam.frequency.default,
+							  DishSizeUnits : jsons.units.beam.dish_size.default,
+							  DSType: jsons.data.beam.dish_size.type,
+							  DSMin: jsons.data.beam.dish_size.minimum,
+							  DSEnum: jsons.units.beam.dish_size.enum,
+							  FreType: jsons.data.beam.frequency.type,
+							  FreMin: jsons.data.beam.frequency.minimum,
+							  FreEnum: jsons.units.beam.frequency.enum
 									
                           });
                       })		
@@ -166,8 +193,11 @@ class CreateModel extends React.Component {
                       .then((resss) => resss.json())
                       .then((jsonss) => {
                           this.setState({
-                              Location: jsonss,
-							  LatitudeUnits : jsonss.units.location.latitude.default,
+                              LatitudeUnits : jsonss.units.location.latitude.default,					
+							  LaType: jsonss.data.location.latitude.type,
+							  LaMin: jsonss.data.location.latitude.__minimum,
+							  LaMax: jsonss.data.location.latitude.__maximum,
+							  LaEnum: jsonss.units.location.latitude.enum,
 							  DataisLoaded: true		
                           });
                       })		
@@ -191,8 +221,7 @@ class CreateModel extends React.Component {
 		};
 	
 render() {
-		const { user } = this.state;
-		const { Antenna,  Beam,Location, DataisLoaded} = this.state;      
+		const { DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
@@ -201,38 +230,38 @@ render() {
 	  return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
-			<br></br><p>{user} </p> <br></br>
+			<br></br><br></br>
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {Antenna.data.antenna.hex_num.type} min = {Antenna.data.antenna.hex_num.minimum}  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin}  onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
+                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin}  onChange={this.handleInputChange}   required/>
 				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
-			      {Antenna.units.antenna.separation.enum.map(o => <option value={o.value}>{o}</option>)}
+			      {this.state.SepEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
+                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin}   onChange={this.handleInputChange}  required/>
 				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
-			      {Beam.units.beam.dish_size.enum.map(o => <option value={o.value}>{o}</option>)}
+			      {this.state.DSEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {Beam.data.beam.frequency.type} min={Beam.data.beam.frequency.minimum}  onChange={this.handleInputChange} required/>
+                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin}  onChange={this.handleInputChange} required/>
 				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
-			      {Beam.units.beam.frequency.enum.map(o => <option value={o.value}>{o}</option>)}
+			      {this.state.FreEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {Location.data.location.latitude.type} min={Location.data.location.latitude.__minimum} max = {Location.data.location.latitude.__maximum}  onChange={this.handleInputChange}   required/>
+				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax}  onChange={this.handleInputChange}   required/>
 				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
-			      {Location.units.location.latitude.enum.map(o => <option value={o.value}>{o}</option>)}
+			      {this.state.LaEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>				
 				<br></br><br></br>
 			</Panel>
