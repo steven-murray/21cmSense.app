@@ -2,7 +2,7 @@ import React from 'react';
 import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
-import { GiInfo } from "react-icons/gi";
+import { GiInfo, GiPencil } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
@@ -97,10 +97,11 @@ class The21cmSense extends React.Component {
       return (
         <div key={dataIn.modelid}>
           {dataIn.modelname}
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" > <GiPencil title = "edit"/>  </button>
           
         </div>
       );
-    });
+    });console.log(resume);
     return (
         <div>
             <div style={{
@@ -115,7 +116,7 @@ class The21cmSense extends React.Component {
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
 			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
-		      		 {resume}
+		      		 {resume}  
 		      </tbody>	
 			  </Panel>
               <br></br>
