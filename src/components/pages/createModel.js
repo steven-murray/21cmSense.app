@@ -53,7 +53,7 @@ class CreateModel extends React.Component {
 		  	Frequency: '',
 		  	Latitude: '',
 		  	SeperationUnits: '',
-			DistanceUnits: '',
+			DishSizeUnits: '',
 			FrequencyUnits: '',
 			LatitudeUnits: '',
 			Antenna: [],
@@ -119,7 +119,7 @@ class CreateModel extends React.Component {
 							    },
 							    "beam":{
 							      "frequency": this.state.FrequencyUnits,
-							      "dish_size": "m"
+							      "dish_size": this.state.DishSizeUnits
 							    },
 							    "location":{
 							      "latitude": this.state.LatitudeUnits
@@ -142,7 +142,8 @@ class CreateModel extends React.Component {
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              Antenna: json
+                              Antenna: json,
+							  SeperationUnits: json.units.antenna.separation.default
                           });
                       })		
 	}
@@ -152,7 +153,10 @@ class CreateModel extends React.Component {
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
-                              Beam: jsons	
+                              Beam: jsons,
+							  FrequencyUnits : jsons.units.beam.frequency.default,
+							  DishSizeUnits : jsons.units.beam.dish_size.default
+									
                           });
                       })		
 	}
@@ -163,6 +167,7 @@ class CreateModel extends React.Component {
                       .then((jsonss) => {
                           this.setState({
                               Location: jsonss,
+							  LatitudeUnits : jsonss.units.location.latitude.default,
 							  DataisLoaded: true		
                           });
                       })		
