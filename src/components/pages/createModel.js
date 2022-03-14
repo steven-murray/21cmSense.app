@@ -197,6 +197,7 @@ render() {
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
 	
+	
 	  return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
@@ -208,7 +209,7 @@ render() {
 				<br></br><br></br>
 				<label> Separation </label>           
                 <input name = "Separation" type = {Antenna.data.antenna.separation.type} min = {Antenna.data.antenna.separation.minimum}  onChange={this.handleInputChange}   required/>
-				<select name = "SeperationUnits" value={Antenna.units.antenna.separation.default} onChange={this.handleInputChange} >
+				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
 			      {Antenna.units.antenna.separation.enum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
@@ -216,13 +217,13 @@ render() {
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
                 <input name = "DishSize" type = {Beam.data.beam.dish_size.type} min={Beam.data.beam.dish_size.minimum}   onChange={this.handleInputChange}  required/>
-				<select name = "DishSizeUnits" value={Beam.units.beam.dish_size.default} onChange={this.handleInputChange} >
+				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
 			      {Beam.units.beam.dish_size.enum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 				<label> Frequency </label>           
                 <input name = "Frequency" type = {Beam.data.beam.frequency.type} min={Beam.data.beam.frequency.minimum}  onChange={this.handleInputChange} required/>
-				<select name = "FrequencyUnits" value={Beam.units.beam.frequency.default} onChange={this.handleInputChange} >
+				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
 			      {Beam.units.beam.frequency.enum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>
 				<br></br><br></br>
@@ -230,7 +231,7 @@ render() {
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
 				<input name = "Latitude"  type = {Location.data.location.latitude.type} min={Location.data.location.latitude.__minimum} max = {Location.data.location.latitude.__maximum}  onChange={this.handleInputChange}   required/>
-				<select name = "LatitudeUnits" value={Location.units.location.latitude.default} onChange={this.handleInputChange} >
+				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
 			      {Location.units.location.latitude.enum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>				
 				<br></br><br></br>
