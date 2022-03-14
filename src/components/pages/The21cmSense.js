@@ -90,6 +90,14 @@ class The21cmSense extends React.Component {
                       })		
 	  }
 	
+	handleOnSubmit = (event) => {
+	    event.preventDefault();	
+			    this.props.history.push({
+	      pathname: '/editModel',
+	      state : this.state
+	    });	
+
+	  };
 
   render() {
 	  const {_models} = this.state	

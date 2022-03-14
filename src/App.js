@@ -5,7 +5,7 @@ import DynamicForm from './components/pages/DynamicForm';
 import PrintPage from "./components/pages/PrintPage";
 import The21cmSense from "./components/pages/The21cmSense";
 import createModel from "./components/pages/createModel";
-import editModel from "./components/pages/editModel";
+import EditModel from "./components/pages/EditModel";
 import "./App.css"
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css'
@@ -23,7 +23,7 @@ function App() {
 		  <Route path='/PrintPage' component={PrintPage} />
           <Route path='/Home' component={Home} />
 		  <Route path='/createModel' component={createModel} />
-		  <Route path='/editModel' component={editModel} />  
+		  <Route path='/EditModel' component={EditModel} />  
         </Switch>
       </Router>
     </>
