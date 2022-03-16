@@ -88,6 +88,7 @@ class CreateModel extends React.Component {
 			if (document.cookie.indexOf('user') === -1 ) {
 				// this.setState({notice: "I got it"});
 				this.generateUserID();
+				
 			}	
 			
 			const {user}=this.state;	
@@ -105,9 +106,12 @@ class CreateModel extends React.Component {
 	    };
 	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
 	        .then(response => response.json())
-	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ));
-		
-		
+	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ))		
+			.then((js) => {
+                          this.setState({
+                              user: js.uuid
+                          });   
+                      })	
 	}
 	
 	getmodels(uid){
