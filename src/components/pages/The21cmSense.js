@@ -69,6 +69,7 @@ class The21cmSense extends React.Component {
 	    super(props);
 		
 	    this.state = {
+			selectOptions: [],
 	     	user:this.props.cookies.get("user") || "",
 			LatitudeUnits: '',
 			_models:[]
@@ -88,13 +89,13 @@ class The21cmSense extends React.Component {
                               _models: json.models
                           });  console.log(json);
                       })		
-	  }
+	  };
 	
 	handleOnSubmit = (event) => {
-	    event.preventDefault();	
+		// event.preventDefault();	
 			    this.props.history.push({
-	      pathname: '/editModel',
-	      state : this.state
+	      pathname: '/EditModel',
+	      state : event
 	    });	
 
 	  };
@@ -105,10 +106,10 @@ class The21cmSense extends React.Component {
       return (
         <div key={dataIn.modelid}>
           {dataIn.modelname}
-          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" > <GiPencil title = "edit"/>  </button>          
+          <Button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </Button>          
         </div>
       );
-    });console.log(resume);
+    });
     return (
         <div>
             <div style={{

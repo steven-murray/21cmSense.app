@@ -47,6 +47,8 @@ class EditModel extends React.Component {
 	    this.state = {
 			modelName: '',
 			models: [],
+			model: [],
+			
 		  	
 			HexNumber: '',
 			HexType:'',
@@ -86,14 +88,16 @@ class EditModel extends React.Component {
 	
 	 componentDidMount(){	
 			
-			const {user}=this.state;	
-			this.getmodels(user);
+			const {modelid}=(this.props.location && this.props.location.state) || {};                        
+			console.log(modelid);
+			const {user}=this.state;
+			this.getmodel(user,modelid);
 				
+			this.getmodels(user);
 			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
 	}
-
 
 	getmodels(uid){
             fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
@@ -101,6 +105,16 @@ class EditModel extends React.Component {
                       .then((json) => {
                           this.setState({
                               models: json.models
+                          });   console.log(json);
+                      })		
+	}
+	
+	getmodel(uid,mid){
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid)
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              model: json
                           });   console.log(json);
                       })		
 	}
@@ -233,40 +247,40 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin}  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin} value={this.state.model.data.data.antenna.hex_num} onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin}  onChange={this.handleInputChange}   required/>
-				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
+                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin} value={this.state.model.data.data.antenna.separation} onChange={this.handleInputChange}   required/>
+				<select name = "SeperationUnits" value={this.state.model.data.units.separation} onChange={this.handleInputChange} >
 			      {this.state.SepEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin}   onChange={this.handleInputChange}  required/>
-				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
+                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin} value={this.state.model.data.data.beam.dish_size}  onChange={this.handleInputChange}  required/>
+				<select name = "DishSizeUnits" value={this.state.model.data.units.beam.dish_size} onChange={this.handleInputChange} >
 			      {this.state.DSEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin}  onChange={this.handleInputChange} required/>
-				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
+                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin} value={this.state.model.data.data.beam.frequency} onChange={this.handleInputChange} required/>
+				<select name = "FrequencyUnits" value={this.state.model.data.units.beam.frequency} onChange={this.handleInputChange} >
 			      {this.state.FreEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax}  onChange={this.handleInputChange}   required/>
-				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
+				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax} value={this.state.model.data.data.location.latitude} onChange={this.handleInputChange}   required/>
+				<select name = "LatitudeUnits" value={this.state.model.data.units.location.latitude} onChange={this.handleInputChange} >
 			      {this.state.LaEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>				
 				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
+			<input  name = "modelName" type = {"text"}  value = {this.state.model.modelname} onChange={this.handleInputChange} style = {{color: 'rgb(77, 77, 58)',  fontSize:18, fontFamily: 'Rockwell', width:180}} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
 				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
