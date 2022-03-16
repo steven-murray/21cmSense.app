@@ -16,6 +16,8 @@ rdb = redis.Redis(decode_responses=True)
 
 # automatic UTF-8 decoding is not compatible with pickled strings.
 rpickle = redis.Redis(decode_responses=False)
+
+
 # try:
 #     r.ping()
 # except ConnectionError:

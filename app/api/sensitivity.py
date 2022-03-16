@@ -5,7 +5,7 @@ from .models import AntennaFactory
 
 
 # serialize the json to a hashable form for LRU caching
-def get_sensitivity(thejson):
+def get_sensitivity(thejson) -> PowerSpectrum:
     """serialize json to a hashable form for LRU caching and call method that does the actual work
 
     Parameters
@@ -80,15 +80,15 @@ def cached_sensitivity(json_pickle):
     # t = 400 * units.K
     obs = Observatory(antpos=a, beam=b, latitude=lat)
 
-    sensitivity=PowerSpectrum(observation=Observation(observatory=obs))
+    sensitivity = PowerSpectrum(observation=Observation(observatory=obs))
 
     # sensitivity = PowerSpectrum(
     #     observation=Observation(
     #         observatory=Observatory(
     #             antpos=antenna.get(), beam=beam.get(),
     #             TODO - add in units
-                # latitude=thejson['data']['location']['latitude'] * units.rad
-            # )
-        # )
+    # latitude=thejson['data']['location']['latitude'] * units.rad
+    # )
+    # )
     # )
     return sensitivity

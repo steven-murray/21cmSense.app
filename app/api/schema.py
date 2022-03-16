@@ -268,6 +268,8 @@ class Validator:
     """
 
     def __init__(self, thejson):
+        self.error = False
+        self.errorMsg = None
         self.thejson = thejson
         pass
 
