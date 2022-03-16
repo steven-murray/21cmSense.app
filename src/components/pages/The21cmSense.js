@@ -108,7 +108,7 @@ class The21cmSense extends React.Component {
       return (
         <div key={dataIn.modelid}>
           {dataIn.modelname}
-          <Button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </Button>          
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </button>          
         </div>
       );
     });

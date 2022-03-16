@@ -45,6 +45,7 @@ class EditModel extends React.Component {
 	 constructor(props) {
 	    super(props);
 	    this.state = {
+			model_id:'',
 			modelName: '',
 			models: [],
 			model: [],
@@ -87,17 +88,18 @@ class EditModel extends React.Component {
 	  }
 	
 	 componentDidMount(){	
+			const{modelid}=(this.props.location && this.props.location.state) || {} 
 			
-			const {modelid}=(this.props.location && this.props.location.state) || {};                        
-			console.log(modelid);
 			const {user}=this.state;
-			this.getmodel(user,modelid);
-				
+			this.getmodel(user,modelid);			
 			this.getmodels(user);
+			
+			
 			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
 	}
+	
 
 	getmodels(uid){
             fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
@@ -105,21 +107,37 @@ class EditModel extends React.Component {
                       .then((json) => {
                           this.setState({
                               models: json.models
-                          });   console.log(json);
+                          });   
                       })		
 	}
 	
 	getmodel(uid,mid){
+	
             fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid)
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
-                              model: json
-                          });   console.log(json);
+                              model: json,
+							  model_id: mid,
+							modelName: json.modelname,
+							HexNumber: json.data.data.antenna.hex_num,
+							Separation: json.data.data.antenna.separation,	
+							DishSize: json.data.data.beam.dish_size,
+							Frequency: json.data.data.beam.frequency,
+							Latitude: json.data.data.location.latitude,	
+							SeperationUnits: json.data.units.antenna.separation,
+							DishSizeUnits: json.data.units.beam.dish_size,
+							FrequencyUnits: json.data.units.beam.frequency,
+							LatitudeUnits: json.data.units.location.latitude
+                          });  
+	
+			
+                         
                       })		
 	}
 
-	generateModel(uid){
+	
+	updateModel(uid,mid){
 		
 		const ml = {
 					  "modelname": this.state.modelName,
@@ -159,12 +177,12 @@ class EditModel extends React.Component {
 					}
 		
 		const requestmodel = {
-	        method: 'POST',
+	        method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models', requestmodel)
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
 		}
 	
 	getAntennaData(){
@@ -178,6 +196,7 @@ class EditModel extends React.Component {
 							  SepType: json.data.antenna.separation.type,
 							  SepMin: json.data.antenna.separation.minimum,
 							  SepEnum: json.units.antenna.separation.enum
+								
 							
                           });
                       })		
@@ -222,7 +241,7 @@ class EditModel extends React.Component {
 	      pathname: '/The21cmSense',
 	      state : this.state
 	    });	
-		this.generateModel(this.state.user);
+		this.updateModel(this.state.user, this.state.model_id);
 	  };
 	
 	handleInputChange = (event) => {
@@ -234,11 +253,10 @@ class EditModel extends React.Component {
 		};
 	
 render() {
-		const { DataisLoaded} = this.state;      
+		const {DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
-	
 	
 	  return (
 	
@@ -247,40 +265,40 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin} value={this.state.model.data.data.antenna.hex_num} onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin} defaultValue={this.state.HexNumber} onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin} value={this.state.model.data.data.antenna.separation} onChange={this.handleInputChange}   required/>
-				<select name = "SeperationUnits" value={this.state.model.data.units.separation} onChange={this.handleInputChange} >
+                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin} defaultValue={this.state.Separation} onChange={this.handleInputChange}   required/>
+				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
 			      {this.state.SepEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin} value={this.state.model.data.data.beam.dish_size}  onChange={this.handleInputChange}  required/>
-				<select name = "DishSizeUnits" value={this.state.model.data.units.beam.dish_size} onChange={this.handleInputChange} >
+                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin} defaultValue={this.state.DishSize}  onChange={this.handleInputChange}  required/>
+				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
 			      {this.state.DSEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin} value={this.state.model.data.data.beam.frequency} onChange={this.handleInputChange} required/>
-				<select name = "FrequencyUnits" value={this.state.model.data.units.beam.frequency} onChange={this.handleInputChange} >
+                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin} defaultValue={this.state.Frequency} onChange={this.handleInputChange} required/>
+				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
 			      {this.state.FreEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>
 				<br></br><br></br>
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax} value={this.state.model.data.data.location.latitude} onChange={this.handleInputChange}   required/>
-				<select name = "LatitudeUnits" value={this.state.model.data.units.location.latitude} onChange={this.handleInputChange} >
+				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax} defaultValue={this.state.Latitude} onChange={this.handleInputChange}   required/>
+				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
 			      {this.state.LaEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>				
 				<br></br><br></br>
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"}  value = {this.state.model.modelname} onChange={this.handleInputChange} style = {{color: 'rgb(77, 77, 58)',  fontSize:18, fontFamily: 'Rockwell', width:180}} required />
+			<input  name = "modelName" type = {"text"}  defaultValue = {this.state.modelName} onChange={this.handleInputChange} style = {{color: 'rgb(77, 77, 58)',  fontSize:18, fontFamily: 'Rockwell', width:180}} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
 				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
