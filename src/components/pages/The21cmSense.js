@@ -78,7 +78,9 @@ class The21cmSense extends React.Component {
 	  
 	  componentDidMount(){	
 		const {user}=this.state;
+		if(user !== ""){
 		this.getmodels(user);
+		}
 	  }
 
 	  getmodels(uid){

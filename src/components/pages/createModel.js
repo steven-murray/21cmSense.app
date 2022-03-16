@@ -47,6 +47,7 @@ class CreateModel extends React.Component {
 	    this.state = {
 			modelName: '',
 			models: [],
+			uid:'harit',
 		  	
 			HexNumber: '',
 			HexType:'',
@@ -80,6 +81,7 @@ class CreateModel extends React.Component {
 			
 			DataisLoaded: false,
 			user: this.props.cookies.get("user") || ""
+			
 	
 	    }
 	  }
@@ -91,8 +93,10 @@ class CreateModel extends React.Component {
 				
 			}	
 			
-			const {user}=this.state;	
-			this.getmodels(user);
+			const {user}=this.state;
+			if(user !== ""){
+				this.getmodels(user);
+			}
 				
 			this.getAntennaData();	
 			this.getBeamData();
@@ -106,12 +110,12 @@ class CreateModel extends React.Component {
 	    };
 	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
 	        .then(response => response.json())
-	        .then(data => this.setState( cookies.set("user",data.uuid, { path: "/" }) ))		
-			.then((js) => {
+	        .then((data) => {
                           this.setState({
-                              user: js.uuid
-                          });   
-                      })	
+                              user: data.uuid
+                          },cookies.set("user",data.uuid, { path: "/" }));	 })
+			
+			console.log(this.state.user);
 	}
 	
 	getmodels(uid){
@@ -243,8 +247,7 @@ render() {
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
-	
-	
+		
 	  return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
