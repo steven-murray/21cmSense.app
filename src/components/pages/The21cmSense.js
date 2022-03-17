@@ -2,7 +2,7 @@ import React from 'react';
 import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
-import { GiInfo } from "react-icons/gi";
+import { GiInfo, GiPencil, GiEmptyWoodBucket } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
@@ -69,6 +69,7 @@ class The21cmSense extends React.Component {
 	    super(props);
 		
 	    this.state = {
+			selectOptions: [],
 	     	user:this.props.cookies.get("user") || "",
 			LatitudeUnits: '',
 			_models:[]
@@ -77,7 +78,9 @@ class The21cmSense extends React.Component {
 	  
 	  componentDidMount(){	
 		const {user}=this.state;
+		if(user !== ""){
 		this.getmodels(user);
+		}
 	  }
 
 	  getmodels(uid){
@@ -88,17 +91,37 @@ class The21cmSense extends React.Component {
                               _models: json.models
                           });  console.log(json);
                       })		
-	  }
+	  };
 	
+	handleOnSubmit = (event) => {
+		// event.preventDefault();	
+			    this.props.history.push({
+	      pathname: '/EditModel',
+	      state : event
+	    });	
 
+	  };
+	
+	deletemodule(mid){
+	    const req = {
+	        method: 'DELETE'
+			};
+	
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
+		
+	}
+	
+	
   render() {
 	  const {_models} = this.state	
 	  const resume = _models.map(dataIn => {
       return (
         <div key={dataIn.modelid}>
           {dataIn.modelname}
-          
-        </div>
+          <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </button>   
+		  
+		  </div>
       );
     });
     return (
@@ -115,7 +138,7 @@ class The21cmSense extends React.Component {
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
 			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
-		      		 {resume}
+		      		 {resume}  
 		      </tbody>	
 			  </Panel>
               <br></br>

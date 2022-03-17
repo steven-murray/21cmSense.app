@@ -35,7 +35,7 @@ Button.defaultProps = {
 
 };
 
-class CreateModel extends React.Component {
+class EditModel extends React.Component {
 	
 	  static propTypes = {
 	    cookies: instanceOf(Cookies).isRequired
@@ -45,9 +45,11 @@ class CreateModel extends React.Component {
 	 constructor(props) {
 	    super(props);
 	    this.state = {
+			model_id:'',
 			modelName: '',
 			models: [],
-			uid:'harit',
+			model: [],
+			
 		  	
 			HexNumber: '',
 			HexType:'',
@@ -81,58 +83,66 @@ class CreateModel extends React.Component {
 			
 			DataisLoaded: false,
 			user: this.props.cookies.get("user") || ""
-			
 	
 	    }
 	  }
 	
 	 componentDidMount(){	
-			if (document.cookie.indexOf('user') === -1 ) {
-				// this.setState({notice: "I got it"});
-				this.generateUserID();
-				
-			}	
+			const{modelid}=(this.props.location && this.props.location.state) || {} 
 			
 			const {user}=this.state;
-			if(user !== ""){
-				this.getmodels(user);
-			}
-				
+			this.getmodel(user,modelid);			
+			this.getmodels(user);
+			
+			
 			this.getAntennaData();	
 			this.getBeamData();
 			this.getLocationData();
 	}
-
-	generateUserID(){
-		const { cookies } = this.props;
-		const requestOptions = {
-	        method: 'POST'
-	    };
-	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
-	        .then(response => response.json())
-	        .then((data) => {
-                          this.setState({
-                              user: data.uuid
-                          },cookies.set("user",data.uuid, { path: "/", maxAge:130000 }));	 })
-			
-			console.log(this.state.user);
-	}
 	
+
 	getmodels(uid){
             fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
                               models: json.models
-                          });   console.log(json);
+                          });   
+                      })		
+	}
+	
+	getmodel(uid,mid){
+	
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid)
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              model: json,
+							  model_id: mid,
+							modelName: json.modelname,
+							HexNumber: json.data.data.antenna.hex_num,
+							Separation: json.data.data.antenna.separation,	
+							DishSize: json.data.data.beam.dish_size,
+							Frequency: json.data.data.beam.frequency,
+							Latitude: json.data.data.location.latitude,	
+							SeperationUnits: json.data.units.antenna.separation,
+							DishSizeUnits: json.data.units.beam.dish_size,
+							FrequencyUnits: json.data.units.beam.frequency,
+							LatitudeUnits: json.data.units.location.latitude
+                          });  
+	
+			
+                         
                       })		
 	}
 
-	generateModel(uid){
+	
+	updateModel(uid,mid){
 		
 		const ml = {
 					  "modelname": this.state.modelName,
 					  "data":{
+							  "calculation": "1D-cut-of-2D-sensitivity",
 							  "data":{
 							    "antenna":{
 							      "schema": "hera",
@@ -151,7 +161,9 @@ class CreateModel extends React.Component {
 							  },
 							  "units":{
 							    "antenna":{
-							      "separation": this.state.SeperationUnits
+							      "hex_num": "m",
+							      "separation": this.state.SeperationUnits,
+							      "dl": "m"
 							    },
 							    "beam":{
 							      "frequency": this.state.FrequencyUnits,
@@ -165,12 +177,12 @@ class CreateModel extends React.Component {
 					}
 		
 		const requestmodel = {
-	        method: 'POST',
+	        method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models', requestmodel)
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
 		}
 	
 	getAntennaData(){
@@ -184,6 +196,7 @@ class CreateModel extends React.Component {
 							  SepType: json.data.antenna.separation.type,
 							  SepMin: json.data.antenna.separation.minimum,
 							  SepEnum: json.units.antenna.separation.enum
+								
 							
                           });
                       })		
@@ -228,7 +241,7 @@ class CreateModel extends React.Component {
 	      pathname: '/The21cmSense',
 	      state : this.state
 	    });	
-		this.generateModel(this.state.user);
+		this.updateModel(this.state.user, this.state.model_id);
 	  };
 	
 	handleInputChange = (event) => {
@@ -240,11 +253,11 @@ class CreateModel extends React.Component {
 		};
 	
 render() {
-		const { DataisLoaded} = this.state;      
+		const {DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
 			<h1> Please wait some time.... </h1> </div> ;
-		
+	
 	  return (
 	
 		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
@@ -252,10 +265,10 @@ render() {
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
 				<label> Hex Number </label>            
-                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin}  onChange={this.handleInputChange}   required/>
+                <input name = "HexNumber" type = {this.state.HexType} min = {this.state.HexMin} defaultValue={this.state.HexNumber} onChange={this.handleInputChange}   required/>
 				<br></br><br></br>
 				<label> Separation </label>           
-                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin}  onChange={this.handleInputChange}   required/>
+                <input name = "Separation" type = {this.state.SepType} min = {this.state.SepMin} defaultValue={this.state.Separation} onChange={this.handleInputChange}   required/>
 				<select name = "SeperationUnits" value={this.state.SeperationUnits} onChange={this.handleInputChange} >
 			      {this.state.SepEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
@@ -263,13 +276,13 @@ render() {
 			</Panel>
 			<Panel header = 'BEAM' shaded  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Dish Size </label>           
-                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin}   onChange={this.handleInputChange}  required/>
+                <input name = "DishSize" type = {this.state.DSType} min={this.state.DSMin} defaultValue={this.state.DishSize}  onChange={this.handleInputChange}  required/>
 				<select name = "DishSizeUnits" value={this.state.DishSizeUnits} onChange={this.handleInputChange} >
 			      {this.state.DSEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>		
 				<br></br><br></br>
 				<label> Frequency </label>           
-                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin}  onChange={this.handleInputChange} required/>
+                <input name = "Frequency" type = {this.state.FreType} min={this.state.FreMin} defaultValue={this.state.Frequency} onChange={this.handleInputChange} required/>
 				<select name = "FrequencyUnits" value={this.state.FrequencyUnits} onChange={this.handleInputChange} >
 			      {this.state.FreEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>
@@ -277,7 +290,7 @@ render() {
 			</Panel>
 			<Panel header = 'LOCATION' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 				<label> Latitude </label> 
-				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax}  onChange={this.handleInputChange}   required/>
+				<input name = "Latitude"  type = {this.state.LaType} min={this.state.LaMin} max = {this.state.LaMax} defaultValue={this.state.Latitude} onChange={this.handleInputChange}   required/>
 				<select name = "LatitudeUnits" value={this.state.LatitudeUnits} onChange={this.handleInputChange} >
 			      {this.state.LaEnum.map(o => <option value={o.value}>{o}</option>)}
 			    </select>				
@@ -285,10 +298,10 @@ render() {
 			</Panel>
 			<br></br><br></br>
 			<label style = {{color: 'rgb(128, 0, 0)',  fontSize:18, fontFamily: 'Rockwell', width:180}}> Model Name </label>
-			<input  name = "modelName" type = {"text"}  onChange={this.handleInputChange}  required />
+			<input  name = "modelName" type = {"text"}  defaultValue = {this.state.modelName} onChange={this.handleInputChange} style = {{color: 'rgb(77, 77, 58)',  fontSize:18, fontFamily: 'Rockwell', width:180}} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
+				disabled={this.state.models.some(model => model.modelid !== this.state.model_id && model.modelname === this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
@@ -296,4 +309,4 @@ render() {
   }
 }
 	
-export default withCookies(CreateModel);	
+export default withCookies(EditModel);	
