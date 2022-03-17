@@ -113,7 +113,7 @@ class CreateModel extends React.Component {
 	        .then((data) => {
                           this.setState({
                               user: data.uuid
-                          },cookies.set("user",data.uuid, { path: "/" }));	 })
+                          },cookies.set("user",data.uuid, { path: "/", maxAge:130000 }));	 })
 			
 			console.log(this.state.user);
 	}
