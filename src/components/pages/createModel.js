@@ -133,7 +133,6 @@ class CreateModel extends React.Component {
 		const ml = {
 					  "modelname": this.state.modelName,
 					  "data":{
-							  "calculation": "1D-cut-of-2D-sensitivity",
 							  "data":{
 							    "antenna":{
 							      "schema": "hera",
@@ -152,9 +151,7 @@ class CreateModel extends React.Component {
 							  },
 							  "units":{
 							    "antenna":{
-							      "hex_num": "m",
-							      "separation": this.state.SeperationUnits,
-							      "dl": "m"
+							      "separation": this.state.SeperationUnits
 							    },
 							    "beam":{
 							      "frequency": this.state.FrequencyUnits,
