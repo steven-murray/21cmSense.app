@@ -8,7 +8,8 @@ import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
-import '../../Graph.js'
+import '../../Graph.js';
+import { Graph } from '../../Graph.js';
 
 const theme = {
   cyan: {
@@ -143,7 +144,7 @@ class The21cmSense extends React.Component {
                     <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
                     <br></br><br></br>
                     This is the panel for graph
-                    <Plot
+                    {/* <Plot
                       data={[
                         {
                           x: [1, 2, 3],
@@ -155,7 +156,8 @@ class The21cmSense extends React.Component {
                         {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-                    />
+                    /> */}
+                    Graph('calculation','baselines-distributions')
                 </Panel>
             </div>
 
