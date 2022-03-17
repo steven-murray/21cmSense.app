@@ -301,7 +301,7 @@ render() {
 			<input  name = "modelName" type = {"text"}  defaultValue = {this.state.modelName} onChange={this.handleInputChange} style = {{color: 'rgb(77, 77, 58)',  fontSize:18, fontFamily: 'Rockwell', width:180}} required />
 			<Button onClick={ () => this.props.history.goBack() } style = {{fontSize:24, fontFamily: 'Rockwell', width:100}}> Cancel </Button>
 			<Button  style = {{fontSize:24, fontFamily: 'Rockwell', width:100}} type="submit"
-				disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
+				disabled={this.state.models.some(model => model.modelid !== this.state.model_id && model.modelname === this.state.modelName)}> Save </Button>
 			
 			</form>
 		</div>
