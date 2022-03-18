@@ -8,7 +8,7 @@ import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
-import '../../Graph.js'
+import '../../Graph.js';
 
 const theme = {
   cyan: {
