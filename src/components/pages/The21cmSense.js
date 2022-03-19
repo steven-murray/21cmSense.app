@@ -8,7 +8,20 @@ import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
-import '../../Graph.js';
+//import '../../Graph.js';
+
+/**Reference for graph devolopment DELETE ONCE COMPLETED
+ * 1D cut of 2D Sensitivity = Line graph
+ * 1D Noise of 2D Sensitivity = Line graph
+ * 1D Noise cut of 2D sensitivity = Scatter
+ * 1D Sample Variance Cut of 2D Sensitivity = Line graph
+ * 2D Sensitivity = Scatter
+ * 2D Sensitivity vs k = Scatter
+ * 2D Sensitivity vs z = Line graph
+ * k vs Redshift Plot = Heatmap
+ * Antenna Positions = Line graph
+ * Baseline Distributions = Heatmap
+ */
 
 const theme = {
   cyan: {
@@ -58,7 +71,7 @@ const saveCSV = () => {
     "example.csv"
   );
 };
-	
+
 class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
@@ -142,6 +155,23 @@ class The21cmSense extends React.Component {
                 <Panel shaded>
                     <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
                     <br></br><br></br>
+
+                    <form>
+                        Calculation: <select name = "calculation" id = "calculation">
+                        <option value = "" selected = "selected">1D cut of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">1D Noise of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">1D Noise cut of 2D sensitivity</option>
+                        <option value = "" selected = "selected">1D Sample Variance Cut of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">2D Sensitivity</option>
+                        <option value = "" selected = "selected">2D Sensitivity vs k</option>
+                        <option value = "" selected = "selected">2D Sensitivity vs z</option>
+                        <option value = "" selected = "selected">k vs Redshift Plot</option>
+                        <option value = "" selected = "selected">Antenna Positions</option>
+                        <option value = "" selected = "selected">Baseline Distributions</option>
+                    </select>
+                    </form>
+                    <br></br><br></br>
+                    
                     <Plot
                       data={[
                         {
@@ -159,7 +189,6 @@ class The21cmSense extends React.Component {
             </div>
 
         </div>
-
     );
   }
 }
