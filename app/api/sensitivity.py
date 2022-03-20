@@ -1,3 +1,5 @@
+import functools
+
 from astropy.units import UnitConversionError
 
 from .models import *

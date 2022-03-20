@@ -301,7 +301,7 @@ def api_return():
     A custom schema
     """
     if request.method == HTTP_POST:
-        lst = models.get_schema_groups()
+        lst = get_schema_groups()
 
         # we should be posted something like:
         # { "location": "location.json", "beam": "GaussianBeam.json", "antenna": "hera.json" }

@@ -311,21 +311,39 @@ class Validator:
     # then we need to break it apart (e.g., antenna, beam, location) and verify each of those
     # sections against their individual validation schemas
     def valid_sections(self):
-        pass
+        data = self.thejson['data']
+        units = self.thejson['units']
+        for schemagroup in ['antenna', 'location', 'beam']:
+            j = {'data': {schemagroup: data[schemagroup]}, 'units': {schemagroup: units[schemagroup]}}
+            if 'schema' not in data[schemagroup]:
+                self.error = True
+                self.errorMsg = "Schema group section %s missing 'schema' keyword" % schemagroup
+                return False
+
+            schemaname = data[schemagroup]['schema']
+
+            validation_schema = self.load_validation_schema(schemagroup, schemaname)
+
+            if not self.validate(validation_schema, j):
+                self.error = True
+                self.errorMsg = "Error validating schemagroup section %s" % schemagroup
+                return False
+
+        return True
 
     # load a validation schema.  It must either have the same name as the schema that is to be validated, or
     # be "default"
-    def load_validation_schema(schemagroup: str, schemaname: str):
+    def load_validation_schema(self, schemagroup: str, schemaname: str):
         schema = load_schema_generic('validation-schema', schemagroup, schemaname)
         if not schema:
             schema = load_schema_generic('validation-schema', schemagroup, "default")
             if not schema:
                 debug("Cannot locate schema for %s/%s" % (schemagroup, schemaname), 1)
                 return None
-        print("DEBUG: returning validation schema:", schema)
+        # print("DEBUG: returning validation schema:", schema)
         return schema
 
-    def build_schema_for_validation(component, data_json, units_json):
+    def build_schema_for_validation(self, component, data_json, units_json):
         return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
         # return d
 
@@ -335,14 +353,15 @@ class Validator:
         # print("Schema=",sch)
         # sch=json.loads(schema)
         #        f = open("app/static/schema/hera-validation.json", 'r')
-        f = open("app/static/validation-schema/hera-validation.json", 'r')
-        sch = json.load(f)
-        print("We got this json:", suppliedjson)
+        # f = open("app/static/validation-schema/hera-validation.json", 'r')
+        # sch = json.load(f)
+        # print("We got this json:", suppliedjson)
         try:
-            jsonschema.validate(instance=suppliedjson, schema=sch)
-            return suppliedjson
+            jsonschema.validate(instance=suppliedjson, schema=schema)
+            # return suppliedjson
+            return True
         except jsonschema.ValidationError as e:
-            return None
+            return False
 
     def load_schemafile(self, schema_name):
 

@@ -30,6 +30,11 @@ def calculate(thejson):
     else:
         print("JSON SCHEMA VALIDATED")
 
+    if not v.valid_sections():
+        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
+    else:
+        print("JSON SCHEMA VALIDATED")
+
     print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
 
     # get proper function for this calculation
