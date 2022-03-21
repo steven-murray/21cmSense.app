@@ -243,7 +243,8 @@ render() {
 		const { DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
-			<h1> Please wait some time.... </h1> </div> ;
+			<br></br>
+			<h3 style={{color: 'rgb(77, 77, 58)', fontFamily: 'Rockwell', paddingLeft: 20}}> Sorry, we'are unable to reach the server at the moment. Please try again later.. </h3></div> ;
 		
 	  return (
 	
