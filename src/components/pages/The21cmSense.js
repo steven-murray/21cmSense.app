@@ -10,6 +10,20 @@ import styled from "styled-components";
 import Plot from 'react-plotly.js';
 import '../../Graph.js';
 import { Graph } from '../../Graph.js';
+//import '../../Graph.js';
+
+/**Reference for graph devolopment DELETE ONCE COMPLETED
+ * 1D cut of 2D Sensitivity = Line graph
+ * 1D Noise of 2D Sensitivity = Line graph
+ * 1D Noise cut of 2D sensitivity = Scatter
+ * 1D Sample Variance Cut of 2D Sensitivity = Line graph
+ * 2D Sensitivity = Scatter
+ * 2D Sensitivity vs k = Scatter
+ * 2D Sensitivity vs z = Line graph
+ * k vs Redshift Plot = Heatmap
+ * Antenna Positions = Line graph
+ * Baseline Distributions = Heatmap
+ */
 
 const theme = {
   cyan: {
@@ -59,7 +73,7 @@ const saveCSV = () => {
     "example.csv"
   );
 };
-	
+
 class The21cmSense extends React.Component {
 	constructor(props) {
 	    super(props);
@@ -143,8 +157,24 @@ class The21cmSense extends React.Component {
                 <Panel shaded>
                     <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
                     <br></br><br></br>
-                    This is the panel for graph
-                    {/* <Plot
+
+                    <form>
+                        Calculation: <select name = "calculation" id = "calculation">
+                        <option value = "" selected = "selected">1D cut of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">1D Noise of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">1D Noise cut of 2D sensitivity</option>
+                        <option value = "" selected = "selected">1D Sample Variance Cut of 2D Sensitivity</option>
+                        <option value = "" selected = "selected">2D Sensitivity</option>
+                        <option value = "" selected = "selected">2D Sensitivity vs k</option>
+                        <option value = "" selected = "selected">2D Sensitivity vs z</option>
+                        <option value = "" selected = "selected">k vs Redshift Plot</option>
+                        <option value = "" selected = "selected">Antenna Positions</option>
+                        <option value = "" selected = "selected">Baseline Distributions</option>
+                    </select>
+                    </form>
+                    <br></br><br></br>
+                    
+                    <Plot
                       data={[
                         {
                           x: [1, 2, 3],
@@ -156,74 +186,17 @@ class The21cmSense extends React.Component {
                         {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-                    /> */}
+                    /> 
                     <div>
-                    let json;
-    let url="http://galileo.sese.asu.edu:8081/schema/"+{group}+"/get/"+{schemaName};
-    
-    fetch(url).then(function(e){
-        return e.json();
-    }).then(function(u){
-        json=u;
-        // if()// add logic to check that the data is of baselines length[x,m] and baselines lenth[y,m]
-        {
-            var data=[];
-
-            for(let i=0;i<json.x.length;i++)
-            {
-                data.push({
-                    x:json.x[i],
-                    y:json.y[i],
-                    mode:'markers',
-                    type:'scatter',
-                    marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
-                });
-            }
-            var Xmax=[];
-            var Xmin=[];
-            var Ymax=[];
-            var Ymin=[];
-            json.x.forEach(x=>{
-                Xmax.push(Math.max.apply(null,x));
-                Xmin.push(Math.min.apply(null,x));
-            });
-            json.y.forEach(x=>{
-                Ymax.push(Math.max.apply(null,x));
-                Ymin.push(Math.min.apply(null,x));
-            });
-            var layout = {
-                xaxis: {
-                    range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
-                    showgrid:false,
-                    showline:true,
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true,
-                    zeroline:false,
-                    title:json.xlabel    
-                },
-                yaxis: {
-                    range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
-                    showgrid:false,
-                    showline:true,
-                    zeroline:false, 
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true,
-                    title:json.ylabel
-                },
-                title:'BaseLine Graph',
-                showlegend:false
-            };
-            Plotly.newPlot('myDiv', data, layout);
-        }
+                  
+         
+            
                     </div>
                     
                 </Panel>
             </div>
 
         </div>
-
     );
   }
 }
