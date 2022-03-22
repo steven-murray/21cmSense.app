@@ -81,6 +81,7 @@ class The21cmSense extends React.Component {
 		if(user !== ""){
 		this.getmodels(user);
 		}
+		
 	  }
 
 	  getmodels(uid){
@@ -108,10 +109,13 @@ class The21cmSense extends React.Component {
 			};
 	
 		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
-		
+				.then(response => {window.location.reload()});
 	}
-	
-	
+	refresh = () => {
+      // re-renders the component
+      this.setState({});
+    };
+
   render() {
 	  const {_models} = this.state	
 	  const resume = _models.map(dataIn => {
@@ -119,7 +123,7 @@ class The21cmSense extends React.Component {
         <div key={dataIn.modelid}>
           {dataIn.modelname}
           <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
-          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </button>   
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn) } > <GiPencil title = "edit"/>  </button>   
 		  
 		  </div>
       );
