@@ -276,6 +276,31 @@ def create_model(userid):
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
+@api.route('/users/<userid>/models', methods=[HTTP_GET])
+def list_antpos(userid):
+    pass
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_GET])
+def antpos_get(userid, modelid):
+    pass
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_PUT])
+def antpos_update(userid, modelid):
+    pass
+
+
+@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_DELETE])
+def antpos_delete(userid, modelid):
+    pass
+
+
+@api.route('/users/<userid>/models', methods=[HTTP_POST])
+def create_antpos(userid):
+    pass
+
+
 @api.route('/schema/<schemagroup>/descriptions')
 def schema_descriptions(schemagroup):
     """Return a list of all of the schema in a schema group along with user-friendly descriptions
