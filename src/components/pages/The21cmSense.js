@@ -61,6 +61,8 @@ const saveCSV = () => {
 };
 	
 class The21cmSense extends React.Component {
+	
+	
 	 static propTypes = {
 	    cookies: instanceOf(Cookies).isRequired
 	  };
@@ -111,12 +113,9 @@ class The21cmSense extends React.Component {
 		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
 				.then(response => {window.location.reload()});
 	}
-	refresh = () => {
-      // re-renders the component
-      this.setState({});
-    };
 
   render() {
+	
 	  const {_models} = this.state	
 	  const resume = _models.map(dataIn => {
       return (
@@ -141,9 +140,9 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 		      		 {resume}  
-		      </tbody>	
+		      </div>	
 			  </Panel>
               <br></br>
               <Panel  shaded >
