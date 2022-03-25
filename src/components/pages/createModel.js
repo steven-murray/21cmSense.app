@@ -223,12 +223,13 @@ class CreateModel extends React.Component {
 	}
 		
 	handleOnSubmit = (event) => {
+		this.generateModel(this.state.user);
 	    event.preventDefault();	
 			    this.props.history.push({
-	      pathname: '/The21cmSense',
+	      pathname: '/',
 	      state : this.state
 	    });	
-		this.generateModel(this.state.user);
+		
 	  };
 	
 	handleInputChange = (event) => {
