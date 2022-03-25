@@ -61,6 +61,8 @@ const saveCSV = () => {
 };
 	
 class The21cmSense extends React.Component {
+	
+	
 	 static propTypes = {
 	    cookies: instanceOf(Cookies).isRequired
 	  };
@@ -81,6 +83,7 @@ class The21cmSense extends React.Component {
 		if(user !== ""){
 		this.getmodels(user);
 		}
+		
 	  }
 
 	  getmodels(uid){
@@ -108,18 +111,18 @@ class The21cmSense extends React.Component {
 			};
 	
 		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
-		
+				.then(response => {window.location.reload()});
 	}
-	
-	
+
   render() {
+	
 	  const {_models} = this.state	
 	  const resume = _models.map(dataIn => {
       return (
         <div key={dataIn.modelid}>
           {dataIn.modelname}
           <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
-          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title = "edit"/>  </button>   
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn) } > <GiPencil title = "edit"/>  </button>   
 		  
 		  </div>
       );
@@ -137,9 +140,9 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 		      		 {resume}  
-		      </tbody>	
+		      </div>	
 			  </Panel>
               <br></br>
               <Panel  shaded >
