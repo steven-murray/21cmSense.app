@@ -276,28 +276,81 @@ def create_model(userid):
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models', methods=[HTTP_GET])
+@api.route('/users/<userid>/antpos', methods=[HTTP_GET])
 def list_antpos(userid):
+    """
+
+    Parameters
+    ----------
+    userid
+
+    Returns
+    -------
+
+    """
     pass
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_GET])
-def antpos_get(userid, modelid):
+@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_GET])
+def antpos_get(userid, antposid):
+    """
+
+    Parameters
+    ----------
+    userid
+    antposid
+
+    Returns
+    -------
+
+    """
     pass
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_PUT])
-def antpos_update(userid, modelid):
+@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_PUT])
+def antpos_update(userid, antposid):
+    """
+
+    Parameters
+    ----------
+    userid
+    antposid
+
+    Returns
+    -------
+
+    """
     pass
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_DELETE])
-def antpos_delete(userid, modelid):
+@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_DELETE])
+def antpos_delete(userid, antposid):
+    """
+
+    Parameters
+    ----------
+    userid
+    antposid
+
+    Returns
+    -------
+
+    """
     pass
 
 
-@api.route('/users/<userid>/models', methods=[HTTP_POST])
+@api.route('/users/<userid>/antpos', methods=[HTTP_POST])
 def create_antpos(userid):
+    """
+
+    Parameters
+    ----------
+    userid
+
+    Returns
+    -------
+
+    """
     pass
 
 
