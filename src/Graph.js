@@ -138,7 +138,8 @@ function Graph({group,schemaName}) {
     });
 	return (
 		<div id="myDiv">
-	   </div>
+	   </div>,
+       Graph={Graph}
 	);
 }
 

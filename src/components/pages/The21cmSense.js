@@ -8,8 +8,8 @@ import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
-import '../../Graph.js';
-import { Graph } from '../../Graph.js';
+// import '../../Graph.js';
+// import { Graph } from '../../Graph.js';
 //import '../../Graph.js';
 
 /**Reference for graph devolopment DELETE ONCE COMPLETED
@@ -73,6 +73,80 @@ const saveCSV = () => {
     "example.csv"
   );
 };
+//{group, schemaName}
+const Graph = ({group, schemaName}) => {
+  let json;
+  group = "calculations"
+  schemaName = "baselines-distributions"
+  let url="http://galileo.sese.asu.edu:8081/schema/"+{group}+"/get/"+{schemaName};
+  
+  fetch(url).then(function(e){
+    return e.json();
+
+  }).then(function(u) {
+    json=u;
+    {
+      var data=[];
+
+      for(let i=0;i<json.x.length;i++)
+      {
+          data.push({
+              x:json.x[i],
+              y:json.y[i],
+              mode:'markers',
+              type:'scatter',
+              marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
+          });
+      }
+      var Xmax=[];
+      var Xmin=[];
+      var Ymax=[];
+      var Ymin=[];
+      json.x.forEach(x=>{
+          Xmax.push(Math.max.apply(null,x));
+          Xmin.push(Math.min.apply(null,x));
+      });
+      json.y.forEach(x=>{
+          Ymax.push(Math.max.apply(null,x));
+          Ymin.push(Math.min.apply(null,x));
+      });
+      var layout = {
+          xaxis: {
+              range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
+              showgrid:false,
+              showline:true,
+              linecolor: 'black',
+              linewidth: 2,
+              mirror: true,
+              zeroline:false,
+              title:json.xlabel    
+          },
+          yaxis: {
+              range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
+              showgrid:false,
+              showline:true,
+              zeroline:false, 
+              linecolor: 'black',
+              linewidth: 2,
+              mirror: true,
+              title:json.ylabel
+          },
+          title:'BaseLine Graph',
+          showlegend:false
+      };
+      Plotly.newPlot('myDiv', data, layout);
+  }
+  });
+
+  return (
+		<div id="myDiv">
+	   </div>,
+       Graph={Graph}
+	);
+          
+};
+      
+
 
 class The21cmSense extends React.Component {
 	constructor(props) {
@@ -117,7 +191,9 @@ class The21cmSense extends React.Component {
 	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
       return <tr key={index}> <td>{value.keyName} </td> </tr>
     });
+    Graph("calulations", "baselines-distribution");
     return (
+        
         <div>
             <div style={{
               display: 'inline-block', width: 700, paddingLeft: 35
@@ -173,8 +249,8 @@ class The21cmSense extends React.Component {
                     </select>
                     </form>
                     <br></br><br></br>
-                    
-                    <Plot
+  
+                    {/* <Plot
                       data={[
                         {
                           x: [1, 2, 3],
@@ -186,18 +262,23 @@ class The21cmSense extends React.Component {
                         {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-                    /> 
+                    />  */}
+
+                    
                     <div>
                   
-         
-            
+                    
+
                     </div>
                     
                 </Panel>
             </div>
-
+          
         </div>
+      
     );
   }
-}
+};
+
+
 export default The21cmSense;
