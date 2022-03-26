@@ -145,7 +145,7 @@ const Graph = ({group, schemaName}) => {
 	);
           
 };
-      
+
 
 
 class The21cmSense extends React.Component {
