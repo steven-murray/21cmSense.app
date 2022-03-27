@@ -1,140 +1,39 @@
-import '../../App.css';
-import React from 'react';
-import { FormContext } from '../../FormContext';
+import React, { Component } from "react";
+import { instanceOf } from "prop-types";
+import { withCookies, Cookies } from "react-cookie";
 
-const DropDown = ({ selectedValue, options, onChange }) => {
-  return (
-    <select onChange={onChange} >
-      {
-        options.map(o => <option value={o} selected={o === selectedValue}>{o}</option>)
-        
-      }
-    </select>
-  );
-}
+class DynamicForm extends Component {
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
 
+  state = {
+    user: this.props.cookies.get("user") || ""
+  };
 
-class DynamicForm extends React.Component {
+  handleSetCookie = () => {
+    const { cookies } = this.props;
+    cookies.set("user", "obydul", { path: "/" }); // set the cookie
+    this.setState({ user: cookies.get("user") });
+  };
 
+  handleRemoveCookie = () => {
+    const { cookies } = this.props;
+    cookies.remove("user"); // remove the cookie
+    this.setState({ user: cookies.get("user") });
+  };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      calc:[],
-      ant:[],
-	  DataisLoaded: false
-    }
-  }
-
-  componentDidMount(){
-
-             fetch("http://localhost:8080/api-1.0/schema/calculation")
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    calc: json
-                });
-            })
-
-            fetch("http://localhost:8080/api-1.0/schema/antenna/get/hera")
-                      .then((res) => res.json())
-                      .then((json) => {
-                          this.setState({
-                              ant: json,
-							  DataisLoaded: true
-                          });
-                      })
-    }
-
- render() {
-    const { calc,ant,DataisLoaded } = this.state;              
- 		if (!DataisLoaded) return <div>
-			<h1> Please wait some time.... </h1> </div> ;
-
+  render() {
+    const { user } = this.state;
     return (
-    <FormContext.Provider>
-        
-      <div className="container">
-         <div class="row">
-          <div>
-            <form >
-                  <br></br>
-                  <h6>MODELS</h6>  
-						Example 1 <br></br>
-						Example 2  <br></br>
-						Example 3  <br></br>
-						Example 4  <br></br>
-						
-						<br></br>
-                 <p> <button><h5> PLOT </h5> </button> </p>
-            </form>
-          </div>
-          <div>
-            	<br></br>
-                <div class="row">
-                    <div>  <DropDown options={calc}/>
-						   <br></br><br></br>
- 							<div class="row">
-                    			<div> <p><h6>Antenna Information</h6></p> </div>
-                			</div>
-                			<div class="row">
-
-                    			<div>   
-									<label> Hex Number </label>            
-                   					<input type = {ant.data.antenna.hex_num.type} min = {ant.data.antenna.hex_num.minimum} placeholder = {ant.data.antenna.hex_num.help} required/>
-								</div> 								 
-							</div>
-							<br></br>
-							<div class="row">
-                    			<div>   
-									<label> Separation </label>            
-
-                   					<input type = {ant.data.antenna.separation.type} min = {ant.data.antenna.separation.minimum} placeholder = {ant.data.antenna.separation.help} required/>
-									<DropDown type = {ant.units.antenna.separation.type} default = {ant.units.antenna.separation.default} options={ant.units.antenna.separation.enum}/>
-								</div>
-							</div>
-							<br></br>
-							<div class="row">
-
-                    			<div>   
-									<label> Distance </label>            
-
-                   					<input type = {ant.data.antenna.dl.type} min = {ant.data.antenna.dl.minimum} placeholder = {ant.data.antenna.dl.help} required/>
-									<DropDown type = {ant.units.antenna.dl.type} default = {ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
-								</div>
-							</div>
-                            <br></br>
-                            <div className="row">
-                                <div>
-                                    <label> Frequency </label>
-                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
-                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
-                                </div>
-                            </div>
-                            <br></br>
-                            <div className="row">
-                                <div>
-                                    <label> Dish Size </label>
-                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
-                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum} />
-                                </div>
-                            </div>
-                        <br></br>
-                            <div className="row">
-                                <div>
-                                    <label> Latitude </label>
-                                    <input type={ant.data.antenna.dl.type} min={ant.data.antenna.dl.minimum} placeholder={ant.data.antenna.dl.help} required/>
-                                    <DropDown type={ant.units.antenna.dl.type} default={ant.units.antenna.dl.default} options={ant.units.antenna.dl.enum}/>
-                                </div>
-                            </div>
-                        </div>
-                    <div> <h6>CALCULATE</h6>   </div>
-                </div>			
-          </div>
-        </div>
-      </div>        
-   </FormContext.Provider>
-  );
+      <div className="App">
+        <h1>React Cookie</h1>
+        <p>{user}</p> {/* access the cookie */}
+        <button onClick={this.handleSetCookie}>Set Cookie</button>
+      <button onClick={this.handleRemoveCookie}>Remove Cookie</button>
+      </div>
+    );
   }
 }
-export default DynamicForm;
+
+export default withCookies(DynamicForm);

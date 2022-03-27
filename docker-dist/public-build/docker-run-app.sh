@@ -5,6 +5,7 @@
 # a python file.
 #
 # It is using a unix socket rather than a tcp socket.
+redis-server ./redis.conf >/dev/null 2>&1 &
 
 # start nginx
 service nginx start

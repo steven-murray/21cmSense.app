@@ -27,9 +27,18 @@ with a user-friendly interface on the front end and API-driven integration with 
 		https://tree.taiga.io/project/lclindbe-team43/backlog
 		
 ## Pre-requisite
+**python-3.10**
+
 **21cmSense**
 		proven Python code that generates estimates of the sensitivity of different radio telescope configurations to signals coming from the very early Universe.
 		
+```
+git clone https://github.com/steven-murray/21cmSense
+cd 21cmSense
+pip install .
+```
+
+
 ## Post-requisite
 
 ## Running the Python/Flask back end application
@@ -57,6 +66,19 @@ optional arguments:
 
 ### Production mode (docker container)
 
+`docker run -d -p8081:80 p43:latest`
+
+# Notes
+use of the port publish parameter:
+[local bind addr:]local_port:container_port[/protocol]
+
+So to bind port 80 of the container (where nginx is listening) to port 8081 on the local machine,
+listening on 0.0.0.0 (all interfaces), use `-p 8081:80/tcp`.
+
+-d detaches the container after run
+
+
+To build a docker container for running the application, using `nginx` as a webserver utilizing the `wsgi` interface to the python code, please see the README.md file in the docker-dist directory.
 
 
 ## How to run the Web application 

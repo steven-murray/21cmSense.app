@@ -194,7 +194,7 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
 
 
 def build_composite_schema(schema: JSONDecoder):
-    """Build a composite schema based on a JSON request
+    """Build a composite schema from parts based on a JSON request
 
     Parameters
     ----------
@@ -208,11 +208,10 @@ def build_composite_schema(schema: JSONDecoder):
     ex: { "beam": "GaussianBeam", "location": "latitude", "antenna": "hera", "calculation": "baselines-distributions" }
     schema should already be a json object
 
-
     Returns
     -------
     json
-        Dynamically constructe composite schema
+        json schema object or json formatted error if request was invalid
 
     """
     # get calculation type
@@ -265,6 +264,8 @@ def build_composite_schema(schema: JSONDecoder):
 
 
 class Validator:
+    """Validate a submitted JSON schema prior to using for calculation
+    """
 
     def __init__(self, thejson):
         self.thejson = thejson
@@ -302,6 +303,13 @@ class Validator:
         # prettier but we've already calculated surplus and missing so ought to save the set operation
         # return required.intersection(supplied) == required
         return not (surplus or missing)
+
+    # TODO
+    # we need to ensure all of the required sections are present in this json
+    # then we need to break it apart (e.g., antenna, beam, location) and verify each of those
+    # sections against their individual validation schemas
+    def valid_sections(self):
+        pass
 
     # load a validation schema.  It must either have the same name as the schema that is to be validated, or
     # be "default"
