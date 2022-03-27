@@ -311,10 +311,21 @@ class Validator:
     # then we need to break it apart (e.g., antenna, beam, location) and verify each of those
     # sections against their individual validation schemas
     def valid_sections(self):
+        """Ensure required sections are valid and present in the supplied json
+
+        Returns
+        -------
+        bool
+            True if valid, False if not valid.
+
+        Notes
+        -----
+        If returning false, also sets 'error' to True and errorMsg to a message
+        """
         data = self.thejson['data']
         units = self.thejson['units']
-        for schemagroup in ['antenna', 'location', 'beam']:
-            j = {'data': {schemagroup: data[schemagroup]}, 'units': {schemagroup: units[schemagroup]}}
+        for schemagroup in ['antenna', 'beam', 'location']:
+            j=self.build_schema_for_validation(schemagroup, data, units)
             if 'schema' not in data[schemagroup]:
                 self.error = True
                 self.errorMsg = "Schema group section %s missing 'schema' keyword" % schemagroup
@@ -334,6 +345,19 @@ class Validator:
     # load a validation schema.  It must either have the same name as the schema that is to be validated, or
     # be "default"
     def load_validation_schema(self, schemagroup: str, schemaname: str):
+        """Load a validation schema from disk based on schema group and name
+
+        Parameters
+        ----------
+        schemagroup - the schema group to search
+        schemaname - the schema name to load
+
+        Returns
+        -------
+        json
+            The requested validation schema, or None if not found
+
+        """
         schema = load_schema_generic('validation-schema', schemagroup, schemaname)
         if not schema:
             schema = load_schema_generic('validation-schema', schemagroup, "default")
@@ -343,26 +367,52 @@ class Validator:
         # print("DEBUG: returning validation schema:", schema)
         return schema
 
-    def build_schema_for_validation(self, component, data_json, units_json):
-        return {'data': {component: data_json[component]}, 'units': {component: units_json[component]}}
-        # return d
+    def build_schema_for_validation(self, schemagroup, data_json, units_json):
+        """Build a schema for validation
+
+        Parameters
+        ----------
+        schemagroup
+            The schema group to use (e.g., 'antenna')
+        data_json
+            The data portion of the supplied json
+        units_json
+            The units portion of the supplied json
+
+        Returns
+        -------
+        dict
+            a dictionary (json) suitable for validating
+
+        """
+        return {'data': {schemagroup: data_json[schemagroup]}, 'units': {schemagroup: units_json[schemagroup]}}
 
     # schema must be in JSON and compatible with provided schema rules
     def validate(self, schema, suppliedjson):
+        """Validate supplied schema against JSON Schema Specification-compliant validation schema
+
+        Parameters
+        ----------
+        schema
+        suppliedjson
+
+        Returns
+        -------
+        bool
+            True if validates, False otherwise
+
+        Notes
+        -----
+        If returning false, also sets 'error' to True and errorMsg to a message
+        
+        """
         # sch=json.loads(schema)
-        # print("Schema=",sch)
-        # sch=json.loads(schema)
-        #        f = open("app/static/schema/hera-validation.json", 'r')
         # f = open("app/static/validation-schema/hera-validation.json", 'r')
         # sch = json.load(f)
-        # print("We got this json:", suppliedjson)
+        # print("Schema=",sch)
         try:
             jsonschema.validate(instance=suppliedjson, schema=schema)
-            # return suppliedjson
             return True
         except jsonschema.ValidationError as e:
             return False
 
-    def load_schemafile(self, schema_name):
-
-        pass
