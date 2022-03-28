@@ -28,6 +28,7 @@ Response:
 Response:
 ``404 Not Found`` (if userid does not exist)
 
+NOTE: Deleting a user deletes ALL of their stored models.
 
 # Models
 
@@ -156,6 +157,117 @@ Returns:
 Response body contains data or error if appropriate
 
 ``404 Not Found`` (if model id does not exist)
+
+# Antenna position data
+
+## Create new antenna position data
+**POST** `/users/<userid>/antpos`
+
+Body:
+```
+{
+  "antpos": "antenna position data name",
+  "data": { CSV formatted triplets or doubles }
+}
+```
+
+Response:
+``201 Created`` (if created successfully)
+
+Return:
+```json
+{
+  "userid": "unique userid",
+  "antposid": "antenna position data id",
+  "antposname": "antenna position data name"
+}
+```
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
+Response:
+``409 Conflict`` (if antenna position data name already exists)
+
+Return:
+```json
+{"error":"Antenna position data name already exists"}
+```
+
+
+## Get a list of models
+**GET** `/users/<userid>/antpos`
+
+Response:
+``200 OK`` (if (userid, antpos) pair exists)
+
+Return:
+```json
+{
+  "antpos": [
+    {
+      "antposname": "antpos 1 name",
+      "antposid": "antpos 1 ID"
+    },
+    {
+      "antposname": "antpos 2 name",
+      "antposid": "antpos 1 ID"
+    }
+  ]
+}
+```
+
+Response:
+``404 Not Found`` (if userid does not exist)
+
+## Get (retrieve) antenna position data
+**GET** `/users/<userid>/antpos/<antposid>`
+
+Response:
+``200 OK`` (if (userid, antposid) pair exists)
+
+Return:
+```json
+{
+  "antposname": "name of antenna position data",
+  "data": "Antenna position data that was previously stored"
+}
+```
+
+Response:
+``404 Bad Request`` (if antposID or userID do not exist)
+
+## Update antenna position data
+**PUT** `/users/<userid>/antpos/<modelid>`
+
+Body:
+```json
+{
+  "antposname": "name of model",
+  "data": "CSV triplet or double to store"
+}
+```
+
+Response:
+``204 No Content`` (if antenna position data was updated)
+
+Response:
+``400 Bad Request`` (if JSON is invalid)
+
+Response:
+``404 Not Found`` (if userid or antposid does not exist)
+
+ref: [HTTP return code decision tree](https://github.com/for-GET/http-decision-diagram/blob/master/httpdd.graffle.png)
+
+
+## Delete antenna position data
+**DELETE** `/users/<userid>/antpos/<antposid>`
+
+Response:
+``204 No Content`` (in all cases, including for invalid userid or antposid)
 
 
 # schema
