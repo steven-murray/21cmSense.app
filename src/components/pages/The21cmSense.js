@@ -2,7 +2,7 @@ import React from 'react';
 import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
-import { GiInfo } from "react-icons/gi";
+import { GiInfo, GiPencil, GiEmptyWoodBucket } from "react-icons/gi";
 import { Link } from 'react-router-dom';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
@@ -24,6 +24,9 @@ import Plot from 'react-plotly.js';
  * Antenna Positions = Line graph
  * Baseline Distributions = Heatmap
  */
+import { withCookies, Cookies } from "react-cookie";
+import { instanceOf } from "prop-types";
+
 
 const theme = {
   cyan: {
@@ -150,47 +153,71 @@ const Graph = ({group, schemaName}) => {
 
 
 class The21cmSense extends React.Component {
+	
+	
+	 static propTypes = {
+	    cookies: instanceOf(Cookies).isRequired
+	  };
+	
 	constructor(props) {
 	    super(props);
 		
 	    this.state = {
-	     	modelName: '',
-		  	LatitudeUnits: '',
-			localStoragePairs: []
+			selectOptions: [],
+	     	user:this.props.cookies.get("user") || "",
+			LatitudeUnits: '',
+			_models:[]
 	    }
 	  }
 	  
-	  componentDidMount() {
-	    this.getExistingArray();		
-	  }
-	
-	  getExistingArray() {
-	
-	    for (var i = 0; i < localStorage.length; i++) {
-	
-	      var key = localStorage.key(i);
-	      var value = localStorage.getItem(key);
-	
-	      var updatedLocalStoragePairs = this.state.localStoragePairs;
-	      updatedLocalStoragePairs.push({ 'keyName': key, 'valueName': value });
-	
-	      this.setState({ localStoragePairs: updatedLocalStoragePairs });
-	    }
-	    console.log("complete localStoragePairs:", this.state.localStoragePairs);
-	
-	    if (localStorage.getItem('inputs')) {
-	      var storedInputs = localStorage.getItem('inputs');
-	      this.setState({ inputs: storedInputs }, function () { console.log("from localStorage We got:", this.state.inputs); });
-	    }
+	  componentDidMount(){	
+		const {user}=this.state;
+		if(user !== ""){
+		this.getmodels(user);
+		}
+		
 	  }
 
+	  getmodels(uid){
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              _models: json.models
+                          });  console.log(json);
+                      })		
+	  };
+	
+	handleOnSubmit = (event) => {
+		// event.preventDefault();	
+			    this.props.history.push({
+	      pathname: '/EditModel',
+	      state : event
+	    });	
+
+	  };
+	
+	deletemodule(mid){
+	    const req = {
+	        method: 'DELETE'
+			};
+	
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
+				.then(response => {window.location.reload()});
+	}
 
   render() {
-	const {  modelName } = (this.props.location && this.props.location.state) || {};
-	localStorage.setItem(modelName, JSON.stringify((this.props.location && this.props.location.state) || {}));
-		
-	const LocalSotrageContent = this.state.localStoragePairs.map((value, index) => {
-      return <tr key={index}> <td>{value.keyName} </td> </tr>
+	
+	  const {_models} = this.state	
+	  const resume = _models.map(dataIn => {
+      return (
+        <div key={dataIn.modelid}>
+          {dataIn.modelname}
+          <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
+          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn) } > <GiPencil title = "edit"/>  </button>   
+		  
+		  </div>
+      );
     });
     Graph("calulations", "baselines-distribution");
     return (
@@ -199,7 +226,7 @@ class The21cmSense extends React.Component {
             <div style={{
               display: 'inline-block', width: 700, paddingLeft: 35
             }}>
-              <br></br>
+              <br></br> 
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model <GiInfo title = "create,edit, or delete"/> </label>
               <Link to='/createModel'>
@@ -207,16 +234,14 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <tbody style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
-		        {LocalSotrageContent }
-		      </tbody>		
-
+			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+		      		 {resume}  
+		      </div>	
 			  </Panel>
               <br></br>
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
-              <br></br><br></br>
-          
+              <br></br><br></br>         
         
                 <Button onClick={saveJSON} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Parameters in JSON</Button>
            
@@ -279,7 +304,5 @@ class The21cmSense extends React.Component {
       
     );
   }
-};
-
-
-export default The21cmSense;
+}
+export default withCookies(The21cmSense);
