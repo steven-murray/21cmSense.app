@@ -78,12 +78,13 @@ const Graph = ({group, schemaName}) => {
   let json;
   group = "calculations"
   schemaName = "baselines-distributions"
-  let url="http://galileo.sese.asu.edu:8081/schema/"+{group}+"/get/"+{schemaName};
+  let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
   
   fetch(url).then(function(e){
     return e.json();
 
-  }).then(function(u) {
+  }).then(function(u)
+  {
     json=u;
     {
       var data=[];
@@ -134,7 +135,7 @@ const Graph = ({group, schemaName}) => {
           title:'BaseLine Graph',
           showlegend:false
       };
-      Plotly.newPlot('myDiv', data, layout);
+      Plot.newPlot('myDiv', data, layout);
   }
   });
 
