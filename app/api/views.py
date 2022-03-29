@@ -65,6 +65,8 @@ def ping():
 # key=u+":"+m
 # r.set(key,p)
 # return: pickle.loads(r.get(key))
+#
+# hget: Returns the value associated with field in the hash stored at key
 
 def user_key(userid: str) -> str:
     return "user" + ":" + userid
@@ -72,6 +74,30 @@ def user_key(userid: str) -> str:
 
 def model_key(modelid: str) -> str:
     return "model" + ":" + modelid
+
+
+def antpos_key(antposid: str) -> str:
+    return "antpos" + ":" + antposid
+
+
+def get_tag(key: str) -> str:
+    """
+
+    Parameters
+    ----------
+    key
+        tag:data key from redis
+
+    Returns
+    -------
+    str
+        data portion only
+    """
+    k = key.split(':')
+    if len(k) == 2:
+        return k[0]
+    else:
+        return 'INVALID'
 
 
 def strip_tag(key: str) -> str:
@@ -87,7 +113,34 @@ def strip_tag(key: str) -> str:
     str
         data portion only
     """
-    return key.split(':')[1]
+    k = key.split(':')
+    if len(k) == 2:
+        return k[1]
+    else:
+        return k[0]
+
+
+def tag_match(tag: str, key: str) -> bool:
+    """Does provided tag match the tag embedded in the key
+
+    Parameters
+    ----------
+    tag
+        the tag to check. e.g., 'model' or 'antpos'
+    key
+        the key with an embedded tag. e.g., 'model:0382-38fd8-...'
+
+    Returns
+    -------
+    bool
+        True if tag matches, false otherwise
+
+    """
+    t = key.split(":")
+    if len(t) == 2 and t[0] == tag:
+        return True
+    else:
+        return False
 
 
 def user_exists(userid):
@@ -104,12 +157,36 @@ def model_exists(modelid):
         return False
 
 
-def modelname_exists(userid, modelname):
-    models = rdb.smembers(user_key(userid))
-    for m in models:
-        if rdb.hget(model_key(m), KW_MODELNAME) == modelname:
-            return True
+def antpos_exists(antposid):
+    if rdb.exists(antpos_key(antposid)):
+        return True
+    else:
+        return False
 
+
+def entryname_exists(userid, entryname, namespace) -> bool:
+    """Whether a redis hash object of namespace 'namespace' and the
+    'name' field of 'entryname' exists for the user with user ID 'userid'.
+
+    Parameters
+    ----------
+    userid
+    entryname
+    namespace
+
+    Returns
+    -------
+
+    """
+    entries = rdb.smembers(user_key(userid))
+    for m in entries:
+
+        # ensure entry's tag matches and its name matches.  If the namespace is
+        # e.g., 'model' then we expect the 'name' to be a field called 'modelname'.
+        # this is done to eliminate constant switching between 'name' in the database
+        # and 'modelname' in the submitted or return json.
+        if tag_match(namespace, m) and rdb.hget(m, namespace + KW_NAME) == entryname:
+            return True
     return False
 
 
@@ -177,12 +254,13 @@ def delete_user(userid):
 def list_models(userid):
     try:
         l = []
-        models = rdb.smembers(user_key(userid))
-        for m in models:
-            # don't return the empty model used as a set placeholder for the userid key
-            if m:
-                l.append({KW_MODELNAME: rdb.hget(model_key(m), KW_MODELNAME), 'modelid': m})
-        return {'models': l}, HTTP_OK
+        keys = rdb.smembers(user_key(userid))
+
+        # the user may have multiple entries, e.g., model:xyz, antpos:abc
+        matches = [x for x in keys if tag_match(TAG_MODEL, x)]
+        for m in matches:
+            l.append({KW_MODELNAME: rdb.hget(m, KW_MODELNAME), KW_MODELID: strip_tag(m)})
+        return {'uuid': userid, 'models': l}, HTTP_OK
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
@@ -193,7 +271,7 @@ def get_model_json(modelid):
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
     name = rdb.hget(model_key(modelid), KW_MODELNAME)
-    data = rpickle.hget(model_key(modelid), 'data')
+    data = rpickle.hget(model_key(modelid), KW_DATA)
 
     if data:
         # recall that json payload is pickled into a string
@@ -210,7 +288,7 @@ def model_get(userid, modelid):
             return "", HTTP_NOT_FOUND
         (name, data) = get_model_json(modelid)
         if data is not None:
-            return {KW_MODELNAME: name, 'data': data}, HTTP_OK
+            return {KW_MODELNAME: name, KW_DATA: data}, HTTP_OK
         else:
             return "", HTTP_NOT_FOUND
     except redis.ConnectionError:
@@ -222,11 +300,11 @@ def model_update(userid, modelid):
     try:
         if not user_exists(userid) or not model_exists(modelid):
             return "", HTTP_NOT_FOUND
-        if not (request.is_json and request.json and 'data' in request.get_json()):
+        if not (request.is_json and request.json and KW_DATA in request.get_json()):
             return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
         req = request.get_json()
         rdb.hset(model_key(modelid), KW_MODELNAME, req[KW_MODELNAME])
-        rpickle.hset(model_key(modelid), 'data', pickle.dumps(req['data']))
+        rpickle.hset(model_key(modelid), KW_DATA, pickle.dumps(req[KW_DATA]))
     except redis.ConnectionError:
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
@@ -236,7 +314,9 @@ def model_delete(userid, modelid):
     try:
         if not user_exists(userid) or not model_exists(modelid):
             return "", HTTP_NOT_FOUND
-        rdb.srem(user_key(userid), modelid)
+
+        # The model is stored in the user's set as "model:uuid"
+        rdb.srem(user_key(userid), model_key(modelid))
         rdb.delete(model_key(modelid))
         return "", HTTP_NO_CONTENT
     except redis.ConnectionError:
@@ -244,32 +324,32 @@ def model_delete(userid, modelid):
 
 
 # accepts:
-# {KW_MODELNAME:KW_MODELNAME}
+# {"modelname": "name of model"}
 # returns:
-# {'modelid':modelid, KW_MODELNAME:KW_MODELNAME}
+# {KW_MODELID:modelid, "modelname": "name of model"}
 @api.route('/users/<userid>/models', methods=[HTTP_POST])
-def create_model(userid):
+def model_create(userid):
     try:
         # this user isn't registered...
         if not user_exists(userid):
             return "", HTTP_NOT_FOUND
 
-        if request.is_json and request.json and KW_MODELNAME in request.get_json() and 'data' in request.get_json():
+        if request.is_json and request.json and KW_MODELNAME in request.get_json() and KW_DATA in request.get_json():
             json = request.get_json()
             modelid = str(uuid.uuid4())
             modelname = json[KW_MODELNAME]
 
             # if model name exists, return conflict error
-            if modelname_exists(userid, modelname):
+            if entryname_exists(userid, modelname, TAG_MODEL):
                 return {KW_ERROR: 'duplicate model name'}, HTTP_CONFLICT
 
             # create the model
             rdb.hset(model_key(modelid), KW_MODELNAME, modelname)
-            rpickle.hset(model_key(modelid), 'data', pickle.dumps(json['data']))
+            rpickle.hset(model_key(modelid), KW_DATA, pickle.dumps(json[KW_DATA]))
 
             # add to the user's models
-            rdb.sadd(user_key(userid), modelid)
-            return {'userid': userid, 'modelid': modelid, KW_MODELNAME: modelname}, HTTP_CREATED
+            rdb.sadd(user_key(userid), model_key(modelid))
+            return {'userid': userid, KW_MODELID: modelid, KW_MODELNAME: modelname}, HTTP_CREATED
         else:
             return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
     except redis.ConnectionError:
@@ -288,7 +368,34 @@ def list_antpos(userid):
     -------
 
     """
-    pass
+    try:
+        l = []
+        keys = rdb.smembers(user_key(userid))
+
+        # the user may have multiple entries, e.g., model:xyz, antpos:abc
+        matches = [x for x in keys if tag_match(TAG_ANTPOS, x)]
+
+        for a in matches:
+            l.append({KW_ANTPOSNAME: rdb.hget(a, KW_ANTPOSNAME), KW_ANTPOSID: strip_tag(a)})
+        return {'uuid': userid, 'antpos': l}, HTTP_OK
+    except redis.ConnectionError:
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+
+
+def get_antpos_json(antposid):
+    if not antpos_exists(antposid):
+        return None, None
+    # request for a antpos. Note we can't use hmget because pickled data cannot automatically
+    # be utf-8 decoded
+    name = rdb.hget(antpos_key(antposid), KW_ANTPOSNAME)
+    data = rpickle.hget(antpos_key(antposid), KW_DATA)
+
+    if data:
+        # recall that json payload is pickled into a string
+        data = pickle.loads(data)
+        return name, data
+    else:
+        return None, None
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_GET])
@@ -304,7 +411,16 @@ def antpos_get(userid, antposid):
     -------
 
     """
-    pass
+    try:
+        if not user_exists(userid):
+            return "", HTTP_NOT_FOUND
+        (name, data) = get_antpos_json(antposid)
+        if data is not None:
+            return {KW_ANTPOSNAME: name, KW_DATA: data}, HTTP_OK
+        else:
+            return "", HTTP_NOT_FOUND
+    except redis.ConnectionError:
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_PUT])
@@ -320,7 +436,16 @@ def antpos_update(userid, antposid):
     -------
 
     """
-    pass
+    try:
+        if not user_exists(userid) or not antpos_exists(antposid):
+            return "", HTTP_NOT_FOUND
+        if not (request.is_json and request.json and KW_DATA in request.get_json()):
+            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
+        req = request.get_json()
+        rdb.hset(antpos_key(antposid), KW_ANTPOSNAME, req[KW_ANTPOSNAME])
+        rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(req[KW_DATA]))
+    except redis.ConnectionError:
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_DELETE])
@@ -336,11 +461,20 @@ def antpos_delete(userid, antposid):
     -------
 
     """
-    pass
+    try:
+        if not user_exists(userid) or not antpos_exists(antposid):
+            return "", HTTP_NOT_FOUND
+
+        # The antpos model is stored in the user's set as "antpos:uuid"
+        rdb.srem(user_key(userid), antpos_key(antposid))
+        rdb.delete(antpos_key(antposid))
+        return "", HTTP_NO_CONTENT
+    except redis.ConnectionError:
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/users/<userid>/antpos', methods=[HTTP_POST])
-def create_antpos(userid):
+def antpos_create(userid):
     """
 
     Parameters
@@ -351,7 +485,31 @@ def create_antpos(userid):
     -------
 
     """
-    pass
+    try:
+        # this user isn't registered...
+        if not user_exists(userid):
+            return "", HTTP_NOT_FOUND
+
+        if request.is_json and request.json and KW_ANTPOSNAME in request.get_json() and KW_DATA in request.get_json():
+            json = request.get_json()
+            antposid = str(uuid.uuid4())
+            antposname = json[KW_ANTPOSNAME]
+
+            # if antpos name exists, return conflict error
+            if entryname_exists(userid, antposname, TAG_ANTPOS):
+                return {KW_ERROR: 'duplicate antpos name'}, HTTP_CONFLICT
+
+            # create the antpos entry
+            rdb.hset(antpos_key(antposid), KW_ANTPOSNAME, antposname)
+            rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(json[KW_DATA]))
+
+            # add to the user's antpos entries
+            rdb.sadd(user_key(userid), antpos_key(antposid))
+            return {'userid': userid, KW_ANTPOSID: antposid, KW_ANTPOSNAME: antposname}, HTTP_CREATED
+        else:
+            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
+    except redis.ConnectionError:
+        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -620,7 +778,7 @@ def call_21cm_with_model(modelid):
         calc = req[KW_CALCULATION]
         (name, data) = get_model_json(modelid)
         if name is None:
-            return {KW_ERROR: "Model does not exist", "modelid": modelid}
+            return {KW_ERROR: "Model does not exist", KW_MODELID: modelid}
         data[KW_CALCULATION] = calc
         return calculate(data)
     else:
