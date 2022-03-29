@@ -14,7 +14,7 @@ pyuvdata==2.2.4
 
 # 21cmSense reqs
 wheel
-numpy>=1.21.4
+numpy>=1.22
 scipy>=1.7.2
 PyYAML==6.0
 astropy>=5.0
@@ -27,7 +27,6 @@ Flask==2.0.3
 redis==3.5.3
 cryptography==3.4.7
 Flask-Cors==3.0.10
-redis
 
 # for wsgi nginx proxying
 gunicorn==20.1.0

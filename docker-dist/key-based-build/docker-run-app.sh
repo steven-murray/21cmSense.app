@@ -4,8 +4,9 @@
 # It utilizes the newer gunicorn functionality of directly calling a method within
 # a python file.
 #
-# It is using a unix socket rather than a tcp socket.
-redis-server ./redis.conf >/dev/null 2>&1 &
+# Redis is using a unix socket rather than a tcp socket.
+# it is set to daemonize in the configuration file
+redis-server ./redis.conf
 
 # start nginx
 service nginx start

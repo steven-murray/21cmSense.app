@@ -32,7 +32,7 @@ RUN cd SER401-Project43 && \
 WORKDIR /home/app/SER401-Project43
 RUN git clone https://github.com/steven-murray/21cmSense && \
     cd 21cmSense && \
-    python ./setup.py install && \
+    pip install . && \
     cd ..
 
 
