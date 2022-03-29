@@ -1,8 +1,11 @@
 #
 # views.py
 #
+import csv
 import uuid
+import base64
 
+import binascii
 import numpy as np
 import redis
 from flask import current_app, json, request
@@ -473,6 +476,58 @@ def antpos_delete(userid, antposid):
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
+def translate_and_validate_antenna_data(data):
+    """
+
+    Parameters
+    ----------
+    thejson
+
+    Returns
+    -------
+
+    """
+    # data must be:
+    # 1. base64 encoded
+    # 2. comma-separated values
+    # 3. either 2 or three values per line
+    # 3a. if the third value is missing, it will be replaced by 0.0
+    array2d=[]
+
+    try:
+        s = base64.b64decode(data).decode('utf-8')
+    except binascii.Error:
+        return None
+
+    # split our file into lines and put it in an iterable object (list)
+    l = s.splitlines().dec
+
+    # use the csv reader to parse it
+    reader = csv.reader(l)
+    for line in reader:
+
+        # we must either have two or three values. All two-value lines have a third
+        # value of 0.0 added
+        if len(line) < 2 or len(line) > 3:
+            return None
+        try:
+
+            # convert all string values to float
+            numline=list(map(lambda x:float(x), line))
+            if len(numline)==2:
+                numline.append(0.0)
+        except ValueError:
+            return None
+
+        # build our 2-d array
+        array2d.append(numline)
+
+    return array2d
+
+
+
+
+
 @api.route('/users/<userid>/antpos', methods=[HTTP_POST])
 def antpos_create(userid):
     """
@@ -501,7 +556,13 @@ def antpos_create(userid):
 
             # create the antpos entry
             rdb.hset(antpos_key(antposid), KW_ANTPOSNAME, antposname)
-            rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(json[KW_DATA]))
+
+            array2d = translate_and_validate_antenna_data(json[KW_DATA])
+            if array2d is None:
+                return {KW_ERROR: "CSV file is improperly formatted. Please see documentation."}, \
+                       HTTP_UNPROCESSABLE_ENTITY
+
+            rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(array2d))
 
             # add to the user's antpos entries
             rdb.sadd(user_key(userid), antpos_key(antposid))
