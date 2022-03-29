@@ -132,6 +132,11 @@ class AntennaFactory(FactoryManager):
         # self.add('ahera', HeraAntennaDispatcher)
         # print("ANTENNA DICT=",self.d)
 
+    class _custom(Dispatcher):
+        """Allows the use of user-supplied antenna position data
+        """
+        pass
+
     class _hera(Dispatcher):
         """makes a py21cmSense call to the hera antenna class
         """
@@ -143,5 +148,7 @@ class AntennaFactory(FactoryManager):
             # TODO - error checking on units
             # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
             #             dl=j['separation'] * units.Unit("m"))
+
             return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
                         dl=j['dl'] * units.Unit(u['dl']))
+
