@@ -167,9 +167,15 @@ Body:
 ```
 {
   "antpos": "antenna position data name",
-  "data": { CSV formatted triplets or doubles }
+  "data": { "base64 encoded CSV file" }
 }
 ```
+
+Notes:
+The CSV file shall be comma separated, UTF-8 encoded with either 
+two or three floating point numbers per line.  All lines with two
+values will have the third (missing) value replaced with 0.0.
+
 
 Response:
 ``201 Created`` (if created successfully)
