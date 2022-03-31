@@ -7,8 +7,8 @@ import { Link } from 'react-router-dom';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
-import Plot from 'react-plotly.js';
-import Plotly from 'plotly.js-dist';
+// import Plot from 'react-plotly.js';
+// import Plotly from 'plotly.js-dist';
 import { Graph } from './Graph.js';
 
 //import '../../Graph.js';
