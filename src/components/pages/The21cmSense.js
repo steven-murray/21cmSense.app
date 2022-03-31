@@ -9,8 +9,8 @@ import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
 import Plotly from 'plotly.js-dist';
-// import '../../Graph.js';
-// import { Graph } from '../../Graph.js';
+import { Graph } from './Graph.js';
+
 //import '../../Graph.js';
 
 /**Reference for graph devolopment DELETE ONCE COMPLETED
@@ -148,8 +148,7 @@ const saveCSV = () => {
 // 	);
           
 // };
-
-
+ 
 
 class The21cmSense extends React.Component {
 	
@@ -219,152 +218,149 @@ class The21cmSense extends React.Component {
       );
     });
         //{group, schemaName}
-    const Graph = (group, schemaName) => {
-      let json;
-      //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
+    // const Graph = (group, schemaName) => {
+    //   let json;
+    //   //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
       
-      fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
-      .then((jsonplot) => {
+    //   fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    //   .then((jsonplot) => {
 
-        json=jsonplot;
-        if(schemaName === "baselines-distributions")
-        {
+    //     json=jsonplot;
+    //     if(schemaName === "baselines-distributions")
+    //     {
 
-          var database=[];
+    //       var database=[];
 
-          for(let i=0;i<json.x.length;i++)
-          {
-              database.push({
-                  x:json.x[i],
-                  y:json.y[i],
-                  mode:'markers',
-                  type:'scatter',
-                  marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
-              });
-          }
-          var Xmax=[];
-          var Xmin=[];
-          var Ymax=[];
-          var Ymin=[];
-          json.x.forEach(x=>{
-              Xmax.push(Math.max.apply(null,x));
-              Xmin.push(Math.min.apply(null,x));
-          });
-          json.y.forEach(x=>{
-              Ymax.push(Math.max.apply(null,x));
-              Ymin.push(Math.min.apply(null,x));
-          });
-          var layoutbase = {
-              xaxis: {
-                  range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
-                  showgrid:false,
-                  showline:true,
-                  linecolor: 'black',
-                  linewidth: 2,
-                  mirror: true,
-                  zeroline:false,
-                  title:json.xlabel    
-              },
-              yaxis: {
-                  range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
-                  showgrid:false,
-                  showline:true,
-                  zeroline:false, 
-                  linecolor: 'black',
-                  linewidth: 2,
-                  mirror: true,
-                  title:json.ylabel
-              },
-              title:'BaseLine Graph',
-              showlegend:false
-          };
-          Plotly.newPlot('myDiv', database, layoutbase);
-      }
+    //       for(let i=0;i<json.x.length;i++)
+    //       {
+    //           database.push({
+    //               x:json.x[i],
+    //               y:json.y[i],
+    //               mode:'markers',
+    //               type:'scatter',
+    //               marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
+    //           });
+    //       }
+    //       var Xmax=[];
+    //       var Xmin=[];
+    //       var Ymax=[];
+    //       var Ymin=[];
+    //       json.x.forEach(x=>{
+    //           Xmax.push(Math.max.apply(null,x));
+    //           Xmin.push(Math.min.apply(null,x));
+    //       });
+    //       json.y.forEach(x=>{
+    //           Ymax.push(Math.max.apply(null,x));
+    //           Ymin.push(Math.min.apply(null,x));
+    //       });
+    //       var layoutbase = {
+    //           xaxis: {
+    //               range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
+    //               showgrid:false,
+    //               showline:true,
+    //               linecolor: 'black',
+    //               linewidth: 2,
+    //               mirror: true,
+    //               zeroline:false,
+    //               title:json.xlabel    
+    //           },
+    //           yaxis: {
+    //               range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
+    //               showgrid:false,
+    //               showline:true,
+    //               zeroline:false, 
+    //               linecolor: 'black',
+    //               linewidth: 2,
+    //               mirror: true,
+    //               title:json.ylabel
+    //           },
+    //           title:'BaseLine Graph',
+    //           showlegend:false
+    //       };
+    //       Plotly.restyle('myDiv', database, layoutbase);
+    //   }
 
-        else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
-        {            
-            var trace1 = {
-                x: json.x,
-                y: json.y,
-                type:'scatter',
-                line: {
-                    color: 'rgb(55, 128, 191)',
-                    width: 3
-                }
-            };
-            var layoutsense = {
-                xaxis: {
-                    range: [0,Math.round(Math.max.apply(null,json.x)+1) ],
-                    title:json.xlabel,
-                    showline:true,
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true
-                },
-                yaxis: {
-                    range: [0,Math.round(Math.max.apply(null,json.y)/100)*100],
-                    title:"\u03B4\u0394"+"2".sup()+"21".sub(),showline:true,
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true
-                },
-                title:'Sensitivity Graph',
-                showlegend:false
-            };
-            var datasense=[trace1];
-            Plotly.newPlot('myDiv', datasense, layoutsense); 
+    //     else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
+    //     {            
+    //         var trace1 = {
+    //             x: json.x,
+    //             y: json.y,
+    //             type:'scatter',
+    //             line: {
+    //                 color: 'rgb(55, 128, 191)',
+    //                 width: 3
+    //             }
+    //         };
+    //         var layoutsense = {
+    //             xaxis: {
+    //                 range: [0,Math.round(Math.max.apply(null,json.x)+1) ],
+    //                 title:json.xlabel,
+    //                 showline:true,
+    //                 linecolor: 'black',
+    //                 linewidth: 2,
+    //                 mirror: true
+    //             },
+    //             yaxis: {
+    //                 range: [0,Math.round(Math.max.apply(null,json.y)/100)*100],
+    //                 title:"\u03B4\u0394"+"2".sup()+"21".sub(),showline:true,
+    //                 linecolor: 'black',
+    //                 linewidth: 2,
+    //                 mirror: true
+    //             },
+    //             title:'Sensitivity Graph',
+    //             showlegend:false
+    //         };
+    //         var datasense=[trace1];
+    //         Plotly.restyle('myDiv', datasense, layoutsense); 
 
-        }
-        else if(schemaName === 'k-vs-redshift-plot')//logic for heatmap
-        {
-            var datak=[];
-            for(let i=0;i<json.x.length;i++)
-            {
-                datak.push({
-                    x:json.x[i],
-                    y:json.y[i],
-                    mode:'markers',
-                    type:'histogram2d',
-                    colorscale : [['0' , 'rgb(0,225,100)'],['1', 'rgb(100,0,200)']],
-                });
-            }
-            var layoutshift = {
-                xaxis: {
-                    showgrid:true,
-                    showline:true,
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true,
-                    title:json.xlabel    
-                },
-                yaxis: {
-                    showgrid:true,
-                    showline:true,
-                    linecolor: 'black',
-                    linewidth: 2,
-                    mirror: true,
-                    title:json.ylabel
-                },
-                title:'Heatmap Graph',
-                showlegend:false
-            };
-            Plotly.newPlot('myDiv', datak, layoutshift)
-        
+    //     }
+    //     else if(schemaName === 'k-vs-redshift-plot')//logic for heatmap
+    //     {
+    //         var datak=[];
+    //         for(let i=0;i<json.x.length;i++)
+    //         {
+    //             datak.push({
+    //                 x:json.x[i],
+    //                 y:json.y[i],
+    //                 mode:'markers',
+    //                 type:'histogram2d',
+    //                 colorscale : [['0' , 'rgb(0,225,100)'],['1', 'rgb(100,0,200)']],
+    //             });
+    //         }
+    //         var layoutshift = {
+    //             xaxis: {
+    //                 showgrid:true,
+    //                 showline:true,
+    //                 linecolor: 'black',
+    //                 linewidth: 2,
+    //                 mirror: true,
+    //                 title:json.xlabel    
+    //             },
+    //             yaxis: {
+    //                 showgrid:true,
+    //                 showline:true,
+    //                 linecolor: 'black',
+    //                 linewidth: 2,
+    //                 mirror: true,
+    //                 title:json.ylabel
+    //             },
+    //             title:'Heatmap Graph',
+    //             showlegend:false
+    //         };
+    //         Plotly.restyle('myDiv', datak, layoutshift)
+    
+    //     }
+    //   });
 
-        }
-      });
-
-      return (
-        <div id="myDiv">
-        </div>,
-        
-          Graph={Graph}
-     
-      );
+    //   return (
+    //     <div id="myDiv">
+    //     </div>,
+    //     Graph = {Graph}
+    //   );
               
-    };
-    Graph("calulation", "k-vs-redshift-plot");
-   
+    // };
+    
+    
     return (
         
         <div>
@@ -434,18 +430,17 @@ class The21cmSense extends React.Component {
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
                     />  */}
+                      <div>
+                      {[Graph("calculation", "baselines-distributions")]}
 
-                  {/* <div id="myDiv">
-                      {/* </div>
-                          {/* Graph={Graph} */}
-                          {/* <Plot 
-                            Graph={Graph}
-                          /> */}
+                      {/* Plotly.restyle(Graph("calculation", "k-vs-redshift-plot")) */}
+                      {/* <Plot 
+                      {[Graph("calculation", "k-vs-redshift-plot")]}
+                      /> */}
 
-                  {/* <div id="myDiv">
-                      Graph={Graph}
-                  </div> */}
-
+                      </div>
+                    
+                    
                     <div> 
                     </div>
                     
