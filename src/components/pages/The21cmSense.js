@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
 import styled from "styled-components";
 // import Plot from 'react-plotly.js';
 // import Plotly from 'plotly.js-dist';
-// import { Graph } from './Graph.js';
+import { Graph } from './Graph.js';
 
 //import '../../Graph.js';
 
@@ -432,10 +432,10 @@ class The21cmSense extends React.Component {
                     />  */}
 
 
-                      {/* <div>
+                      <div>
                       {[Graph("calculation", "baselines-distributions")]}
 
-                      </div> */}
+                      </div>
                     
                     
                     <div> 
