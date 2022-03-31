@@ -9,7 +9,7 @@ import { saveAs } from "file-saver";
 import styled from "styled-components";
 // import Plot from 'react-plotly.js';
 // import Plotly from 'plotly.js-dist';
-import { Graph } from './Graph.js';
+// import { Graph } from './Graph.js';
 
 //import '../../Graph.js';
 
@@ -430,15 +430,12 @@ class The21cmSense extends React.Component {
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
                     />  */}
-                      <div>
+
+
+                      {/* <div>
                       {[Graph("calculation", "baselines-distributions")]}
 
-                      {/* Plotly.restyle(Graph("calculation", "k-vs-redshift-plot")) */}
-                      {/* <Plot 
-                      {[Graph("calculation", "k-vs-redshift-plot")]}
-                      /> */}
-
-                      </div>
+                      </div> */}
                     
                     
                     <div> 
