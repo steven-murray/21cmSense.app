@@ -1,0 +1,38 @@
+{
+  "__comment__": "this is an extension of the JSON schema document and includes 'default' specifier",
+  "schema": "Observatory",
+  "description": "Observatory optional parameters",
+  "group": "observatory",
+  "data": {
+    "observatory": {
+      "trcv": {
+        "type": "number",
+        "help": "Receiver temperature",
+        "minimum": 0
+      },
+      "min_antpos": {
+        "type": "number",
+        "help": "The minimum radial distance to include antennas (from the origin of the array)",
+        "minimum": 0
+      },
+      "max_antpos": {
+        "type": "number",
+        "help": "The maximum radial distance to include antennas (from the origin of the array)",
+        "minimum": 0
+      }
+    }
+  },
+  "units": {
+    "observatory": {
+      "trcv": {
+        "type": "string",
+        "default": "mK",
+        "enum": [
+          "mK",
+          "K",
+          "C"
+        ]
+      }
+    }
+  }
+}
