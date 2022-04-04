@@ -86,12 +86,12 @@ def cached_sensitivity(json_pickle):
     # observatory is an optional schema.  If it's not provided, use a default
 
     # TODO: integrate this
-    observatory_obj=ObservatoryFactory().get(thejson['data']['observatory']['schema'])
+    # observatory_obj=ObservatoryFactory().get(thejson['data']['observatory']['schema'])
     obs = Observatory(antpos=a, beam=b, latitude=lat)
 
     # TODO: integrate this
     # observation is an optional schema.  If it's not provided, use a default
-    observation_obj=ObservationFactory().get(thejson['data']['observation']['schema'])
+    # observation_obj=ObservationFactory().get(thejson['data']['observation']['schema'])
     sensitivity = PowerSpectrum(observation=Observation(observatory=obs))
 
     # sensitivity = PowerSpectrum(

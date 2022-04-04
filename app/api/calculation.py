@@ -1,5 +1,6 @@
 from flask import jsonify
 
+from py21cmsense import PowerSpectrum
 from .factorymanager import FactoryManager
 from .constants import *
 from .models import add_calculation_type, add_hash
@@ -159,6 +160,7 @@ class CalculationFactory(FactoryManager):
         labels = {"xlabel": "m", "ylabel": "m", "xscale": "log", "yscale": "log"}
 
         sensitivity = get_sensitivity(thejson)
+        print("sensitivity type=", type(sensitivity))
         observatory = sensitivity.observation.observatory
 
         (xseries, yseries) = filter_infinity(observatory.antpos[:, 0], observatory.antpos[:, 1])
