@@ -282,7 +282,7 @@ export function Graph (group,schemaName)  {
 
     var data=[]
     var layout = []
-    let json;
+    // var json;
     return (
     //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
 
@@ -292,12 +292,13 @@ export function Graph (group,schemaName)  {
     fetch('http://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
     .then((jsonplot) => {
 
-        json=jsonplot;
+        var json=jsonplot;
     //json=u;
     //   if(schemaName === "baselines-distributions")
     //   {
 
         console.log(jsonplot.json())
+
         for(let i=0;i<json.x.length;i++)
         {
             data.push({
@@ -345,6 +346,7 @@ export function Graph (group,schemaName)  {
             showlegend:false
         };
         Plotly.restyle('myDiv', data, layout);
+
     // }
 
     //   else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
@@ -420,11 +422,9 @@ export function Graph (group,schemaName)  {
     }
     ),
 
+         
 
-    //   <div id="myDiv">
-
-    //   </div>,
-    //   Graph = {Graph}
+      
 
 
         /* <Plot data={data} layout={layout}/>
@@ -437,18 +437,20 @@ export function Graph (group,schemaName)  {
             );
         })}  */
         // Plotly.newPlot('myDiv', data, layout)
+
+        //FAKE PLOT TESTING
         <Plot
-                  data={[
-                    {
-                      x: [1, 2, 3],
-                      y: [2, 6, 3],
-                      type: 'scatter',
-                      mode: 'lines+markers',
-                      marker: {color: 'red'},
-                    },
-                    {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-                  ]}
-                  layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
+            data={[
+            {
+                x: [1, 2, 3],
+                y: [2, 6, 3],
+                type: 'scatter',
+                mode: 'lines+markers',
+                marker: {color: 'red'},
+            },
+            {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
+            ]}
+            layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
         /> 
         // <div>
         // <Plot 
