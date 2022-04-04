@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker run -d --restart unless-stopped -p8081:80 p43:latest
+docker run -d --restart unless-stopped -p8081:80 -p8082:443 p43:latest
