@@ -59,7 +59,7 @@ fi
 echo "$HOSTNAME" > $DIR/server-hostname
 
 # fix up hostname in nginx configuration file
-sed -i -e 's/${SERVER_HOSTNAME}/'"`cat ${DIR}/server-hostname`"'/' ${DIR}/nginx.conf
+sed -i "" -e 's/${SERVER_HOSTNAME}/'"`cat ${DIR}/server-hostname`"'/' ${DIR}/nginx.conf
 
 #echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
 
