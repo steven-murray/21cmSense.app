@@ -2,7 +2,6 @@
 # models.py
 #
 import pickle
-from abc import abstractmethod
 from hashlib import md5
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
@@ -10,27 +9,13 @@ from astropy import units
 # from .calculation import CalculationFactory
 from .constants import *
 from .factorymanager import FactoryManager
+from .dispatcher import Dispatcher
 from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
 
 
-class Hera:
-    pass
 
-
-class Dispatcher:
-    """The Dispatcher class simplifies the handling of data and unit data in a json object
-
-    """
-
-    def __init__(self, data_json, units_json):
-        self.data_json = data_json
-        self.units_json = units_json
-
-    @abstractmethod
-    def get(self):
-        pass
 
 
 def hash_json(thejson):
@@ -92,6 +77,7 @@ def add_calculation_type(thejson, d: dict):
     """
     d[KW_CALCULATION] = thejson[KW_CALCULATION]
     return d
+
 
 
 class LocationFactory(FactoryManager):

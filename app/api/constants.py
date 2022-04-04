@@ -2,17 +2,17 @@
 KW_CALCULATION = 'calculation'
 KW_ERROR = 'error'
 
-TAG_MODEL = 'model'
-TAG_ANTPOS = 'antpos'
-
-KW_DATA = 'data'
-KW_MODELID = 'modelid'
-KW_MODELNAME = 'modelname'
-
-KW_NAME = 'name'
-
-KW_ANTPOSID = 'antposid'
-KW_ANTPOSNAME = 'antposname'
+# TAG_MODEL = 'model'
+# TAG_ANTPOS = 'antpos'
+#
+# KW_DATA = 'data'
+# KW_MODELID = 'modelid'
+# KW_MODELNAME = 'modelname'
+#
+# KW_NAME = 'name'
+#
+# KW_ANTPOSID = 'antposid'
+# KW_ANTPOSNAME = 'antposname'
 
 # relative path of schema directory
 SCHEMA_REL_DIR = 'app/static/'

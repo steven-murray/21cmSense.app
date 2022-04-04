@@ -1,5 +1,6 @@
 from flask import jsonify
 
+from py21cmsense import PowerSpectrum
 from .factorymanager import FactoryManager
 from .constants import *
 from .models import add_calculation_type, add_hash
