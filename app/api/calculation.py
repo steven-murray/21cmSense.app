@@ -160,7 +160,6 @@ class CalculationFactory(FactoryManager):
         labels = {"xlabel": "m", "ylabel": "m", "xscale": "log", "yscale": "log"}
 
         sensitivity = get_sensitivity(thejson)
-        print("sensitivity type=", type(sensitivity))
         observatory = sensitivity.observation.observatory
 
         (xseries, yseries) = filter_infinity(observatory.antpos[:, 0], observatory.antpos[:, 1])
