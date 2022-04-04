@@ -1,4 +1,5 @@
-import React, {Component} from 'react';
+// import React, {Component} from 'react';
+import React from 'react';
 //import '/App.css';
 import Plot from 'react-plotly.js';
 import Plotly from 'plotly.js-dist';

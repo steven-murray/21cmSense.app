@@ -7,12 +7,11 @@ import { Link } from 'react-router-dom';
 import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
-import { Plot } from 'react-plotly.js';
+// import Plot from 'react-plotly.js';
 // import Plotly from 'plotly.js-dist';
-import './Graph.js';
-// import { Graph } from 'Graph';
+import { Graph } from './Graph.js';
 
-// import '../../Graph.js';
+//import '../../Graph.js';
 
 /**Reference for graph devolopment DELETE ONCE COMPLETED
  * 1D cut of 2D Sensitivity = Line graph
@@ -204,70 +203,6 @@ class The21cmSense extends React.Component {
 		    fetch('http://galileo.sese.asu.edu:8082/api-1.0/users/'+this.state.user+'/models/' + mid, req)
 				.then(response => {window.location.reload()});
 	}
-
-  generateGraph(group, schemaName){
-    // fetch('http://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
-    // .then((jsonplot) => {
-        // for(let i=0;i<jsonplot.x.length;i++) {
-            var data = ({
-                // x:jsonplot.x[i],
-                // y:jsonplot.y[i],
-                x: [1,2,3],
-                y: [1,2,3],
-                mode:'markers',
-                type:'scatter',
-                marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
-            });
-                
-        //}
-        var Xmax=[];
-        var Xmin=[];
-        var Ymax=[];
-        var Ymin=[];
-        // jsonplot.x.forEach(x=>{
-        //     Xmax.push(Math.max.apply(null,x));
-        //     Xmin.push(Math.min.apply(null,x));
-        // });
-        // jsonplot.y.forEach(x=>{
-        //     Ymax.push(Math.max.apply(null,x));
-        //     Ymin.push(Math.min.apply(null,x));
-        // });
-        var layout = {
-            xaxis: {
-                range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
-                showgrid:false,
-                showline:true,
-                linecolor: 'black',
-                linewidth: 2,
-                mirror: true,
-                zeroline:false,
-                // title:jsonplot.xlabel    
-                title:"x Label"
-            },
-            yaxis: {
-                range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
-                showgrid:false,
-                showline:true,
-                zeroline:false, 
-                linecolor: 'black',
-                linewidth: 2,
-                mirror: true,
-                // title:jsonplot.ylabel
-                title:"y label"
-            },
-            title:'BaseLine Graph',
-            showlegend:false
-        };
-      
-        Plot.newPlot( data, layout)
-            //     this.setState({
-    //         data: json.models,
-    //         layout: json.layout
-    //     });   console.log(json);
-    // })
-
-// })
-}
 
   render() {
 	
@@ -495,9 +430,11 @@ class The21cmSense extends React.Component {
                       ]}
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
                     />  */}
+
+
                       <div>
                       {[Graph("calculation", "baselines-distributions")]}
-        
+
                       </div>
                     
                     
