@@ -1,9 +1,7 @@
 #
 # models.py
 #
-import functools
 import pickle
-from abc import abstractmethod
 from hashlib import md5
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
@@ -11,67 +9,13 @@ from astropy import units
 # from .calculation import CalculationFactory
 from .constants import *
 from .factorymanager import FactoryManager
+from .dispatcher import Dispatcher
 from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
 
 
-class Hera:
-    pass
 
-
-class Dispatcher:
-    """The Dispatcher class simplifies the handling of data and unit data in a json object
-
-    """
-
-    def __init__(self, data_json, units_json):
-        self.data_json = data_json
-        self.units_json = units_json
-
-    @abstractmethod
-    def get(self):
-        pass
-
-
-## 2022-03-08 moved to BeamDispatcher class
-class GaussianBeamDispatcher(Dispatcher):
-    """
-    Makes a py21cmSense library call to the GaussianBeam class
-    """
-
-    def get(self):
-        # TODO - add error checking on units
-        # return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit("MHz"),
-        #                     dish_size=self.data_json['dish_size'] * units.Unit("m"))
-        return GaussianBeam(frequency=self.data_json['frequency'] * units.Unit(self.units_json['frequency']),
-                            dish_size=self.data_json['dish_size'] * units.Unit(self.units_json['dish_size']))
-
-
-## 2022-03-08 moved to LocationDispatcher class
-class LatitudeDispatcher(Dispatcher):
-    """Handles latitude
-
-    """
-
-    def get(self):
-        return self.data_json['latitude'] * units.Unit(self.units_json['latitude'])
-
-
-## 2022-03-08 moved to AntennaDispatcher class
-class HeraAntennaDispatcher(Dispatcher):
-    """makes a py21cmSense call to the hera antenna class
-    """
-
-    def get(self):
-        j = self.data_json
-        u = self.units_json
-
-        # TODO - error checking on units
-        # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
-        #             dl=j['separation'] * units.Unit("m"))
-        return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
-                    dl=j['dl'] * units.Unit(u['dl']))
 
 
 def hash_json(thejson):
@@ -135,6 +79,7 @@ def add_calculation_type(thejson, d: dict):
     return d
 
 
+
 class LocationFactory(FactoryManager):
     def __init__(self):
         super().__init__("location")
@@ -173,6 +118,11 @@ class AntennaFactory(FactoryManager):
         # self.add('ahera', HeraAntennaDispatcher)
         # print("ANTENNA DICT=",self.d)
 
+    class _custom(Dispatcher):
+        """Allows the use of user-supplied antenna position data
+        """
+        pass
+
     class _hera(Dispatcher):
         """makes a py21cmSense call to the hera antenna class
         """
@@ -184,48 +134,7 @@ class AntennaFactory(FactoryManager):
             # TODO - error checking on units
             # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
             #             dl=j['separation'] * units.Unit("m"))
+
             return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
                         dl=j['dl'] * units.Unit(u['dl']))
 
-
-class Factory:
-    def get_antenna_type(self, thejson):
-        return thejson['schema']
-
-    def get_beam_type(self, thejson):
-        return thejson['data']['beam']['class']
-
-    def go(self, thejson):
-        #        beamtype=
-        #        beam=BeamFactory()
-        print("in go, processing the following JSON: ", thejson)
-        print("got json: ", thejson['schema'])
-        for fld in ('antenna', 'beam', 'location'):
-            print("%s data: " % fld, thejson['data'][fld])
-            print("%s units: " % fld, thejson['units'][fld])
-            print("antenna type: ", self.get_antenna_type(thejson))
-            print("beam type: ", self.get_beam_type(thejson))
-
-        antenna_obj = AntennaFactory().get(self.get_antenna_type(thejson))
-        beam_obj = BeamFactory().get(self.get_beam_type(thejson))
-        print("antenna obj=", antenna_obj)
-        print("beam_obj=", beam_obj)
-
-        calculation_obj = CalculationFactory().get(self.get_cal)
-
-        antenna = antenna_obj(thejson['data']['antenna'], thejson['units']['antenna'])
-        beam = beam_obj(thejson['data']['beam'], thejson['units']['beam'])
-
-        sensitivity = PowerSpectrum(
-            observation=Observation(
-                observatory=Observatory(
-                    antpos=antenna.get(), beam=beam.get(),
-                    # antpos=hera(hex_num=7, separation=14, dl=12.12, units="m"),
-                    # beam=GaussianBeam(frequency=135.0, dish_size=14),
-                    # latitude=38 * np.pi / 180.0
-                    latitude=thejson['data']['location']['latitude']
-                )
-            )
-        )
-
-        return sensitivity

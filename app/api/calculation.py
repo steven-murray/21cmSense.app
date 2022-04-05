@@ -1,11 +1,12 @@
 from flask import jsonify
 
+from py21cmsense import PowerSpectrum
 from .factorymanager import FactoryManager
 from .constants import *
 from .models import add_calculation_type, add_hash
 from .schema import Validator
 from .sensitivity import get_sensitivity
-from .util import filter_infinity
+from .util import filter_infinity, quantity_list_to_scalar
 
 
 def calculate(thejson):
@@ -23,13 +24,17 @@ def calculate(thejson):
 
     """
     v = Validator(thejson)
+
+    # check for top level groups, e.g., calculation, data, and units.
     if not v.valid_groups():
-        return {"error":"Invalid JSON schema", "errormsg":v.errorMsg}, HTTP_BAD_REQUEST
+        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
     else:
         print("JSON SCHEMA VALIDATED")
 
-    if KW_CALCULATION not in thejson:
-        return jsonify(error="Calculation type not provided")
+    if not v.valid_sections():
+        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
+    else:
+        print("JSON SCHEMA VALIDATED")
 
     print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
 
@@ -86,22 +91,6 @@ class CalculationFactory(FactoryManager):
         d.update(labels)
         return d
 
-    # prototype debugging output
-    # print(pprint.pprint(d))
-    #
-    # print("Astropy quantity breakdown:")
-    # print("type of k1d=", type(sensitivity.k1d))
-    # print("value=", sensitivity.k1d.value)
-    # print("unit=", sensitivity.k1d.unit)
-    #
-    # print("type of power=", type(power_std))
-    # print("value=", power_std.value)
-    # print("unit=", power_std.unit)
-
-    # add_hash(thejson, d)
-    # return jsonify(d)
-    # return jsonify({"a": "b"})
-
     def _1D_noise_cut_of_2D_sensitivity(self, thejson):
         """_1D_noise_cut_of_2D_sensitivity includes thermal noise without sample variance
 
@@ -118,8 +107,6 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
         d.update(labels)
-        # add_hash(thejson, d)
-        # return jsonify(d)
         return d
 
     def _1D_sample_variance_cut_of_2D_sensitivity(self, thejson):
@@ -222,45 +209,11 @@ class CalculationFactory(FactoryManager):
         observatory = sensitivity.observation.observatory
         baselines = observatory.baselines_metres
 
-        # print("baselines_distributions=", baselines[:, :, 0])
-        # l = baselines[:, :, 0]
-        # print("type l=", type(l))
-        # print(l)
-        # print("l dim=",l.ndim)
-        # for q in l:
-        #     for qq in q:
-        #         print("type=",type(qq))
-        # print("value=",l.value)
-        # print("value.tolist()=",l.value.tolist())
-        # print("l.tolist()=", l.tolist())
-        # print("list(l)=",list(l))
-        # return jsonify({"none": "none"})
-
         labels = {"xlabel": "Baseline Length [x, m]", "ylabel": r"Baselines Length [y, m]", "alpha": 0.1}
         d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
              "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
         d.update(labels)
-        # add_hash(thejson, d)
-        #
-        # print("d=", d)
-
-        # return jsonify(d)
         return d
-        # baseline_group_coords = observatory.baseline_coords_from_groups(red_bl)
-        # baseline_group_counts = observatory.baseline_weights_from_groups(red_bl)
-        #
-        # plt.figure(figsize=(7, 5))
-        # plt.scatter(baseline_group_coords[:, 0], baseline_group_coords[:, 1], c=baseline_group_counts)
-        # cbar = plt.colorbar();
-        # cbar.set_label("Number of baselines in group", fontsize=15)
-        # plt.tight_layout();
-
-    # def baselines_distributions(thejson):
-    #     sensitivity = get_sensitivity(thejson)
-    #     coherent_grid = observatory.grid_baselines_coherent(
-    #         baselines=baseline_group_coords,
-    #         weights=baseline_group_counts
-    #     )
 
     def _uv_grid_sampling(self, thejson):
         """Return UV grid sampling data
