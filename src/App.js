@@ -1,8 +1,5 @@
 import React from "react"
 import Navbar from './components/Navbar';
-import Home from './components/pages/Home';
-import DynamicForm from './components/pages/DynamicForm';
-import PrintPage from "./components/pages/PrintPage";
 import The21cmSense from "./components/pages/The21cmSense";
 import createModel from "./components/pages/createModel";
 import EditModel from "./components/pages/EditModel";
@@ -19,10 +16,7 @@ function App() {
         <Switch>
           <Route path='/' exact component={The21cmSense} />
           <Route path='/The21cmSense' component={The21cmSense} />
-          <Route path='/DynamicForm' component={DynamicForm} />
-		  <Route path='/PrintPage' component={PrintPage} />
-          <Route path='/Home' component={Home} />
-		  <Route path='/createModel' component={createModel} />
+          <Route path='/createModel' component={createModel} />
 		  <Route path='/EditModel' component={EditModel} />  
         </Switch>
       </Router>
