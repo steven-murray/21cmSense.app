@@ -289,7 +289,7 @@ export function Graph (group,schemaName)  {
     // fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
     // }).then((function(u) {
 
-    fetch('http://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    fetch('https://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
     .then((jsonplot) => {
 
         var json=jsonplot;
