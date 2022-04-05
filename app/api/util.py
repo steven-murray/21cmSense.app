@@ -1,5 +1,4 @@
 import numpy
-import csv
 
 
 class DebugPrint:
@@ -65,7 +64,3 @@ def quantity_list_to_scalar(l: list):
         newl.append(t.value)
     return newl
 
-
-def import_csv(csv: str)-> dict:
-
-    pass

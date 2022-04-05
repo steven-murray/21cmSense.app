@@ -1,67 +1,50 @@
 {
-  "$schema": "http://json-schema.org/schema#",
-  "type": "object",
-  "properties": {
-
-    "data": {
-      "type": "object",
-      "properties": {
-        "schema": {
-          "type": "string"
-        },
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "hex_num": {
-              "type": "integer"
-            },
-            "separation": {
-              "type": "number"
-            },
-            "dl": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "schema",
-            "dl",
-            "hex_num",
-            "separation"
-          ]
-        }
+  "__comment__": "string",
+  "schema": "hera",
+  "data": {
+    "antenna": {
+      "hex_num": {
+        "type": "integer",
+        "minimum": 3
+      },
+      "separation": {
+        "type": "number",
+        "minimum": 0
+      },
+      "dl": {
+        "type": "float",
+        "minimum": 0
       },
       "required": [
-        "antenna"
-      ]
-    },
-    "units": {
-      "type": "object",
-      "properties": {
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "separation": {
-              "type": "string"
-            },
-            "dl": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "dl",
-            "separation"
-          ]
-        }
-      },
-      "required": [
-        "antenna"
+        "hex_num",
+        "separation",
+        "dl"
       ]
     }
-
   },
-  "required": [
-    "data",
-    "units"
-  ]
-
+  "units": {
+    "antenna": {
+      "separation": {
+        "type": "string",
+        "enum": [
+          "m",
+          "s"
+        ]
+      },
+      "dl": {
+        "type": "string",
+        "enum": [
+          "m",
+          "s"
+        ]
+      },
+      "required": [
+        "separation",
+        "dl"
+      ]
+    }
+  }
 }
+
+
+

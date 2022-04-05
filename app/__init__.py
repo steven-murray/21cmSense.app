@@ -6,7 +6,7 @@ from flask_cors import CORS
 def register_errorhandlers(app):
     @app.errorhandler(404)
     def _handle_api_error(ex):
-        if request.path.startswith('/api-1.0'):
+        if request.path.startswith('/api'):
             return render_template('json_404.html'), 404
         else:
             return render_template('404.html'), 404
