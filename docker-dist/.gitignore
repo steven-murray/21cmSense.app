@@ -1,0 +1,11 @@
+key-based-build/docker-run-app.sh
+key-based-build/nginx.conf
+key-based-build/nginx-selfsigned-ssl.conf
+key-based-build/openssl.cnf
+key-based-build/server-hostname
+
+public-build/docker-run-app.sh
+public-build/nginx.conf
+public-build/nginx-selfsigned-ssl.conf
+public-build/openssl.cnf
+public-build/server-hostname
