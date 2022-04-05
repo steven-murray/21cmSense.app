@@ -1,15 +1,11 @@
-import functools
-
 from astropy.units import UnitConversionError
 
 from .models import *
 from .models import AntennaFactory
-from .observation import ObservationFactory
-from .observatory import ObservatoryFactory
 
 
 # serialize the json to a hashable form for LRU caching
-def get_sensitivity(thejson) -> PowerSpectrum:
+def get_sensitivity(thejson):
     """serialize json to a hashable form for LRU caching and call method that does the actual work
 
     Parameters
@@ -72,7 +68,6 @@ def cached_sensitivity(json_pickle):
     except Exception as e:
         raise Exception("Unknown error on antenna object") from e
 
-    # TODO: check these exceptions
     try:
         b = beam.get()
     except Exception as e:
@@ -83,24 +78,17 @@ def cached_sensitivity(json_pickle):
         pass
 
     # t = 400 * units.K
-    # observatory is an optional schema.  If it's not provided, use a default
-
-    # TODO: integrate this
-    # observatory_obj=ObservatoryFactory().get(thejson['data']['observatory']['schema'])
     obs = Observatory(antpos=a, beam=b, latitude=lat)
 
-    # TODO: integrate this
-    # observation is an optional schema.  If it's not provided, use a default
-    # observation_obj=ObservationFactory().get(thejson['data']['observation']['schema'])
-    sensitivity = PowerSpectrum(observation=Observation(observatory=obs))
+    sensitivity=PowerSpectrum(observation=Observation(observatory=obs))
 
     # sensitivity = PowerSpectrum(
     #     observation=Observation(
     #         observatory=Observatory(
     #             antpos=antenna.get(), beam=beam.get(),
     #             TODO - add in units
-    # latitude=thejson['data']['location']['latitude'] * units.rad
-    # )
-    # )
+                # latitude=thejson['data']['location']['latitude'] * units.rad
+            # )
+        # )
     # )
     return sensitivity

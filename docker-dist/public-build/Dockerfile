@@ -11,13 +11,6 @@ RUN apt-get update -y && \
     apt install -y netcat && \
     apt install -y redis
 
-# set up self-signed certificate for nginx
-COPY openssl.cnf /tmp
-COPY nginx-selfsigned-ssl.conf /etc/nginx/snippets
-RUN openssl req -x509 -nodes -days 1825 -newkey rsa:2048 -config /tmp/openssl.cnf -keyout /etc/ssl/private/nginx.key -out /etc/ssl/certs/nginx.crt
-
-# this step takes a very long time; only use when you're ready for a production image
-#RUN openssl dhparam -out /etc/nginx/dhparam.pem 4096
 
 COPY nginx.conf /etc/nginx/sites-available/p43_nginx
 RUN rm -f /etc/nginx/sites-enabled/default && \
@@ -39,7 +32,7 @@ RUN cd SER401-Project43 && \
 WORKDIR /home/app/SER401-Project43
 RUN git clone https://github.com/steven-murray/21cmSense && \
     cd 21cmSense && \
-    pip install . && \
+    python ./setup.py install && \
     cd ..
 
 

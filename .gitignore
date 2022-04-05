@@ -162,7 +162,7 @@ yarn.lock
 
 .vscode
 
-redis-stable
+redis*
 
 
 package.json

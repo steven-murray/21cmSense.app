@@ -27,15 +27,7 @@ with a user-friendly interface on the front end and API-driven integration with 
 		https://tree.taiga.io/project/lclindbe-team43/backlog
 		
 ## Pre-requisite
-
-** clone repo**
-git clone git@github.com:bpape1usa/SER401-Project43.git
-
 **python-3.10**
-
-**venv virtual environment**
-python3 -m venv venv
-source venv/bin/activate
 
 **21cmSense**
 		proven Python code that generates estimates of the sensitivity of different radio telescope configurations to signals coming from the very early Universe.
