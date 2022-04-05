@@ -87,7 +87,7 @@ class The21cmSense extends React.Component {
 	  }
 
 	  getmodels(uid){
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+            fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -110,7 +110,7 @@ class The21cmSense extends React.Component {
 	        method: 'DELETE'
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
+		    fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+this.state.user+'/models/' + mid, req)
 				.then(response => {window.location.reload()});
 	}
 
