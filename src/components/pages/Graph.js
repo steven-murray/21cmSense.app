@@ -3,6 +3,9 @@ import React from 'react';
 //import '/App.css';
 import Plot from 'react-plotly.js';
 import Plotly from 'plotly.js-dist';
+import { withCookies, Cookies } from "react-cookie";
+import { instanceOf } from "prop-types";
+
 // import createPlotlyComponent from "react-plotly.js/factory";
 
 // export function Graph (group,schemaName)  {
@@ -273,15 +276,28 @@ import Plotly from 'plotly.js-dist';
 
 // }
 
+
+function getmodels(uid){
+    fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models')
+              .then((res) => res.json())
+              .then((json) => {
+                  this.setState({
+                      _models: json.models
+                  });  console.log(json);
+              })		
+};
 // export default Graph;
+var data = []
+var layout = []
+var uuid = this.props.cookies.get("user")
+var model = getmodels(uuid)
+console.log(model)
+console.log(uuid)
 
+export function Graph (group, schemaName)  {
+    console.log(model)
+    console.log(uuid)
 
-
-export function Graph (group,schemaName)  {
-
-
-    var data=[]
-    var layout = []
     // var json;
     return (
     //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
@@ -289,15 +305,24 @@ export function Graph (group,schemaName)  {
     // fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
     // }).then((function(u) {
 
-    fetch('https://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    // fetch('https://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    // .then((jsonplot) => {
+    //     requiredInfo = jsonplot.required
+    //     // console.log(jsonplot)
+    //     // console.log(requiredInfo)
+
+    // },
+    fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uuid+'/models/'+model).then((resplot) => resplot.json())
     .then((jsonplot) => {
-
         var json=jsonplot;
+        console.log(jsonplot)
+        console.log(jsonplot.data)
     //json=u;
-    //   if(schemaName === "baselines-distributions")
-    //   {
+      if(schemaName === "baselines-distributions")
+      {
 
-        console.log(jsonplot.json())
+        console.log(jsonplot)
+        console.log(jsonplot.data)
 
         for(let i=0;i<json.x.length;i++)
         {
@@ -347,7 +372,7 @@ export function Graph (group,schemaName)  {
         };
         Plotly.restyle('myDiv', data, layout);
 
-    // }
+    }
 
     //   else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
     //   {            
@@ -422,7 +447,15 @@ export function Graph (group,schemaName)  {
     }
     ),
 
-         
+    //     <Plot
+    //     data={this.state.data}
+    //     layout={this.state.layout}
+    //     frames={this.state.frames}
+    //     config={this.state.config}
+    //     onInitialized={(figure) => this.setState(figure)}
+    //     onUpdate={(figure) => this.setState(figure)}
+    // />
+
 
       
 
@@ -451,7 +484,8 @@ export function Graph (group,schemaName)  {
             {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
             ]}
             layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-        /> 
+         />
+
         // <div>
         // <Plot 
         // data={this.state.data}
@@ -463,7 +497,7 @@ export function Graph (group,schemaName)  {
         //Plotly.newPlot('myDiv', data, layout)
     )
     //);       
-
+    
 };
 
 

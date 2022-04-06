@@ -360,7 +360,10 @@ class The21cmSense extends React.Component {
               
     // };
     
-    
+    const {user}=this.state;
+    var model = this.getmodels({user});
+    console.log({user});
+    console.log(model);
     return (
         
         <div>
@@ -431,10 +434,9 @@ class The21cmSense extends React.Component {
                       layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
                     />  */}
 
-
                       <div>
-                      {[Graph("calculation", "baselines-distributions")]}
-
+                      {[Graph("calculation", "baselines-distributions", this.state.user)]}
+             
                       </div>
                     
                     
