@@ -102,7 +102,7 @@ class EditModel extends React.Component {
 	
 
 	getmodels(uid){
-            fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models')
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -113,7 +113,7 @@ class EditModel extends React.Component {
 	
 	getmodel(uid,mid){
 	
-            fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models/' + mid)
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid)
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -182,11 +182,11 @@ class EditModel extends React.Component {
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
 		}
 	
 	getAntennaData(){
-            fetch("https://galileo.sese.asu.edu:8082/api-1.0/schema/antenna/get/hera")
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -203,7 +203,7 @@ class EditModel extends React.Component {
 	}
 
 	getBeamData(){
-            fetch("https://galileo.sese.asu.edu:8082/api-1.0/schema/beam/get/GaussianBeam")
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/beam/get/GaussianBeam")
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
@@ -221,7 +221,7 @@ class EditModel extends React.Component {
 	}
 	
 	getLocationData(){
-            fetch("https://galileo.sese.asu.edu:8082/api-1.0/schema/location/get/latitude")
+            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/location/get/latitude")
                       .then((resss) => resss.json())
                       .then((jsonss) => {
                           this.setState({
