@@ -140,7 +140,7 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+			  <div   style={{ display: 'inline-block', color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 		      		 {resume}  
 		      </div>	
 			  </Panel>
