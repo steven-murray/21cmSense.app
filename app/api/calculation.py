@@ -71,8 +71,8 @@ def add_calculation_type(thejson, d: dict) -> dict:
     return d
 
 
-def add_plot_type(plottype: str, d: dict) -> dict:
-    d['plot-type'] = plottype
+def add_matplotlib_plot_type(plottype: str, d: dict) -> dict:
+    d['matplotlib-plot-type'] = plottype
     return d
 
 
@@ -156,7 +156,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
         d.update(labels)
-        add_plot_type('line', d)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def _1D_noise_cut_of_2D_sensitivity(self, thejson):
@@ -175,7 +175,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
         d.update(labels)
-        add_plot_type('line', d)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def _1D_sample_variance_cut_of_2D_sensitivity(self, thejson):
@@ -192,7 +192,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_sample.unit.to_string()}
         d.update(labels)
-        add_plot_type('line', d)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def two_d_sens(self, thejson):
@@ -213,7 +213,7 @@ class CalculationFactory(FactoryManager):
 
         d = {"x": x, "y": y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
         d.update(labels)
-        add_plot_type('pcolormesh', d)
+        add_matplotlib_plot_type('pcolormesh', d)
         return d
 
         #
@@ -247,7 +247,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": xunit, "yunit": yunit}
         d.update(labels)
-        add_plot_type('scatter', d)
+        add_matplotlib_plot_type('scatter', d)
         return d
 
     # baselines_distributions= [[[   0.    0.    0.]
@@ -285,7 +285,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
              "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
         d.update(labels)
-        add_plot_type('hist', d)
+        add_matplotlib_plot_type('hist', d)
         return d
 
     def _uv_grid_sampling(self, thejson):
@@ -301,5 +301,5 @@ class CalculationFactory(FactoryManager):
         x = observation.uv_coverage.tolist()
         d = {"x": x, "xunit": ""}
         d.update(labels)
-        add_plot_type('imshow', d)
+        add_matplotlib_plot_type('imshow', d)
         return d
