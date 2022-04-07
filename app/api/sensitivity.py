@@ -1,4 +1,5 @@
 import functools
+import pickle
 
 from astropy.units import UnitConversionError
 
