@@ -129,9 +129,7 @@ class The21cmSense extends React.Component {
     });
     return (
         <div>
-            <div style={{
-              display: 'inline-block', width: 700, paddingLeft: 35
-            }}>
+            <div className = "modelStyle">
               <br></br> 
               <Panel  shaded >
               <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model <GiInfo title = "create,edit, or delete"/> </label>
@@ -140,7 +138,7 @@ class The21cmSense extends React.Component {
                 </Link>
               <br></br><br></br>
                 No models created yet. Please click "New Model"<br></br><br></br>
-			  <div   style={{ display: 'inline-block', color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
 		      		 {resume}  
 		      </div>	
 			  </Panel>

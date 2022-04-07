@@ -249,7 +249,7 @@ render() {
 		
 	  return (
 	
-		 <div style={{display: 'inline-block', width: 900, paddingLeft: 30 }}>
+		 <div style={{display: 'block', width: 900, paddingLeft: 30 }}>
 			<br></br><br></br>
 			<form onSubmit={this.handleOnSubmit} >
       		<Panel header = 'ANTENNA' shaded style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>		
