@@ -74,7 +74,9 @@ class The21cmSense extends React.Component {
 			selectOptions: [],
 	     	user:this.props.cookies.get("user") || "",
 			LatitudeUnits: '',
-			_models:[]
+			_models:[],
+			calc:[],
+			pmodel : []
 	    }
 	  }
 	  
@@ -83,7 +85,14 @@ class The21cmSense extends React.Component {
 		if(user !== ""){
 		this.getmodels(user);
 		}
-		
+		this.createArrayofmodel();
+		 fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/calculation")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    calc: json
+                });
+            })
 	  }
 
 	  getmodels(uid){
@@ -92,9 +101,17 @@ class The21cmSense extends React.Component {
                       .then((json) => {
                           this.setState({
                               _models: json.models
-                          });  console.log(json);
+                          });  
                       })		
 	  };
+
+	createArrayofmodel(){
+		for(var i=0; i<this.state._models; i++){
+			
+			//this.setState({this.state.pmodel.push(this.state._models.modelname)});
+		console.log(this.state._models[i].modelname);	
+		}
+	}
 	
 	handleOnSubmit = (event) => {
 		// event.preventDefault();	
@@ -116,7 +133,8 @@ class The21cmSense extends React.Component {
 
   render() {
 	
-	  const {_models} = this.state	
+	  const {_models} = this.state
+	
 	  const resume = _models.map(dataIn => {
       return (
         <div key={dataIn.modelid}>
@@ -127,7 +145,7 @@ class The21cmSense extends React.Component {
 		  </div>
       );
     });
-    return (
+    return ( 
         <div>
             <div style={{
               display: 'inline-block', width: 700, paddingLeft: 35
@@ -165,7 +183,16 @@ class The21cmSense extends React.Component {
                 <Panel shaded>
                     <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
                     <br></br><br></br>
-                    This is the panel for graph
+                    <label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Calculation </label>           
+	                <select name = "Calculation"  >
+				      {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
+				    </select>
+					<label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Models </label>           
+	                <select name = "models">						
+						 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}						     
+					</select>
+ 					<br></br><br></br>
+				
                 </Panel>
             </div>
 
