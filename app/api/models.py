@@ -1,8 +1,7 @@
 #
 # models.py
 #
-import pickle
-from hashlib import md5
+
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
 from astropy import units
@@ -14,69 +13,6 @@ from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
 
-
-
-
-
-def hash_json(thejson):
-    """create a unique hash from json for fingerprinting / model identification for front end
-
-    Parameters
-    ----------
-    thejson
-       json to hash
-
-    Returns
-    -------
-    String
-        hex-formatted string with digest of input json
-    """
-    hashfunc = md5()
-    hashfunc.update(pickle.dumps(thejson))
-    return hashfunc.hexdigest()
-
-
-def add_hash(thejson, d: dict):
-    """add hash of the supplied json to the dictionary 'd' (to be jsonified for client return)
-
-    Parameters
-    ----------
-    thejson
-        input json to be hashed
-    d
-        dictionary containing json being built for client return
-
-    Returns
-    -------
-    dict
-        updated dictionary with a modelID k/v pair added.
-
-        Format: "modelID": "base64 md5"
-    """
-    d["modelID"] = hash_json(thejson)
-    return d
-
-
-def add_calculation_type(thejson, d: dict):
-    """Add the calculation type requested (and returned)
-
-    Parameters
-    ----------
-    thejson
-        input json containing calculation type
-    d
-        dictionary to add calculation type to
-
-    Returns
-    -------
-    dict
-        updated dictionary with a calculation k/v pair added.
-
-        Format: "calculation": "name_of_calculation"
-
-    """
-    d[KW_CALCULATION] = thejson[KW_CALCULATION]
-    return d
 
 
 
@@ -137,4 +73,3 @@ class AntennaFactory(FactoryManager):
 
             return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
                         dl=j['dl'] * units.Unit(u['dl']))
-

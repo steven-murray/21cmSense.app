@@ -163,29 +163,128 @@ class The21cmSense extends React.Component {
 	    this.state = {
 			selectOptions: [],
 	     	user:this.props.cookies.get("user") || "",
-			LatitudeUnits: '',
-			_models:[]
+			_models:[],
+			calc:[],
+			pmodel : [],
+			
+			HexNumber: '',
+			Separation: '',	
+			DishSize: '',
+			Frequency: '',
+			Latitude: '',
+			SeperationUnits: '',
+			DishSizeUnits: '',
+			FrequencyUnits: '',
+			LatitudeUnits: ''
 	    }
 	  }
 	  
-	  componentDidMount(){	
+	  componentDidMount(){
+		const modelid = 'b5749a3c-d395-427c-8478-0af262cac35a';	
 		const {user}=this.state;
 		if(user !== ""){
 		this.getmodels(user);
+		this.getmodel(user,modelid);
 		}
 		
+		
+
+		 fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/calculation")
+            .then((res) => res.json())
+            .then((json) => {
+                this.setState({
+                    calc: json
+                });
+            })
 	  }
 
 	  getmodels(uid){
-            fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+uid+'/models')
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
                               _models: json.models
-                          });  console.log(json);
+                          });  
                       })		
 	  };
+
+	getmodel(uid,mid){
 	
+            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models/1fd53fc3-7fec-4f37-ba24-8d1ec96103a1')
+                      .then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                            model: json,
+							model_id: mid,
+							modelName: json.modelname,
+							HexNumber: json.data.data.antenna.hex_num,
+							Separation: json.data.data.antenna.separation,	
+							DishSize: json.data.data.beam.dish_size,
+							Frequency: json.data.data.beam.frequency,
+							Latitude: json.data.data.location.latitude,	
+							SeperationUnits: json.data.units.antenna.separation,
+							DishSizeUnits: json.data.units.beam.dish_size,
+							FrequencyUnits: json.data.units.beam.frequency,
+							LatitudeUnits: json.data.units.location.latitude
+                          }); 
+                      })		
+	}
+	
+	generateCalcModel(mid){
+		
+		const ml = 
+					  {
+						  "calculation": "1D-cut-of-2D-sensitivity",
+						  "data":{
+						    "antenna":{
+						      "schema": "hera",
+						      "hex_num": 7,
+						      "separation": 14,
+						      "dl": 12.02
+						    },
+						    "beam":{
+						      "schema":"GaussianBeam",
+						      "frequency": 100,
+						      "dish_size": 14
+						    },
+						    "location":{
+						      "schema": "latitude",
+						      "latitude": 1.382
+						    }
+						  },
+						  "units":{
+						    "antenna":{
+						      "hex_num": "m",
+						      "separation": "m",
+						      "dl": "m"
+						    },
+						    "beam":{
+						      "frequency": "MHz",
+						      "dish_size": "m"
+						    },
+						    "location":{
+						      "latitude": "deg"
+						    }
+						  }
+						}
+				
+		const requestmodel = {
+	        method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(ml)
+			};
+	
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models' + mid, requestmodel)
+					.then((res) => res.json())
+                      .then((json) => {
+                          this.setState({
+                              pmodel: json
+                          }); console.log(json) 
+                      })	
+		console.log(this.state.pmodel);
+	}
+	
+
 	handleOnSubmit = (event) => {
 		// event.preventDefault();	
 			    this.props.history.push({
@@ -200,13 +299,15 @@ class The21cmSense extends React.Component {
 	        method: 'DELETE'
 			};
 	
-		    fetch('https://galileo.sese.asu.edu:8082/api-1.0/users/'+this.state.user+'/models/' + mid, req)
+		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
 				.then(response => {window.location.reload()});
 	}
 
+
   render() {
 	
-	  const {_models} = this.state	
+	  const {_models} = this.state
+	
 	  const resume = _models.map(dataIn => {
       return (
         <div key={dataIn.modelid}>
@@ -366,6 +467,7 @@ class The21cmSense extends React.Component {
     console.log(model);
     return (
         
+  
         <div>
             <div style={{
               display: 'inline-block', width: 700, paddingLeft: 35
@@ -398,52 +500,26 @@ class The21cmSense extends React.Component {
               
             </Panel>
             </div>
-
+			
             <div className = "graph">
+			<form >
                 <Panel shaded>
                     <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
                     <br></br><br></br>
-
-                    <form>
-                        Calculation: <select name = "calculation" id = "calculation">
-                        <option value = "" selected = "selected">1D cut of 2D Sensitivity</option>
-                        <option value = "" selected = "selected">1D Noise of 2D Sensitivity</option>
-                        <option value = "" selected = "selected">1D Noise cut of 2D sensitivity</option>
-                        <option value = "" selected = "selected">1D Sample Variance Cut of 2D Sensitivity</option>
-                        <option value = "" selected = "selected">2D Sensitivity</option>
-                        <option value = "" selected = "selected">2D Sensitivity vs k</option>
-                        <option value = "" selected = "selected">2D Sensitivity vs z</option>
-                        <option value = "" selected = "selected">k vs Redshift Plot</option>
-                        <option value = "" selected = "selected">Antenna Positions</option>
-                        <option value = "" selected = "selected">Baseline Distributions</option>
-                    </select>
-                    </form>
-                    <br></br><br></br>
-  
-                    {/* <Plot
-                      data={[
-                        {
-                          x: [1, 2, 3],
-                          y: [2, 6, 3],
-                          type: 'scatter',
-                          mode: 'lines+markers',
-                          marker: {color: 'red'},
-                        },
-                        {type: 'bar', x: [1, 2, 3], y: [2, 5, 3]},
-                      ]}
-                      layout={ {width: 320, height: 240, title: 'A Fancy Plot'} }
-                    />  */}
-
-                      <div>
-                      {[Graph("calculation", "baselines-distributions", this.state.user)]}
-             
-                      </div>
-                    
-                    
-                    <div> 
-                    </div>
-                    
+					<label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Calculation </label>           
+	                <select name = "Calculation"  >
+				      {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
+				    </select>
+					<label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Models </label>           
+	                <select name = "models">						
+						 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}						     
+					</select>
+ 					<br></br><br></br>
+					<Button  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}} onClick = {this.generateCalcModel.bind(this,'b5749a3c-d395-427c-8478-0af262cac35a')}> Save </Button>		
                 </Panel>
+			
+                    
+			</form>
             </div>
           
         </div>
