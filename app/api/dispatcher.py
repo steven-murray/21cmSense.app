@@ -1,3 +1,13 @@
+#
+# dispatcher.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains a simple class for objects that handle json data and optionally
+# units.
+
 from abc import abstractmethod
 
 

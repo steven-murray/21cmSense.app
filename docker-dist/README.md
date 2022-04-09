@@ -68,3 +68,8 @@ Alternately, you can permanently edit the file `support-files/server-hostname`.
 Please edit the ssl configuration parameters in `support-files/openssl.cnf` for your host prior to
 building an image
 
+#### Credits
+
+Project 43 - Web Application for Radio Astronomy Sensitivity
+Author: Brian Pape
+Revision: 0.1

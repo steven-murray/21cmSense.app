@@ -1,3 +1,15 @@
+#
+# redisfuncs.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains support for a redis database to store model and
+# antenna position data (see API for reference)
+
+import pickle
+
 import redis
 from . import constants
 
@@ -176,3 +188,22 @@ def tag_match(tag: str, key: str) -> bool:
         return True
     else:
         return False
+
+
+
+def get_antpos_json(antposid):
+    if not antpos_exists(antposid):
+        return None, None
+    # request for a antpos. Note we can't use hmget because pickled data cannot automatically
+    # be utf-8 decoded
+    name = rdb.hget(antpos_key(antposid), KW_ANTPOSNAME)
+    data = rpickle.hget(antpos_key(antposid), KW_DATA)
+
+    if data:
+        # recall that json payload is pickled into a string
+        data = pickle.loads(data)
+        return name, data
+    else:
+        return None, None
+
+

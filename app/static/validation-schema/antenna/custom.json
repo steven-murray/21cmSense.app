@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "schema": {
+          "type": "string"
+        },
+        "antenna": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "schema",
+            "id"
+          ]
+        }
+      },
+      "required": [
+        "antenna"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}
