@@ -459,10 +459,7 @@ class The21cmSense extends React.Component {
               
     // };
     
-    const {user}=this.state;
-    var model = this.getmodels({user});
-    console.log({user});
-    console.log(model);
+
     return (
         
   
