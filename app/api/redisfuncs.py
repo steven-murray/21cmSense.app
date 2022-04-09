@@ -1,3 +1,13 @@
+#
+# redisfuncs.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains support for a redis database to store model and
+# antenna position data (see API for reference)
+
 import pickle
 
 import redis

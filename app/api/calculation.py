@@ -1,8 +1,16 @@
+#
+# calculation.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains routines for all supported calculations
+
 from flask import jsonify
 
 import pickle
 from hashlib import md5
-from py21cmsense import PowerSpectrum
 from .exceptions import CalculationException, ValidationException
 from .factorymanager import FactoryManager
 from .constants import *

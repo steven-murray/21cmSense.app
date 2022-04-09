@@ -730,3 +730,9 @@ Plot types:
 
 
 ```
+
+#### Credits
+
+Project 43 - Web Application for Radio Astronomy Sensitivity
+Author: Brian Pape
+Revision: 0.1

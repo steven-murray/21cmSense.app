@@ -1,6 +1,11 @@
 #
 # models.py
 #
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains model control code for location, antenna, and beam objects
 
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera

@@ -1,3 +1,12 @@
+#
+# sensitivity.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains support for calculation and caching of sensitivity objects
+
 import functools
 import pickle
 

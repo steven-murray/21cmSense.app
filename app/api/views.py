@@ -1,6 +1,12 @@
 #
 # views.py
 #
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains Flask RESTful API call (view) support
+
 import csv
 import uuid
 import base64
