@@ -56,7 +56,7 @@
       },
       "coherent": {
         "type": "boolean",
-        "help": "Whether to add different baselines coherently if they are not instantaneously redundant",
+        "help": "Whether to add different baselines coherently if they are not instantaneously redundant"
       },
       "spectral_index": {
         "type": "number",
@@ -77,7 +77,7 @@
     }
   },
   "units": {
-    "beam": {
+    "observation": {
       "frequency": {
         "type": "string",
         "default": "Mhz",
@@ -92,11 +92,11 @@
         "enum": [
           "m"
         ]
-      }
-    },
-    "required": [
-      "frequency",
-      "dish_size"
-    ]
+      },
+      "required": [
+        "frequency",
+        "dish_size"
+      ]
+    }
   }
 }

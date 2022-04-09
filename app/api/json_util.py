@@ -1,6 +1,11 @@
 #
 # json_util.py
 #
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains json utilities
 
 from flask import jsonify
 

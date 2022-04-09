@@ -1,6 +1,11 @@
 #
 # errors.py
 #
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains a flask error handler for 418 not found errors
 
 from flask import render_template
 from . import api

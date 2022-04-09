@@ -1,97 +1,24 @@
 #
 # models.py
 #
-import pickle
-from abc import abstractmethod
-from hashlib import md5
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains model control code for location, antenna, and beam objects
+
 
 from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, hera
 from astropy import units
 # from .calculation import CalculationFactory
 from .constants import *
+from .exceptions import CalculationException
 from .factorymanager import FactoryManager
+from .dispatcher import Dispatcher
+from .redisfuncs import get_antpos_json
 from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
-
-
-class Hera:
-    pass
-
-
-class Dispatcher:
-    """The Dispatcher class simplifies the handling of data and unit data in a json object
-
-    """
-
-    def __init__(self, data_json, units_json):
-        self.data_json = data_json
-        self.units_json = units_json
-
-    @abstractmethod
-    def get(self):
-        pass
-
-
-def hash_json(thejson):
-    """create a unique hash from json for fingerprinting / model identification for front end
-
-    Parameters
-    ----------
-    thejson
-       json to hash
-
-    Returns
-    -------
-    String
-        hex-formatted string with digest of input json
-    """
-    hashfunc = md5()
-    hashfunc.update(pickle.dumps(thejson))
-    return hashfunc.hexdigest()
-
-
-def add_hash(thejson, d: dict):
-    """add hash of the supplied json to the dictionary 'd' (to be jsonified for client return)
-
-    Parameters
-    ----------
-    thejson
-        input json to be hashed
-    d
-        dictionary containing json being built for client return
-
-    Returns
-    -------
-    dict
-        updated dictionary with a modelID k/v pair added.
-
-        Format: "modelID": "base64 md5"
-    """
-    d["modelID"] = hash_json(thejson)
-    return d
-
-
-def add_calculation_type(thejson, d: dict):
-    """Add the calculation type requested (and returned)
-
-    Parameters
-    ----------
-    thejson
-        input json containing calculation type
-    d
-        dictionary to add calculation type to
-
-    Returns
-    -------
-    dict
-        updated dictionary with a calculation k/v pair added.
-
-        Format: "calculation": "name_of_calculation"
-
-    """
-    d[KW_CALCULATION] = thejson[KW_CALCULATION]
-    return d
 
 
 class LocationFactory(FactoryManager):
@@ -132,6 +59,29 @@ class AntennaFactory(FactoryManager):
         # self.add('ahera', HeraAntennaDispatcher)
         # print("ANTENNA DICT=",self.d)
 
+    # uses stored antenna position data stored in redis database
+    class _custom(Dispatcher):
+        """Allows the use of user-supplied antenna position data
+        """
+
+        # exceptions bubble up to be handled in sensitivity.py
+        def get(self):
+
+            # remember data_json IS the _data_ json for the _antenna_ object, so we don't
+            # have to look deep into the json; it's already here!
+            objid = self.data_json['id']
+            (name, data) = get_antpos_json(objid)
+
+            if name is None:
+                raise CalculationException("No stored antenna data with provided ID")
+
+            data=data*units.Unit("m")
+
+            return data
+
+
+
+
     class _hera(Dispatcher):
         """makes a py21cmSense call to the hera antenna class
         """
@@ -143,5 +93,6 @@ class AntennaFactory(FactoryManager):
             # TODO - error checking on units
             # return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit("m"),
             #             dl=j['separation'] * units.Unit("m"))
+
             return hera(hex_num=j['hex_num'], separation=j['separation'] * units.Unit(u['separation']),
                         dl=j['dl'] * units.Unit(u['dl']))

@@ -1,9 +1,22 @@
+#
+# sensitivity.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains support for calculation and caching of sensitivity objects
+
 import functools
+import pickle
 
 from astropy.units import UnitConversionError
 
 from .models import *
 from .models import AntennaFactory
+from .exceptions import CalculationException
+from .observation import ObservationFactory
+from .observatory import ObservatoryFactory
 
 
 # serialize the json to a hashable form for LRU caching
@@ -20,11 +33,8 @@ def get_sensitivity(thejson) -> PowerSpectrum:
         sensitivity object
 
     """
-    # TODO - do better with exception
-    try:
-        return cached_sensitivity(pickle.dumps(thejson))
-    except Exception as e:
-        pass
+    # Handle exceptions in a centralized location (bubble up)
+    return cached_sensitivity(pickle.dumps(thejson))
 
 
 @functools.lru_cache
@@ -47,8 +57,17 @@ def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    if antenna_obj is None:
+        raise CalculationException("No support for requested antenna schema.")
+
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    if beam_obj is None:
+        raise CalculationException("No support for requested beam schema.")
+
     location_obj = LocationFactory().get(thejson['data']['location']['schema'])
+    if location_obj is None:
+        raise CalculationException("No support for requested location schema.")
+
     # print("antenna obj=", antenna_obj)
     # print("beam_obj=", beam_obj)
 
@@ -67,9 +86,12 @@ def cached_sensitivity(json_pickle):
         raise TypeError("Invalid units passed to antenna object") from e
     except (ValueError, AssertionError) as e:
         raise ValueError("Out of range value passed to antenna object") from e
+    except CalculationException as e:
+        raise e
     except Exception as e:
         raise Exception("Unknown error on antenna object") from e
 
+    # TODO: check these exceptions
     try:
         b = beam.get()
     except Exception as e:
@@ -80,8 +102,15 @@ def cached_sensitivity(json_pickle):
         pass
 
     # t = 400 * units.K
+    # observatory is an optional schema.  If it's not provided, use a default
+
+    # TODO: integrate this
+    # observatory_obj=ObservatoryFactory().get(thejson['data']['observatory']['schema'])
     obs = Observatory(antpos=a, beam=b, latitude=lat)
 
+    # TODO: integrate this
+    # observation is an optional schema.  If it's not provided, use a default
+    # observation_obj=ObservationFactory().get(thejson['data']['observation']['schema'])
     sensitivity = PowerSpectrum(observation=Observation(observatory=obs))
 
     # sensitivity = PowerSpectrum(

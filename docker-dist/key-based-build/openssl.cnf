@@ -1,0 +1,11 @@
+[req]
+prompt = no
+distinguished_name = req_distinguished_name
+
+[req_distinguished_name]
+C = US
+ST = Arizona
+L = Tempe
+O = Arizona State University
+CN = galileo.sese.asu.edu
+
