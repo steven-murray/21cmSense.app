@@ -13,6 +13,8 @@ from .constants import SCHEMA_REL_DIR
 from .json_util import json_error
 from .util import DebugPrint
 
+from .exceptions import ValidationException
+
 debug = DebugPrint(0).debug_print
 
 
@@ -268,10 +270,7 @@ class Validator:
     """
 
     def __init__(self, thejson):
-        self.error = False
-        self.errorMsg = None
         self.thejson = thejson
-        pass
 
     def valid_groups(self):
         """valid_groups determines if top-level json keywords are present
@@ -282,9 +281,11 @@ class Validator:
             true if and only if only the required top level json groups are present.
             Fails if extra groups are present
             False if a required group is missing
+
+        Notes
+        -----
+        Raises ValidationException if validation fails
         """
-        self.error = False
-        self.errorMsg = ""
 
         required = {'calculation', 'data', 'units'}
         supplied = set(self.thejson.keys())
@@ -292,15 +293,13 @@ class Validator:
         # sections provided but not allowed
         surplus = supplied - required
         if surplus:
-            self.error = True
-            self.errorMsg = "Surplus sections " + str(surplus)
+            raise ValidationException("Surplus sections " + str(surplus))
 
         # sections required but not provided (note: takes precedence over surplus sections to
         #   simplify error reporting to client)
         missing = required - supplied
         if missing:
-            self.error = True
-            self.errorMsg = "Missing sections " + str(missing)
+            raise ValidationException("Missing sections " + str(missing))
 
         # prettier but we've already calculated surplus and missing so ought to save the set operation
         # return required.intersection(supplied) == required
@@ -316,7 +315,7 @@ class Validator:
         Returns
         -------
         bool
-            True if valid, False if not valid.
+            True if valid, raises ValidationException is not validatable
 
         Notes
         -----
@@ -325,20 +324,19 @@ class Validator:
         data = self.thejson['data']
         units = self.thejson['units']
         for schemagroup in ['antenna', 'beam', 'location']:
-            j=self.build_schema_for_validation(schemagroup, data, units)
+            j = self.build_schema_for_validation(schemagroup, data, units)
             if 'schema' not in data[schemagroup]:
-                self.error = True
-                self.errorMsg = "Schema group section %s missing 'schema' keyword" % schemagroup
-                return False
+                raise ValidationException("Schema group section %s missing 'schema' keyword" % schemagroup)
 
             schemaname = data[schemagroup]['schema']
 
             validation_schema = self.load_validation_schema(schemagroup, schemaname)
+            if validation_schema is None:
+                raise ValidationException(
+                    "Validation schema not found for schema group=" + schemagroup + ", schema=" + schemaname)
 
             if not self.validate(validation_schema, j):
-                self.error = True
-                self.errorMsg = "Error validating schemagroup section %s" % schemagroup
-                return False
+                raise ValidationException("Error validating schemagroup section %s" % schemagroup)
 
         return True
 
@@ -401,10 +399,6 @@ class Validator:
         bool
             True if validates, False otherwise
 
-        Notes
-        -----
-        If returning false, also sets 'error' to True and errorMsg to a message
-        
         """
         # sch=json.loads(schema)
         # f = open("app/static/validation-schema/hera-validation.json", 'r')
@@ -415,4 +409,3 @@ class Validator:
             return True
         except jsonschema.ValidationError as e:
             return False
-

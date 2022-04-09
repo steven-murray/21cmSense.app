@@ -7,13 +7,13 @@ from py21cmsense import GaussianBeam, Observation, Observatory, PowerSpectrum, h
 from astropy import units
 # from .calculation import CalculationFactory
 from .constants import *
+from .exceptions import CalculationException
 from .factorymanager import FactoryManager
 from .dispatcher import Dispatcher
+from .redisfuncs import get_antpos_json
 from .util import DebugPrint
 
 debug = DebugPrint(0).debug_print
-
-
 
 
 class LocationFactory(FactoryManager):
@@ -54,10 +54,28 @@ class AntennaFactory(FactoryManager):
         # self.add('ahera', HeraAntennaDispatcher)
         # print("ANTENNA DICT=",self.d)
 
+    # uses stored antenna position data stored in redis database
     class _custom(Dispatcher):
         """Allows the use of user-supplied antenna position data
         """
-        pass
+
+        # exceptions bubble up to be handled in sensitivity.py
+        def get(self):
+
+            # remember data_json IS the _data_ json for the _antenna_ object, so we don't
+            # have to look deep into the json; it's already here!
+            objid = self.data_json['id']
+            (name, data) = get_antpos_json(objid)
+
+            if name is None:
+                raise CalculationException("No stored antenna data with provided ID")
+
+            data=data*units.Unit("m")
+
+            return data
+
+
+
 
     class _hera(Dispatcher):
         """makes a py21cmSense call to the hera antenna class

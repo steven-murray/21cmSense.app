@@ -5,6 +5,7 @@ from astropy.units import UnitConversionError
 
 from .models import *
 from .models import AntennaFactory
+from .exceptions import CalculationException
 from .observation import ObservationFactory
 from .observatory import ObservatoryFactory
 
@@ -23,11 +24,8 @@ def get_sensitivity(thejson) -> PowerSpectrum:
         sensitivity object
 
     """
-    # TODO - do better with exception
-    try:
-        return cached_sensitivity(pickle.dumps(thejson))
-    except Exception as e:
-        pass
+    # Handle exceptions in a centralized location (bubble up)
+    return cached_sensitivity(pickle.dumps(thejson))
 
 
 @functools.lru_cache
@@ -50,8 +48,17 @@ def cached_sensitivity(json_pickle):
     thejson = pickle.loads(json_pickle)
     # get an antenna factory object to calculate antenna parameters based on submitted data
     antenna_obj = AntennaFactory().get(thejson['data']['antenna']['schema'])
+    if antenna_obj is None:
+        raise CalculationException("No support for requested antenna schema.")
+
     beam_obj = BeamFactory().get(thejson['data']['beam']['schema'])
+    if beam_obj is None:
+        raise CalculationException("No support for requested beam schema.")
+
     location_obj = LocationFactory().get(thejson['data']['location']['schema'])
+    if location_obj is None:
+        raise CalculationException("No support for requested location schema.")
+
     # print("antenna obj=", antenna_obj)
     # print("beam_obj=", beam_obj)
 
@@ -70,6 +77,8 @@ def cached_sensitivity(json_pickle):
         raise TypeError("Invalid units passed to antenna object") from e
     except (ValueError, AssertionError) as e:
         raise ValueError("Out of range value passed to antenna object") from e
+    except CalculationException as e:
+        raise e
     except Exception as e:
         raise Exception("Unknown error on antenna object") from e
 

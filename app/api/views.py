@@ -234,21 +234,6 @@ def list_antpos(userid):
         return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
 
 
-def get_antpos_json(antposid):
-    if not antpos_exists(antposid):
-        return None, None
-    # request for a antpos. Note we can't use hmget because pickled data cannot automatically
-    # be utf-8 decoded
-    name = rdb.hget(antpos_key(antposid), KW_ANTPOSNAME)
-    data = rpickle.hget(antpos_key(antposid), KW_DATA)
-
-    if data:
-        # recall that json payload is pickled into a string
-        data = pickle.loads(data)
-        return name, data
-    else:
-        return None, None
-
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_GET])
 def antpos_get(userid, antposid):
@@ -345,11 +330,11 @@ def translate_and_validate_antenna_data(data):
 
     try:
         s = base64.b64decode(data).decode('utf-8')
-    except binascii.Error:
+    except (UnicodeDecodeError, binascii.Error):
         return None
 
     # split our file into lines and put it in an iterable object (list)
-    l = s.splitlines().dec
+    l = s.splitlines()
 
     # use the csv reader to parse it
     reader = csv.reader(l)

@@ -3,6 +3,7 @@ from flask import jsonify
 import pickle
 from hashlib import md5
 from py21cmsense import PowerSpectrum
+from .exceptions import CalculationException, ValidationException
 from .factorymanager import FactoryManager
 from .constants import *
 from .schema import Validator
@@ -93,25 +94,32 @@ def calculate(thejson):
     v = Validator(thejson)
 
     # check for top level groups, e.g., calculation, data, and units.
-    if not v.valid_groups():
-        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
+    try:
+        v.valid_groups()
+    except ValidationException as e:
+        return {"error": "Invalid JSON schema", "errormsg": str(e)}, HTTP_BAD_REQUEST
     else:
         print("JSON SCHEMA VALIDATED")
 
-    if not v.valid_sections():
-        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
-    else:
-        print("JSON SCHEMA VALIDATED")
+    try:
+        v.valid_sections()
+    except ValidationException as e:
+        return {"error": "Invalid JSON schema", "errormsg": str(e)}, HTTP_BAD_REQUEST
+
+    print("JSON SCHEMA VALIDATED")
 
     print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
 
     # get proper function for this calculation
     calculator = CalculationFactory().get(thejson[KW_CALCULATION])
-
     if calculator is None:
         return {KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
 
-    results = calculator(thejson)
+    try:
+        results = calculator(thejson)
+    except (CalculationException, Exception) as e:
+        return {KW_ERROR: str(e), KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
+
 
     add_hash(thejson, results)
     add_calculation_type(thejson, results)
