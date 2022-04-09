@@ -1,5 +1,13 @@
+#
+# models.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains various utility functions
+
 import numpy
-import csv
 
 
 class DebugPrint:

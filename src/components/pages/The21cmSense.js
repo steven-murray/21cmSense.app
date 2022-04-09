@@ -308,7 +308,7 @@ class The21cmSense extends React.Component {
 	
 	  const resume = _models.map(dataIn => {
       return (
-        <div key={dataIn.modelid}>
+        <div key={dataIn.modelid}  >
           {dataIn.modelname}
           <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
           <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn) } > <GiPencil title = "edit"/>  </button>   
@@ -477,8 +477,8 @@ class The21cmSense extends React.Component {
                     <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
                 </Link>
               <br></br><br></br>
-                No models created yet. Please click "New Model"<br></br><br></br>
-			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}}>
+               
+			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 50}}>
 		      		 {resume}  
 		      </div>	
 			  </Panel>

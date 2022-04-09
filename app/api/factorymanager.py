@@ -1,3 +1,14 @@
+#
+# models.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains support for keyword-mapped functions and automatic
+# on-disk schema mapping to supported calculation methods in the code.
+
+
 from functools import cache, cached_property
 
 from app.api.schema import get_schema_names
