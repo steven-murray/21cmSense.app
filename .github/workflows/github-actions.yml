@@ -5,6 +5,7 @@ on:
     branches: 
       - master
       - dev
+      - sprint10-lclindbe
   pull_request:
     branches: 
       - master
@@ -62,7 +63,15 @@ jobs:
     #       . 
     #       !node_modules/
     #       !venv/
-  
+    - name: redis
+      run: |
+        wget http://download.redis.io/redis-stable.tar.gz
+        tar xvzf redis-stable.tar.gz && mv redis-stable redis
+        cd redis
+        make
+        src/redis-server ${BASEDIR}/redis.conf &
+        src/redis-cli ping
+        cd ..
     - name: Test with pytest
       run: |
         pytest
