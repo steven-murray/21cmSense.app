@@ -510,8 +510,7 @@ class The21cmSense extends React.Component {
 						 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}						     
 					</select>
  					<br></br><br></br>
-					<Button  style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 20}} onClick = {this.generateCalcModel.bind(this,'b5749a3c-d395-427c-8478-0af262cac35a')}> Save </Button> 
-			
+					
 			 </Panel>
 
 			 <Plot
