@@ -62,8 +62,9 @@ input, label {
 
 .graph {
     float: right;
-    height: 100%;
-    width: 62vw;
+    height: auto;
+    max-height: 100%;
+    width: 60vw;
     max-width:100%;
     padding-right: 35px;
     margin-top: 20px;

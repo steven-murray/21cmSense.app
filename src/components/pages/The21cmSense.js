@@ -508,11 +508,9 @@ class The21cmSense extends React.Component {
 						 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}						     
 					</select>
  					<br></br><br></br>
-					
-			 </Panel>
 
-			 <Plot
-			
+                    <Plot
+
             data = {[{
 
               x : [
@@ -600,8 +598,12 @@ class The21cmSense extends React.Component {
             ]}
               layout={ {width: 1000, height: 750, title: 'Sensitivity Plot'} }
 
-            
+
       />
+					
+			 </Panel>
+
+
                     
 			</form>
             </div>
