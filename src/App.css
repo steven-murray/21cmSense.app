@@ -62,17 +62,28 @@ input, label {
 
 .graph {
     float: right;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.12), 0 0 10px rgba(0, 0, 0, 0.06);
     height: auto;
-    width: 1150px;
-    max-width: 90%;
-    margin-right: 30px;
+    max-height: 100%;
+    width: 60vw;
+    max-width:100%;
+    padding-right: 35px;
     margin-top: 20px;
     display: inline-block;
+    padding-left: 35px;
+    position: relative;
 }
 
 Button {
 	float:right;
 	
+}
+
+.modelStyle {
+    float: left;
+    display: inline-block;
+    height: 100%;
+    width: 37vw;
+    max-width: 100%;
+    padding-left: 35px;
 }
 

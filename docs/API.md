@@ -79,6 +79,7 @@ Response:
 Return:
 ```json
 {
+  "uuid": "user's UUID",
   "models": [
     {
       "modelname": "model 1 name",
@@ -167,9 +168,15 @@ Body:
 ```
 {
   "antpos": "antenna position data name",
-  "data": { CSV formatted triplets or doubles }
+  "data": { "base64 encoded CSV file" }
 }
 ```
+
+Notes:
+The CSV file shall be comma separated, UTF-8 encoded with either 
+two or three floating point numbers per line.  All lines with two
+values will have the third (missing) value replaced with 0.0.
+
 
 Response:
 ``201 Created`` (if created successfully)
@@ -179,7 +186,7 @@ Return:
 {
   "userid": "unique userid",
   "antposid": "antenna position data id",
-  "antposname": "antenna position data name"
+  "name": "antenna position data name"
 }
 ```
 
@@ -198,7 +205,7 @@ Return:
 ```
 
 
-## Get a list of models
+## Get a list of stored antenna positions
 **GET** `/users/<userid>/antpos`
 
 Response:
@@ -207,13 +214,14 @@ Response:
 Return:
 ```json
 {
+  "uuid": "user's UUID",
   "antpos": [
     {
-      "antposname": "antpos 1 name",
+      "name": "antpos 1 name",
       "antposid": "antpos 1 ID"
     },
     {
-      "antposname": "antpos 2 name",
+      "name": "antpos 2 name",
       "antposid": "antpos 1 ID"
     }
   ]
@@ -232,7 +240,7 @@ Response:
 Return:
 ```json
 {
-  "antposname": "name of antenna position data",
+  "name": "name of antenna position data",
   "data": "Antenna position data that was previously stored"
 }
 ```
@@ -246,7 +254,7 @@ Response:
 Body:
 ```json
 {
-  "antposname": "name of model",
+  "name": "name of antenna position data",
   "data": "CSV triplet or double to store"
 }
 ```
@@ -722,3 +730,9 @@ Plot types:
 
 
 ```
+
+#### Credits
+
+Project 43 - Web Application for Radio Astronomy Sensitivity
+Author: Brian Pape
+Revision: 0.1

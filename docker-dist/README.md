@@ -48,8 +48,28 @@ Currently, two Dockerfiles are maintained; one with the ssh keypair configuratio
 # gunicorn notes
 If you enter the container and obtain a shell, these gunicron commands may be useful:
 
+```
 gunicorn --bind=unix:/tmp/gunicorn.sock --workers=2 wsgi:create_app
+```
 
 gunicorn logging:
 
+```
 gunicorn --bind=unix:/tmp/gunicorn.sock --workers=2 --log-file=/var/log/gune --log-level debug --access-logfile=/var/log/guna wsgi:create_app
+```
+
+## nginx
+
+Please use the -h argument to `p43-build` to specify the hostname used by nginx.
+Alternately, you can permanently edit the file `support-files/server-hostname`.
+
+## OpenSSL
+
+Please edit the ssl configuration parameters in `support-files/openssl.cnf` for your host prior to
+building an image
+
+#### Credits
+
+Project 43 - Web Application for Radio Astronomy Sensitivity
+Author: Brian Pape
+Revision: 0.1

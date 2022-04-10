@@ -1,6 +1,12 @@
 #
+# createSchema.py
 #
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
 #
+# This module contains prototype code for automatic schema creation
+
 import types
 
 import py21cmsense

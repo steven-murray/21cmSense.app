@@ -1,11 +1,88 @@
+#
+# calculation.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains routines for all supported calculations
+
 from flask import jsonify
 
+import pickle
+from hashlib import md5
+from .exceptions import CalculationException, ValidationException
 from .factorymanager import FactoryManager
 from .constants import *
-from .models import add_calculation_type, add_hash
 from .schema import Validator
 from .sensitivity import get_sensitivity
 from .util import filter_infinity, quantity_list_to_scalar
+
+
+def hash_json(thejson):
+    """create a unique hash from json for fingerprinting / model identification for front end
+
+    Parameters
+    ----------
+    thejson
+       json to hash
+
+    Returns
+    -------
+    String
+        hex-formatted string with digest of input json
+    """
+    hashfunc = md5()
+    hashfunc.update(pickle.dumps(thejson))
+    return hashfunc.hexdigest()
+
+
+def add_hash(thejson, d: dict) -> dict:
+    """add hash of the supplied json to the dictionary 'd' (to be jsonified for client return)
+
+    Parameters
+    ----------
+    thejson
+        input json to be hashed
+    d
+        dictionary containing json being built for client return
+
+    Returns
+    -------
+    dict
+        updated dictionary with a modelID k/v pair added.
+
+        Format: "modelID": "base64 md5"
+    """
+    d["modelID"] = hash_json(thejson)
+    return d
+
+
+def add_calculation_type(thejson, d: dict) -> dict:
+    """Add the calculation type requested (and returned)
+
+    Parameters
+    ----------
+    thejson
+        input json containing calculation type
+    d
+        dictionary to add calculation type to
+
+    Returns
+    -------
+    dict
+        updated dictionary with a calculation k/v pair added.
+
+        Format: "calculation": "name_of_calculation"
+
+    """
+    d[KW_CALCULATION] = thejson[KW_CALCULATION]
+    return d
+
+
+def add_matplotlib_plot_type(plottype: str, d: dict) -> dict:
+    d['matplotlib-plot-type'] = plottype
+    return d
 
 
 def calculate(thejson):
@@ -25,25 +102,32 @@ def calculate(thejson):
     v = Validator(thejson)
 
     # check for top level groups, e.g., calculation, data, and units.
-    if not v.valid_groups():
-        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
+    try:
+        v.valid_groups()
+    except ValidationException as e:
+        return {"error": "Invalid JSON schema", "errormsg": str(e)}, HTTP_BAD_REQUEST
     else:
         print("JSON SCHEMA VALIDATED")
 
-    if not v.valid_sections():
-        return {"error": "Invalid JSON schema", "errormsg": v.errorMsg}, HTTP_BAD_REQUEST
-    else:
-        print("JSON SCHEMA VALIDATED")
+    try:
+        v.valid_sections()
+    except ValidationException as e:
+        return {"error": "Invalid JSON schema", "errormsg": str(e)}, HTTP_BAD_REQUEST
+
+    print("JSON SCHEMA VALIDATED")
 
     print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
 
     # get proper function for this calculation
     calculator = CalculationFactory().get(thejson[KW_CALCULATION])
-
     if calculator is None:
         return {KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
 
-    results = calculator(thejson)
+    try:
+        results = calculator(thejson)
+    except (CalculationException, Exception) as e:
+        return {KW_ERROR: str(e), KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
+
 
     add_hash(thejson, results)
     add_calculation_type(thejson, results)
@@ -88,6 +172,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std.unit.to_string()}
         d.update(labels)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def _1D_noise_cut_of_2D_sensitivity(self, thejson):
@@ -106,6 +191,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_thermal.unit.to_string()}
         d.update(labels)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def _1D_sample_variance_cut_of_2D_sensitivity(self, thejson):
@@ -122,6 +208,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": sensitivity.k1d.value.tolist(), "y": power_std_sample.value.tolist(),
              "xunit": sensitivity.k1d.unit.to_string(), "yunit": power_std_sample.unit.to_string()}
         d.update(labels)
+        add_matplotlib_plot_type('line', d)
         return d
 
     def two_d_sens(self, thejson):
@@ -142,6 +229,7 @@ class CalculationFactory(FactoryManager):
 
         d = {"x": x, "y": y, "c": c, "xunit": "", "yunit": "", "cunit": ""}
         d.update(labels)
+        add_matplotlib_plot_type('pcolormesh', d)
         return d
 
         #
@@ -175,6 +263,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": xseries, "y": yseries,
              "xunit": xunit, "yunit": yunit}
         d.update(labels)
+        add_matplotlib_plot_type('scatter', d)
         return d
 
     # baselines_distributions= [[[   0.    0.    0.]
@@ -212,6 +301,7 @@ class CalculationFactory(FactoryManager):
         d = {"x": baselines[:, :, 0].value.tolist(), "y": baselines[:, :, 1].value.tolist(),
              "xunit": baselines.unit.to_string(), "yunit": baselines.unit.to_string()}
         d.update(labels)
+        add_matplotlib_plot_type('hist', d)
         return d
 
     def _uv_grid_sampling(self, thejson):
@@ -227,4 +317,5 @@ class CalculationFactory(FactoryManager):
         x = observation.uv_coverage.tolist()
         d = {"x": x, "xunit": ""}
         d.update(labels)
+        add_matplotlib_plot_type('imshow', d)
         return d

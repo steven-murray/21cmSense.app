@@ -1,3 +1,12 @@
+#
+# models.py
+#
+# Project 43 - Web Application for Radio Astronomy Sensitivity
+# Author: Brian Pape
+# Revision: 0.1
+#
+# This module contains various utility functions
+
 import numpy
 
 
@@ -64,3 +73,7 @@ def quantity_list_to_scalar(l: list):
         newl.append(t.value)
     return newl
 
+
+def import_csv(csv: str)-> dict:
+
+    pass

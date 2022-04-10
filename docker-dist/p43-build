@@ -10,8 +10,9 @@
 unset NOCACHE
 unset SSHARG
 BRANCH=master
+HOSTNAME=example.com
 
-while getopts ":nkb:" o; do
+while getopts ":nkb:h:" o; do
     case ${o} in
         n)
             NOCACHE="--no-cache"
@@ -22,12 +23,16 @@ while getopts ":nkb:" o; do
         b)
             BRANCH="$OPTARG"
             ;;
+        h)
+            HOSTNAME="$OPTARG"
+            ;;
         '?')
-            echo "Usage: $0 [-n] [-k] [-b branch]"
+            echo "Usage: $0 [-n] [-k] [-b branch] [-h server_hostname]"
             echo "      -n: no-cache (disable cached image for this build)"
             echo "      -k: use keypair (clone from private repository)"
             echo "      -K: no-keypair (clone from public repository) [default]"
             echo "      -b: branch from repo to use for build [default=master]"
+            echo "      -h: hostname of this server for nginx configuration [default=example.com]"
             exit 1
             ;;
     esac
@@ -51,6 +56,10 @@ fi
 
 # copy support files (nginx config and init script) to proper build dir - maintain in only one place
 /bin/cp -f support_files/* $DIR
+echo "$HOSTNAME" > $DIR/server-hostname
+
+# fix up hostname in nginx configuration file
+sed -i "" -e 's/${SERVER_HOSTNAME}/'"`cat ${DIR}/server-hostname`"'/' ${DIR}/nginx.conf
 
 #echo docker build -t p43 ${NOCACHE} ${SSHARG} ${DIR}
 
