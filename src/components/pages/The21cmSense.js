@@ -83,7 +83,7 @@ const saveCSV = () => {
 //   schemaName = "baselines-distributions"
 //   let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
   
-//   fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+//   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
 //   .then((jsonplot) => {
 
 //     json=jsonplot;
@@ -198,7 +198,7 @@ class The21cmSense extends React.Component {
 	  }
 
 	  getmodels(uid){
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+            fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -209,7 +209,7 @@ class The21cmSense extends React.Component {
 
 	getmodel(uid,mid){
 	
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models/1fd53fc3-7fec-4f37-ba24-8d1ec96103a1')
+            fetch(process.env.API_URL + '/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models/1fd53fc3-7fec-4f37-ba24-8d1ec96103a1')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -273,7 +273,7 @@ class The21cmSense extends React.Component {
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models' + mid, requestmodel)
+		    fetch(process.env.API_URL + '/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models' + mid, requestmodel)
 					.then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -298,7 +298,7 @@ class The21cmSense extends React.Component {
 	        method: 'DELETE'
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+this.state.user+'/models/' + mid, req)
+		    fetch(process.env.API_URL + '/api-1.0/users/'+this.state.user+'/models/' + mid, req)
 				.then(response => {window.location.reload()});
 	}
 
@@ -321,7 +321,7 @@ class The21cmSense extends React.Component {
     //   let json;
     //   //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
       
-    //   fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    //   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
     //   .then((jsonplot) => {
 
     //     json=jsonplot;

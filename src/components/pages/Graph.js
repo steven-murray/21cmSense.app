@@ -17,10 +17,10 @@ import { instanceOf } from "prop-types";
 //         return (
 //         //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
         
-//         // fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
+//         // fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
 //         // }).then((function(u) {
 
-//         fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+//         fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
 //         .then((jsonplot) => {
   
 //             json=jsonplot;
@@ -302,7 +302,7 @@ export function Graph (group, schemaName)  {
     return (
     //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
 
-    // fetch('http://galileo.sese.asu.edu:8081/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
+    // fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then(function(e){ return e.json(); 
     // }).then((function(u) {
 
     // fetch('https://galileo.sese.asu.edu:8082/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())

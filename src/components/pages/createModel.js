@@ -108,7 +108,7 @@ class CreateModel extends React.Component {
 		const requestOptions = {
 	        method: 'POST'
 	    };
-	    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users', requestOptions)
+	    fetch(process.env.API_URL + '/api-1.0/users', requestOptions)
 	        .then(response => response.json())
 	        .then((data) => {
                           this.setState({
@@ -119,7 +119,7 @@ class CreateModel extends React.Component {
 	}
 	
 	getmodels(uid){
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+            fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -170,7 +170,7 @@ class CreateModel extends React.Component {
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models', requestmodel)
+		    fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models', requestmodel)
 		}
 	
 	getAntennaData(){

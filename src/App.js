@@ -7,6 +7,8 @@ import "./App.css"
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css'
 
+const dotenv = require("dotenv");
+dotenv.config()
 
 function App() {
   return (

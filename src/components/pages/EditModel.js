@@ -102,7 +102,7 @@ class EditModel extends React.Component {
 	
 
 	getmodels(uid){
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models')
+            fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models')
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -113,7 +113,7 @@ class EditModel extends React.Component {
 	
 	getmodel(uid,mid){
 	
-            fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid)
+            fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models/' + mid)
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -182,7 +182,7 @@ class EditModel extends React.Component {
 				body: JSON.stringify(ml)
 			};
 	
-		    fetch('http://galileo.sese.asu.edu:8081/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
+		    fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models/' + mid, requestmodel)
 		}
 	
 	getAntennaData(){
