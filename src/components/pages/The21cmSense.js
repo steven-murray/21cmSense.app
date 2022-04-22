@@ -81,7 +81,7 @@ const saveCSV = () => {
 //   let json;
 //   group = "calculations"
 //   schemaName = "baselines-distributions"
-//   let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
+//   let url=process.env.API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
   
 //   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
 //   .then((jsonplot) => {
@@ -188,7 +188,7 @@ class The21cmSense extends React.Component {
 		
 		
 
-		 fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/calculation")
+		 fetch(process.env.API_URL + "/api-1.0/schema/calculation")
             .then((res) => res.json())
             .then((json) => {
                 this.setState({
@@ -319,7 +319,7 @@ class The21cmSense extends React.Component {
         //{group, schemaName}
     // const Graph = (group, schemaName) => {
     //   let json;
-    //   //let url="http://galileo.sese.asu.edu:8081/api-1.0/schema/"+{group}+"/get/"+{schemaName};
+    //   //let url=process.env.API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
       
     //   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
     //   .then((jsonplot) => {

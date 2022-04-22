@@ -186,7 +186,7 @@ class EditModel extends React.Component {
 		}
 	
 	getAntennaData(){
-            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/antenna/get/hera")
+            fetch(process.env.API_URL + "/api-1.0/schema/antenna/get/hera")
                       .then((res) => res.json())
                       .then((json) => {
                           this.setState({
@@ -203,7 +203,7 @@ class EditModel extends React.Component {
 	}
 
 	getBeamData(){
-            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/beam/get/GaussianBeam")
+            fetch(process.env.API_URL + "/api-1.0/schema/beam/get/GaussianBeam")
                       .then((ress) => ress.json())
                       .then((jsons) => {
                           this.setState({
@@ -221,7 +221,7 @@ class EditModel extends React.Component {
 	}
 	
 	getLocationData(){
-            fetch("http://galileo.sese.asu.edu:8081/api-1.0/schema/location/get/latitude")
+            fetch(process.env.API_URL + "/api-1.0/schema/location/get/latitude")
                       .then((resss) => resss.json())
                       .then((jsonss) => {
                           this.setState({
