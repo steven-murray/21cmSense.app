@@ -27,7 +27,7 @@ RUN rm -f /etc/nginx/sites-enabled/default && \
 RUN python3 -m pip install --upgrade pip
 
 WORKDIR /home/app
-RUN git clone git@github.com:bpape1usa/SER401-Project43.git
+RUN git clone git@github.com:steven-murray/21cmSense-app.git
 COPY docker-run-app.sh /home/app/SER401-Project43
 
 RUN cd SER401-Project43 && \

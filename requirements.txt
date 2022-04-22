@@ -1,25 +1,4 @@
 ### Requirements
-# unstated reqs for 21cmSense
-pyuvdata==2.2.4
-
-# for mac m1:
-# hdf5 dependency
-# brew install hdf5
-# export HDF5_DIR=/opt/homebrew/Cellar/hdf5/1.13.0/
-# pip install --no-binary=h5py h5py
-# scipy: (installs 1.8.0 at the moment)
-# pip install scipy --compile --pre
-# numpy: (installs 1.22.3 at the moment)
-# pip install numpy --compile --pre
-
-# 21cmSense reqs
-wheel
-numpy>=1.22
-scipy>=1.7.2
-PyYAML==6.0
-astropy>=5.0
-matplotlib==3.4.3
-
 # project reqs
 jsonschema==4.2.1
 pytest==6.2.5
@@ -27,6 +6,7 @@ Flask==2.0.3
 redis==3.5.3
 cryptography==3.4.7
 Flask-Cors==3.0.10
+git+https://github.com/steven-murray/21cmSense
 
 # for wsgi nginx proxying
 gunicorn==20.1.0
