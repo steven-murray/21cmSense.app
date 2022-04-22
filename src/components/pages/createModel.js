@@ -190,6 +190,7 @@ class CreateModel extends React.Component {
 	}
 
 	getBeamData(){
+		    console.log("Doing this thing.");
             fetch(process.env.API_URL + "/api-1.0/schema/beam/get/GaussianBeam")
                       .then((ress) => ress.json())
                       .then((jsons) => {
@@ -204,7 +205,8 @@ class CreateModel extends React.Component {
 							  FreEnum: jsons.units.beam.frequency.enum
 									
                           });
-                      })		
+                      })
+			console.log("Done that thing.");
 	}
 	
 	getLocationData(){
@@ -241,6 +243,7 @@ class CreateModel extends React.Component {
 		};
 	
 render() {
+	console.log(this.state);
 		const { DataisLoaded} = this.state;      
 		
 		if (!DataisLoaded) return <div>
