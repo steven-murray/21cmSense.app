@@ -7,8 +7,6 @@ import "./App.css"
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 import './App.css'
 
-const dotenv = require("dotenv");
-dotenv.config()
 
 function App() {
   return (
@@ -19,7 +17,7 @@ function App() {
           <Route path='/' exact component={The21cmSense} />
           <Route path='/The21cmSense' component={The21cmSense} />
           <Route path='/createModel' component={createModel} />
-		  <Route path='/EditModel' component={EditModel} />  
+          <Route path='/EditModel' component={EditModel} />
         </Switch>
       </Router>
     </>

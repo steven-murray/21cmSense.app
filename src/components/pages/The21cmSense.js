@@ -1,4 +1,5 @@
 import React from 'react';
+import env from "react-dotenv";
 import '../../App.css';
 import { Panel } from 'rsuite';
 import '../rsuite-default.css';
@@ -81,9 +82,9 @@ const saveCSV = () => {
 //   let json;
 //   group = "calculations"
 //   schemaName = "baselines-distributions"
-//   let url=process.env.API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
-  
-//   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+//   let url=env.REACT_APP_API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
+
+//   fetch(env.REACT_APP_API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
 //   .then((jsonplot) => {
 
 //     json=jsonplot;
@@ -121,13 +122,13 @@ const saveCSV = () => {
 //               linewidth: 2,
 //               mirror: true,
 //               zeroline:false,
-//               title:json.xlabel    
+//               title:json.xlabel
 //           },
 //           yaxis: {
 //               range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
 //               showgrid:false,
 //               showline:true,
-//               zeroline:false, 
+//               zeroline:false,
 //               linecolor: 'black',
 //               linewidth: 2,
 //               mirror: true,
@@ -145,183 +146,185 @@ const saveCSV = () => {
 // 	   </div>,
 //        Graph={Graph}
 // 	);
-          
+
 // };
- 
+
 
 class The21cmSense extends React.Component {
-	
-	
-	 static propTypes = {
-	    cookies: instanceOf(Cookies).isRequired
-	  };
-	
-	constructor(props) {
-	    super(props);
-		
-	    this.state = {
-			selectOptions: [],
-	     	user:this.props.cookies.get("user") || "",
-			_models:[],
-			calc:[],
-			pmodel : [],
-			
-			HexNumber: '',
-			Separation: '',	
-			DishSize: '',
-			Frequency: '',
-			Latitude: '',
-			SeperationUnits: '',
-			DishSizeUnits: '',
-			FrequencyUnits: '',
-			LatitudeUnits: ''
-	    }
-	  }
-	  
-	  componentDidMount(){
-		const modelid = 'b5749a3c-d395-427c-8478-0af262cac35a';	
-		const {user}=this.state;
-		if(user !== ""){
-		this.getmodels(user);
-		this.getmodel(user,modelid);
-		}
-		
-		
 
-		 fetch(process.env.API_URL + "/api-1.0/schema/calculation")
-            .then((res) => res.json())
-            .then((json) => {
-                this.setState({
-                    calc: json
-                });
-            })
-	  }
 
-	  getmodels(uid){
-            fetch(process.env.API_URL + '/api-1.0/users/'+uid+'/models')
-                      .then((res) => res.json())
-                      .then((json) => {
-                          this.setState({
-                              _models: json.models
-                          });  
-                      })		
-	  };
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
 
-	getmodel(uid,mid){
-	
-            fetch(process.env.API_URL + '/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models/1fd53fc3-7fec-4f37-ba24-8d1ec96103a1')
-                      .then((res) => res.json())
-                      .then((json) => {
-                          this.setState({
-                            model: json,
-							model_id: mid,
-							modelName: json.modelname,
-							HexNumber: json.data.data.antenna.hex_num,
-							Separation: json.data.data.antenna.separation,	
-							DishSize: json.data.data.beam.dish_size,
-							Frequency: json.data.data.beam.frequency,
-							Latitude: json.data.data.location.latitude,	
-							SeperationUnits: json.data.units.antenna.separation,
-							DishSizeUnits: json.data.units.beam.dish_size,
-							FrequencyUnits: json.data.units.beam.frequency,
-							LatitudeUnits: json.data.units.location.latitude
-                          }); 
-                      })		
-	}
-	
-	generateCalcModel(mid){
-		
-		const ml = 
-					  {
-						  "calculation": "1D-cut-of-2D-sensitivity",
-						  "data":{
-						    "antenna":{
-						      "schema": "hera",
-						      "hex_num": 7,
-						      "separation": 14,
-						      "dl": 12.02
-						    },
-						    "beam":{
-						      "schema":"GaussianBeam",
-						      "frequency": 100,
-						      "dish_size": 14
-						    },
-						    "location":{
-						      "schema": "latitude",
-						      "latitude": 1.382
-						    }
-						  },
-						  "units":{
-						    "antenna":{
-						      "hex_num": "m",
-						      "separation": "m",
-						      "dl": "m"
-						    },
-						    "beam":{
-						      "frequency": "MHz",
-						      "dish_size": "m"
-						    },
-						    "location":{
-						      "latitude": "deg"
-						    }
-						  }
-						}
-				
-		const requestmodel = {
-	        method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(ml)
-			};
-	
-		    fetch(process.env.API_URL + '/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models' + mid, requestmodel)
-					.then((res) => res.json())
-                      .then((json) => {
-                          this.setState({
-                              pmodel: json
-                          }); console.log(json) 
-                      })	
-		console.log(this.state.pmodel);
-	}
-	
+  constructor(props) {
+    super(props);
 
-	handleOnSubmit = (event) => {
-		// event.preventDefault();	
-			    this.props.history.push({
-	      pathname: '/EditModel',
-	      state : event
-	    });	
+    this.state = {
+      selectOptions: [],
+      user: this.props.cookies.get("user") || "",
+      _models: [],
+      calc: [],
+      pmodel: [],
 
-	  };
-	
-	deletemodule(mid){
-	    const req = {
-	        method: 'DELETE'
-			};
-	
-		    fetch(process.env.API_URL + '/api-1.0/users/'+this.state.user+'/models/' + mid, req)
-				.then(response => {window.location.reload()});
-	}
+      HexNumber: '',
+      Separation: '',
+      DishSize: '',
+      Frequency: '',
+      Latitude: '',
+      SeperationUnits: '',
+      DishSizeUnits: '',
+      FrequencyUnits: '',
+      LatitudeUnits: ''
+    }
+  }
+
+  componentDidMount() {
+    const modelid = 'b5749a3c-d395-427c-8478-0af262cac35a';
+    const { user } = this.state;
+    if (user !== "") {
+      this.getmodels(user);
+      // TODO why do we need to comment this out?
+      // This fetch always fails
+      // this.getmodel(user, modelid);
+    }
+
+
+
+    fetch(env.REACT_APP_API_URL + "/api-1.0/schema/calculation")
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({
+          calc: json
+        });
+      })
+  }
+
+  getmodels(uid) {
+    fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models')
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({
+          _models: json.models
+        });
+      })
+  };
+
+  getmodel(uid, mid) {
+
+    fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models/' + mid)
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({
+          model: json,
+          model_id: mid,
+          modelName: json.modelname,
+          HexNumber: json.data.data.antenna.hex_num,
+          Separation: json.data.data.antenna.separation,
+          DishSize: json.data.data.beam.dish_size,
+          Frequency: json.data.data.beam.frequency,
+          Latitude: json.data.data.location.latitude,
+          SeperationUnits: json.data.units.antenna.separation,
+          DishSizeUnits: json.data.units.beam.dish_size,
+          FrequencyUnits: json.data.units.beam.frequency,
+          LatitudeUnits: json.data.units.location.latitude
+        });
+      })
+  }
+
+  generateCalcModel(mid) {
+
+    const ml =
+    {
+      "calculation": "1D-cut-of-2D-sensitivity",
+      "data": {
+        "antenna": {
+          "schema": "hera",
+          "hex_num": 7,
+          "separation": 14,
+          "dl": 12.02
+        },
+        "beam": {
+          "schema": "GaussianBeam",
+          "frequency": 100,
+          "dish_size": 14
+        },
+        "location": {
+          "schema": "latitude",
+          "latitude": 1.382
+        }
+      },
+      "units": {
+        "antenna": {
+          "hex_num": "m",
+          "separation": "m",
+          "dl": "m"
+        },
+        "beam": {
+          "frequency": "MHz",
+          "dish_size": "m"
+        },
+        "location": {
+          "latitude": "deg"
+        }
+      }
+    }
+
+    const requestmodel = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(ml)
+    };
+
+    fetch(env.REACT_APP_API_URL + '/api-1.0/users/fd1039f8-76b5-495f-9d9b-bbb20520d7b9/models' + mid, requestmodel)
+      .then((res) => res.json())
+      .then((json) => {
+        this.setState({
+          pmodel: json
+        }); console.log(json)
+      })
+    console.log(this.state.pmodel);
+  }
+
+
+  handleOnSubmit = (event) => {
+    // event.preventDefault();
+    this.props.history.push({
+      pathname: '/EditModel',
+      state: event
+    });
+
+  };
+
+  deletemodule(mid) {
+    const req = {
+      method: 'DELETE'
+    };
+
+    fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + this.state.user + '/models/' + mid, req)
+      .then(response => { window.location.reload() });
+  }
 
   render() {
-	
-	  const {_models} = this.state
-	
-	  const resume = _models.map(dataIn => {
+
+    const { _models } = this.state
+
+    const resume = _models.map(dataIn => {
       return (
         <div key={dataIn.modelid}  >
           {dataIn.modelname}
-          <button style={{ float: 'right',  fontSize:18}} title="Delete Model" onClick = {this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title = "delete"/>  </button>       
-          <button style={{ float: 'right',  fontSize:18}} title="Edit Model" onClick = {this.handleOnSubmit.bind(this, dataIn) } > <GiPencil title = "edit"/>  </button>   
-		  
-		  </div>
+          <button style={{ float: 'right', fontSize: 18 }} title="Delete Model" onClick={this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title="delete" />  </button>
+          <button style={{ float: 'right', fontSize: 18 }} title="Edit Model" onClick={this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title="edit" />  </button>
+
+        </div>
       );
     });
-        //{group, schemaName}
+    //{group, schemaName}
     // const Graph = (group, schemaName) => {
     //   let json;
-    //   //let url=process.env.API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
-      
-    //   fetch(process.env.API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
+    //   //let url=env.REACT_APP_API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
+
+    //   fetch(env.REACT_APP_API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
     //   .then((jsonplot) => {
 
     //     json=jsonplot;
@@ -361,13 +364,13 @@ class The21cmSense extends React.Component {
     //               linewidth: 2,
     //               mirror: true,
     //               zeroline:false,
-    //               title:json.xlabel    
+    //               title:json.xlabel
     //           },
     //           yaxis: {
     //               range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
     //               showgrid:false,
     //               showline:true,
-    //               zeroline:false, 
+    //               zeroline:false,
     //               linecolor: 'black',
     //               linewidth: 2,
     //               mirror: true,
@@ -380,7 +383,7 @@ class The21cmSense extends React.Component {
     //   }
 
     //     else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
-    //     {            
+    //     {
     //         var trace1 = {
     //             x: json.x,
     //             y: json.y,
@@ -410,7 +413,7 @@ class The21cmSense extends React.Component {
     //             showlegend:false
     //         };
     //         var datasense=[trace1];
-    //         Plotly.restyle('myDiv', datasense, layoutsense); 
+    //         Plotly.restyle('myDiv', datasense, layoutsense);
 
     //     }
     //     else if(schemaName === 'k-vs-redshift-plot')//logic for heatmap
@@ -433,7 +436,7 @@ class The21cmSense extends React.Component {
     //                 linecolor: 'black',
     //                 linewidth: 2,
     //                 mirror: true,
-    //                 title:json.xlabel    
+    //                 title:json.xlabel
     //             },
     //             yaxis: {
     //                 showgrid:true,
@@ -447,7 +450,7 @@ class The21cmSense extends React.Component {
     //             showlegend:false
     //         };
     //         Plotly.restyle('myDiv', datak, layoutshift)
-    
+
     //     }
     //   });
 
@@ -456,160 +459,160 @@ class The21cmSense extends React.Component {
     //     </div>,
     //     Graph = {Graph}
     //   );
-              
+
     // };
-    
+
 
     return (
-        
-  
-        <div>
-            <div className = "modelStyle">
-              <br></br> 
-              <Panel  shaded >
-              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Model <GiInfo title = "create,edit, or delete"/> </label>
-              <Link to='/createModel'>
-                    <button style={{ float: 'right', fontWeight: 'bold', fontSize:18}} title="New Model" > + </button>
-                </Link>
-              <br></br><br></br>
-               
-			  <div   style={{color: 'rgb(77, 77, 58)', fontSize:21, fontFamily: 'Rockwell', paddingLeft: 50}}>
-		      		 {resume}  
-		      </div>	
-			  </Panel>
-              <br></br>
-              <Panel  shaded >
-              <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Download Data</label>
-              <br></br><br></br>         
-        
-                <Button onClick={saveJSON} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Parameters in JSON</Button>
-           
-                <Button onClick={saveImage} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Image of Graph</Button>
-                
-                <Button onClick={saveCSV} style = {{fontSize:12, fontFamily: 'Rockwell', width:100}}>Download Graph Data in CSV</Button>
-             
 
-  				    <br></br><br></br><br></br>
-              
-            </Panel>
+
+      <div>
+        <div className="modelStyle">
+          <br></br>
+          <Panel shaded >
+            <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Model <GiInfo title="create,edit, or delete" /> </label>
+            <Link to='/createModel'>
+              <button style={{ float: 'right', fontWeight: 'bold', fontSize: 18 }} title="New Model" > + </button>
+            </Link>
+            <br></br><br></br>
+
+            <div style={{ color: 'rgb(77, 77, 58)', fontSize: 21, fontFamily: 'Rockwell', paddingLeft: 50 }}>
+              {resume}
             </div>
-			
-            <div className = "graph">
-			<form >
-                <Panel shaded>
-                    <label style={{fontWeight: 'bold', fontSize:24, fontFamily: 'Times New Roman'}}> Plot <GiInfo title = "Plots for all created model"/></label>
-                    <br></br><br></br>
-					<label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Calculation </label>           
-	                <select name = "Calculation"  >
-				      {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
-				    </select>
-					<label style = {{fontSize:21, fontFamily: 'Rockwell', width:100}}> Models </label>           
-	                <select name = "models">						
-						 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}						     
-					</select>
- 					<br></br><br></br>
+          </Panel>
+          <br></br>
+          <Panel shaded >
+            <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Download Data</label>
+            <br></br><br></br>
 
-                    <Plot
+            <Button onClick={saveJSON} style={{ fontSize: 12, fontFamily: 'Rockwell', width: 100 }}>Download Parameters in JSON</Button>
 
-            data = {[{
+            <Button onClick={saveImage} style={{ fontSize: 12, fontFamily: 'Rockwell', width: 100 }}>Download Image of Graph</Button>
 
-              x : [
-                0.16499818112915432,
-                0.21999757483887245,
-                0.27499696854859057,
-                0.3299963622583087,
-                0.38499575596802676,
-                0.4399951496777449,
-                0.494994543387463,
-                0.5499939370971811,
-                0.6049933308068992,
-                0.6599927245166173,
-                0.7149921182263353,
-                0.7699915119360535,
-                0.8249909056457716,
-                0.8799902993554898,
-                0.9349896930652078,
-                0.9899890867749259,
-                1.044988480484644,
-                1.0999878741943623,
-                1.1549872679040805,
-                1.2099866616137984,
-                1.2649860553235166,
-                1.3199854490332348,
-                1.3749848427429527,
-                1.429984236452671,
-                1.484983630162389,
-                1.5399830238721073,
-                1.5949824175818252,
-                1.6499818112915434,
-                1.7049812050012616,
-                1.7599805987109796,
-                1.8149799924206977,
-                1.869979386130416,
-                1.9249787798401339,
-                1.979978173549852,
-                2.03497756725957,
-                2.089976960969288,
-                2.1449763546790064,
-                2.1999757483887246
-              ],
-            y : [
-                12.912515880728177,
-                19.45343904564521,
-                32.12647074134198,
-                53.013664937540476,
-                83.31495300123542,
-                123.67964944268913,
-                175.49621222887464,
-                240.19132213905047,
-                319.1999168689312,
-                413.95492397302746,
-                525.8878375169154,
-                656.4319695994517,
-                807.0276489658172,
-                979.0957080145427,
-                1174.0676374001425,
-                1393.3749279239394,
-                1638.449070527133,
-                1910.7215562728404,
-                2211.628099178302,
-                2542.6116481449676,
-                2905.0880134032686,
-                3300.488686407197,
-                3730.2451586434754,
-                4195.788921624284,
-                4698.551466881734,
-                5239.964285963664,
-                5821.458870430374,
-                6444.466711852103,
-                7110.41930180706,
-                7820.775293156087,
-                8576.945273414734,
-                9380.354476553095,
-                10232.434394225167,
-                11134.61651807939,
-                12088.332339759538,
-                13095.013350905463,
-                14156.091043153674,
-                15272.996908137862
-              ],
-            },
-              {type: 'scatter'},
-            ]}
-              layout={ {width: 1000, height: 750, title: 'Sensitivity Plot'} }
+            <Button onClick={saveCSV} style={{ fontSize: 12, fontFamily: 'Rockwell', width: 100 }}>Download Graph Data in CSV</Button>
 
 
-      />
-					
-			 </Panel>
+            <br></br><br></br><br></br>
 
-
-                    
-			</form>
-            </div>
-          
+          </Panel>
         </div>
-      
+
+        <div className="graph">
+          <form >
+            <Panel shaded>
+              <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Plot <GiInfo title="Plots for all created model" /></label>
+              <br></br><br></br>
+              <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Calculation </label>
+              <select name="Calculation"  >
+                {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
+              </select>
+              <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Models </label>
+              <select name="models">
+                {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}
+              </select>
+              <br></br><br></br>
+
+              <Plot
+
+                data={[{
+
+                  x: [
+                    0.16499818112915432,
+                    0.21999757483887245,
+                    0.27499696854859057,
+                    0.3299963622583087,
+                    0.38499575596802676,
+                    0.4399951496777449,
+                    0.494994543387463,
+                    0.5499939370971811,
+                    0.6049933308068992,
+                    0.6599927245166173,
+                    0.7149921182263353,
+                    0.7699915119360535,
+                    0.8249909056457716,
+                    0.8799902993554898,
+                    0.9349896930652078,
+                    0.9899890867749259,
+                    1.044988480484644,
+                    1.0999878741943623,
+                    1.1549872679040805,
+                    1.2099866616137984,
+                    1.2649860553235166,
+                    1.3199854490332348,
+                    1.3749848427429527,
+                    1.429984236452671,
+                    1.484983630162389,
+                    1.5399830238721073,
+                    1.5949824175818252,
+                    1.6499818112915434,
+                    1.7049812050012616,
+                    1.7599805987109796,
+                    1.8149799924206977,
+                    1.869979386130416,
+                    1.9249787798401339,
+                    1.979978173549852,
+                    2.03497756725957,
+                    2.089976960969288,
+                    2.1449763546790064,
+                    2.1999757483887246
+                  ],
+                  y: [
+                    12.912515880728177,
+                    19.45343904564521,
+                    32.12647074134198,
+                    53.013664937540476,
+                    83.31495300123542,
+                    123.67964944268913,
+                    175.49621222887464,
+                    240.19132213905047,
+                    319.1999168689312,
+                    413.95492397302746,
+                    525.8878375169154,
+                    656.4319695994517,
+                    807.0276489658172,
+                    979.0957080145427,
+                    1174.0676374001425,
+                    1393.3749279239394,
+                    1638.449070527133,
+                    1910.7215562728404,
+                    2211.628099178302,
+                    2542.6116481449676,
+                    2905.0880134032686,
+                    3300.488686407197,
+                    3730.2451586434754,
+                    4195.788921624284,
+                    4698.551466881734,
+                    5239.964285963664,
+                    5821.458870430374,
+                    6444.466711852103,
+                    7110.41930180706,
+                    7820.775293156087,
+                    8576.945273414734,
+                    9380.354476553095,
+                    10232.434394225167,
+                    11134.61651807939,
+                    12088.332339759538,
+                    13095.013350905463,
+                    14156.091043153674,
+                    15272.996908137862
+                  ],
+                },
+                { type: 'scatter' },
+                ]}
+                layout={{ width: 1000, height: 750, title: 'Sensitivity Plot' }}
+
+
+              />
+
+            </Panel>
+
+
+
+          </form>
+        </div>
+
+      </div>
+
     );
   }
 }
