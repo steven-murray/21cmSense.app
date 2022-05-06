@@ -179,12 +179,15 @@ class The21cmSense extends React.Component {
       FrequencyUnits: '',
       LatitudeUnits: ''
     }
+
+    this.plusSubmit = this.plusSubmit.bind(this);
   }
 
   componentDidMount() {
-    const modelid = 'b5749a3c-d395-427c-8478-0af262cac35a';
+    // const modelid = 'b5749a3c-d395-427c-8478-0af262cac35a';
     const { user } = this.state;
     if (user !== "") {
+      console.log("YEAH, GETTING MODELS.")
       this.getmodels(user);
       // TODO why do we need to comment this out?
       // This fetch always fails
@@ -206,6 +209,7 @@ class The21cmSense extends React.Component {
     fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models')
       .then((res) => res.json())
       .then((json) => {
+        console.log("IN HERE.");
         this.setState({
           _models: json.models
         });
@@ -308,10 +312,17 @@ class The21cmSense extends React.Component {
   }
 
   plusSubmit() {
+     
      console.log("I submitted.");
+     const { user } = this.state;
+     if (user !== "") {
+      this.getmodels(user);
+    }
   }
+
   render() {
 
+    console.log("Re-Rendering", this.state._models);
     const { _models } = this.state
 
     const resume = _models.map(dataIn => {
@@ -320,7 +331,6 @@ class The21cmSense extends React.Component {
           {dataIn.modelname}
           <button style={{ float: 'right', fontSize: 18 }} title="Delete Model" onClick={this.deletemodule.bind(this, dataIn.modelid)} > <GiEmptyWoodBucket title="delete" />  </button>
           <button style={{ float: 'right', fontSize: 18 }} title="Edit Model" onClick={this.handleOnSubmit.bind(this, dataIn)} > <GiPencil title="edit" />  </button>
-
         </div>
       );
     });
@@ -474,6 +484,7 @@ class The21cmSense extends React.Component {
       <div>
         <div className="modelStyle">
           <br></br>
+
           <Panel shaded >
             <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Model <GiInfo title="create,edit, or delete" /> </label>
             <Container triggerText="+" onSubmit={this.plusSubmit} buttonClass="btn btn-primary"/>
@@ -484,7 +495,9 @@ class The21cmSense extends React.Component {
               {resume}
             </div>
           </Panel>
+          
           <br></br>
+          
           <Panel shaded >
             <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Download Data</label>
             <br></br><br></br>

@@ -231,6 +231,7 @@ class CreateModel extends React.Component {
 		this.generateModel(this.state.user);
 		event.preventDefault();
 		this.props.closeModal();
+		this.props.onSubmit();
 		// this.props.history.push({
 		// 	pathname: '/',
 		// 	state: this.state
@@ -255,9 +256,6 @@ class CreateModel extends React.Component {
 			<h3 style={{ color: 'rgb(77, 77, 58)', fontFamily: 'Rockwell', paddingLeft: 20 }}> Sorry, we'are unable to reach the server at the moment. Please try again later.. </h3></div>;
 
 		return (
-
-			// <div style={{ display: 'block', width: 900, paddingLeft: 30 }}>
-			// 	<br></br><br></br>
 				<form onSubmit={this.handleOnSubmit} >
 					<Panel header='ANTENNA' shaded style={{ color: 'rgb(77, 77, 58)', fontSize: 21, fontFamily: 'Rockwell', paddingLeft: 20 }}>
 						<label> Hex Number </label>
@@ -300,7 +298,6 @@ class CreateModel extends React.Component {
 						disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
 
 				</form>
-			// </div>
 		);
 	}
 }
