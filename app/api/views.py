@@ -14,6 +14,7 @@ import pickle
 import uuid
 from typing import Tuple
 
+<<<<<<< main
 from flask import current_app, jsonify, request
 from py21cmsense import PowerSpectrum
 
@@ -39,6 +40,23 @@ def ensure_redis_available(fnc):
             }, cnst.HTTP_INTERNAL_SERVER_ERROR
 
     return inner
+=======
+import binascii
+import numpy as np
+from astropy import units
+from flask import current_app, json, request
+
+from . import api, models
+from .calculation import *
+from .models import *
+from .schema import (
+    build_composite_schema,
+    get_schema_descriptions_json,
+    get_schema_groups,
+    get_schema_names_json,
+)
+from .redisfuncs import *
+>>>>>>> update default 21cm calc to use units; black fmt
 
 
 @api.route("/")
@@ -50,7 +68,11 @@ def welcome():
     string
         Welcome message
     """
+<<<<<<< main
     return "Welcome to 21cmSense.app!"
+=======
+    return "Welcome to Project 43!"
+>>>>>>> update default 21cm calc to use units; black fmt
 
 
 @api.route("/ping")
@@ -527,6 +549,7 @@ def list_all_schema_groups():
 
 @api.route("/21cm/model/<modelid>", methods=["POST"])
 def call_21cm_with_model(modelid):
+    print(request, request.is_json, "json:", request.json, flush=True)
     if request.is_json and request.json:
         req = request.get_json()
         calc = req[rd.KW_CALCULATION]
