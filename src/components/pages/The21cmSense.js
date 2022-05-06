@@ -9,6 +9,8 @@ import '../../TestGraphDownload.js';
 import { saveAs } from "file-saver";
 import styled from "styled-components";
 import Plot from 'react-plotly.js';
+import Container from '../elements/ModalContainer';
+
 // import Plotly from 'plotly.js-dist';
 
 //import '../../Graph.js';
@@ -305,6 +307,9 @@ class The21cmSense extends React.Component {
       .then(response => { window.location.reload() });
   }
 
+  plusSubmit() {
+     console.log("I submitted.");
+  }
   render() {
 
     const { _models } = this.state
@@ -471,9 +476,8 @@ class The21cmSense extends React.Component {
           <br></br>
           <Panel shaded >
             <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Model <GiInfo title="create,edit, or delete" /> </label>
-            <Link to='/createModel'>
-              <button style={{ float: 'right', fontWeight: 'bold', fontSize: 18 }} title="New Model" > + </button>
-            </Link>
+            <Container triggerText="+" onSubmit={this.plusSubmit} buttonClass="btn btn-primary"/>
+            {/* <button style={{ float: 'right', fontWeight: 'bold', fontSize: 18 }} title="New Model" > + </button> */}
             <br></br><br></br>
 
             <div style={{ color: 'rgb(77, 77, 58)', fontSize: 21, fontFamily: 'Rockwell', paddingLeft: 50 }}>

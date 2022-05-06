@@ -230,10 +230,11 @@ class CreateModel extends React.Component {
 	handleOnSubmit = (event) => {
 		this.generateModel(this.state.user);
 		event.preventDefault();
-		this.props.history.push({
-			pathname: '/',
-			state: this.state
-		});
+		this.props.closeModal();
+		// this.props.history.push({
+		// 	pathname: '/',
+		// 	state: this.state
+		// });
 
 	};
 
@@ -255,8 +256,8 @@ class CreateModel extends React.Component {
 
 		return (
 
-			<div style={{ display: 'block', width: 900, paddingLeft: 30 }}>
-				<br></br><br></br>
+			// <div style={{ display: 'block', width: 900, paddingLeft: 30 }}>
+			// 	<br></br><br></br>
 				<form onSubmit={this.handleOnSubmit} >
 					<Panel header='ANTENNA' shaded style={{ color: 'rgb(77, 77, 58)', fontSize: 21, fontFamily: 'Rockwell', paddingLeft: 20 }}>
 						<label> Hex Number </label>
@@ -294,12 +295,12 @@ class CreateModel extends React.Component {
 					<br></br><br></br>
 					<label style={{ color: 'rgb(128, 0, 0)', fontSize: 18, fontFamily: 'Rockwell', width: 180 }}> Model Name </label>
 					<input name="modelName" type={"text"} onChange={this.handleInputChange} required />
-					<Button onClick={() => this.props.history.goBack()} style={{ fontSize: 24, fontFamily: 'Rockwell', width: 100 }}> Cancel </Button>
+					<Button onClick={() => this.props.closeModal()} style={{ fontSize: 24, fontFamily: 'Rockwell', width: 100 }}> Cancel </Button>
 					<Button style={{ fontSize: 24, fontFamily: 'Rockwell', width: 100 }} type="submit"
 						disabled={this.state.models.some(model => model.modelname === this.state.modelName)}> Save </Button>
 
 				</form>
-			</div>
+			// </div>
 		);
 	}
 }
