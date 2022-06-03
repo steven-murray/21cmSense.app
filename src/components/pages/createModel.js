@@ -131,7 +131,7 @@ class CreateModel extends React.Component {
 			})
 	}
 
-	generateModel(uid) {
+	async generateModel(uid) {
 
 		const ml = {
 			"modelname": this.state.modelName,
@@ -173,7 +173,8 @@ class CreateModel extends React.Component {
 			body: JSON.stringify(ml)
 		};
 
-		fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models', requestmodel)
+		const response = await fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models', requestmodel)
+		console.log("RESPONSE:", response);
 	}
 
 	getAntennaData() {
@@ -227,9 +228,9 @@ class CreateModel extends React.Component {
 			})
 	}
 
-	handleOnSubmit = (event) => {
-		this.generateModel(this.state.user);
+	handleOnSubmit = async(event) => {
 		event.preventDefault();
+		await this.generateModel(this.state.user);
 		this.props.closeModal();
 		this.props.onSubmit();
 		// this.props.history.push({

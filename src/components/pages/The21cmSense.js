@@ -205,11 +205,10 @@ class The21cmSense extends React.Component {
       })
   }
 
-  getmodels(uid) {
-    fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models')
+  async getmodels(uid) {
+    await fetch(env.REACT_APP_API_URL + '/api-1.0/users/' + uid + '/models')
       .then((res) => res.json())
       .then((json) => {
-        console.log("IN HERE.");
         this.setState({
           _models: json.models
         });
@@ -315,9 +314,10 @@ class The21cmSense extends React.Component {
      
      console.log("I submitted.");
      const { user } = this.state;
+
      if (user !== "") {
-      this.getmodels(user);
-    }
+        this.getmodels(user);
+     }      
   }
 
   render() {
