@@ -1,0 +1,130 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://21cmSense.app/object-schema.json",
+    "title": "PowerSpectrum Sensitivity",
+    "description": "A PowerSpectrum",
+    "type": "object",
+    "properties": {
+        "observation": {
+            "description": "observation",
+            "type": "object",
+            "properties": {
+                "observatory": {
+                    "description": "observatory",
+                    "type": "object",
+                    "properties": {
+                        "_antpos": {
+                            "description": "_antpos",
+                            "type": "object",
+                            "properties": {
+                                "hex_num": {
+                                    "description": "Number of antennas on each side of the hex",
+                                    "default": 7,
+                                    "type": "number"
+                                },
+                                "separation": {
+                                    "description": "Separation between antennas on a side, meters.",
+                                    "default": 14,
+                                    "type": "number",
+                                    "unit": "m"
+                                }
+                            }
+                        },
+                        "beam": {
+                            "description": "beam",
+                            "type": "object",
+                            "properties": {
+                                "frequency": {
+                                    "description": "frequency",
+                                    "type": "number",
+                                    "unit": "MHz"
+                                },
+                                "dish_size": {
+                                    "description": "dish_size",
+                                    "type": "number",
+                                    "unit": "m"
+                                }
+                            },
+                            "required": [
+                                "frequency",
+                                "dish_size"
+                            ],
+                            "className": "py21cmsense.beam.GaussianBeam"
+                        }
+                    },
+                    "required": [
+                        "_antpos",
+                        "beam"
+                    ],
+                    "className": "py21cmsense.observatory.Observatory"
+                },
+                "track": {
+                    "description": "track",
+                    "type": "null",
+                    "default": null
+                },
+                "obs_duration": {
+                    "description": "obs_duration",
+                    "type": [
+                        "null",
+                        "number"
+                    ],
+                    "default": null
+                },
+                "n_channels": {
+                    "description": "n_channels",
+                    "type": "number",
+                    "default": 82
+                },
+                "n_days": {
+                    "description": "n_days",
+                    "type": "number",
+                    "default": 180
+                },
+                "redundancy_tol": {
+                    "description": "redundancy_tol",
+                    "type": "number",
+                    "default": 1
+                },
+                "coherent": {
+                    "description": "coherent",
+                    "type": "boolean",
+                    "default": true
+                },
+                "spectral_index": {
+                    "description": "spectral_index",
+                    "type": "number",
+                    "default": 2.6
+                },
+                "_uv_cov": {
+                    "description": "_uv_cov",
+                    "type": "null",
+                    "default": null
+                }
+            },
+            "required": [
+                "observatory"
+            ],
+            "className": "py21cmsense.observation.Observation"
+        },
+        "no_ns_baselines": {
+            "description": "no_ns_baselines",
+            "type": "boolean",
+            "default": false
+        },
+        "foreground_model": {
+            "description": "foreground_model",
+            "type": "string",
+            "default": "moderate"
+        },
+        "systematics_mask": {
+            "description": "systematics_mask",
+            "type": "null",
+            "default": null
+        }
+    },
+    "required": [
+        "observation"
+    ],
+    "className": "py21cmsense.sensitivity.PowerSpectrum"
+}

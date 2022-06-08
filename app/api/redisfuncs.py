@@ -11,7 +11,6 @@
 import pickle
 
 import redis
-from . import constants
 
 # tags used for redis namespaces
 TAG_USER = 'user'
@@ -31,31 +30,15 @@ KW_NAME = 'name'
 KW_ANTPOSID = 'antposid'
 KW_ANTPOSNAME = 'antposname'
 
+KW_CALCULATION = 'calculation'
+KW_ERROR = 'error'
+
 
 # persistent redis database connection with automatic UTF-8 decoding
 rdb = redis.Redis(decode_responses=True)
 
 # automatic UTF-8 decoding is not compatible with pickled strings.
 rpickle = redis.Redis(decode_responses=False)
-
-
-# redis cache the model
-
-# r=redis.Redis()
-# u=username_hash
-# m=modelname_hash
-# p = pickle.dumps(json_dict)
-# all of a user's models
-# key to a set="user:"+userIDhash = "model:modelIDhash"
-# (r.sadd (userkey, modelstring)
-# a model is a hash with two entries: name and data
-# r.hmset('model:'+modelnum, KW_MODELNAME, 'the name of the model')
-# r.hmset('model:'+modelnum, 'data', '{json for this model}')
-# key=u+":"+m
-# r.set(key,p)
-# return: pickle.loads(r.get(key))
-#
-# hget: Returns the value associated with field in the hash stored at key
 
 # returns a redis key (namespace:identifier)
 def user_key(userid: str) -> str:
@@ -72,34 +55,17 @@ def antpos_key(antposid: str) -> str:
     return TAG_ANTPOS + ":" + antposid
 
 
-# try:
-#     r.ping()
-# except ConnectionError:
-#     return {"error":"redis database not available"}, HTTP_INTERNAL_SERVER_ERROR
-
 # does user with provided userid exist?
 def user_exists(userid):
-    if rdb.exists(user_key(userid)):
-        return True
-    else:
-        return False
-
+    return rdb.exists(user_key(userid))
 
 # does model with provided modelid exist?
 def model_exists(modelid):
-    if rdb.exists(model_key(modelid)):
-        return True
-    else:
-        return False
-
+    return rdb.exists(model_key(modelid))
 
 # does antpos data with provided antposid exist?
 def antpos_exists(antposid):
-    if rdb.exists(antpos_key(antposid)):
-        return True
-    else:
-        return False
-
+    return rdb.exists(antpos_key(antposid))
 
 def entryname_exists(userid, entryname, namespace) -> bool:
     """Whether a redis hash object of namespace 'namespace' and the
@@ -184,10 +150,7 @@ def tag_match(tag: str, key: str) -> bool:
 
     """
     t = key.split(":")
-    if len(t) == 2 and t[0] == tag:
-        return True
-    else:
-        return False
+    return len(t) == 2 and t[0] == tag
 
 
 

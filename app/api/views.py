@@ -12,14 +12,14 @@ import uuid
 import base64
 
 import binascii
-import numpy as np
-from flask import current_app, json, request
+from flask import current_app, request, jsonify
 
-from . import api, models
-from .calculation import *
-from .models import *
+from . import api
+from . import calculation as calc
 from .schema import build_composite_schema, get_schema_descriptions_json, get_schema_groups, get_schema_names_json
-from .redisfuncs import *
+from . import redisfuncs as rd
+from . import constants as cnst
+import pickle
 
 
 @api.route('/')
@@ -31,7 +31,7 @@ def welcome():
     string
         Welcome message
     """
-    return 'Welcome to Project 43!'
+    return 'Welcome to 21cmSense.app!'
 
 
 @api.route('/ping')
@@ -48,7 +48,7 @@ def ping():
     }
 
 
-@api.route('/users', methods=[HTTP_POST])
+@api.route('/users', methods=["POST"])
 def create_user():
     """create a user for tracking models
 
@@ -70,66 +70,51 @@ def create_user():
         }
 
     """
-    if request.method == HTTP_POST:
+    if request.method == "POST":
         try:
             userid = str(uuid.uuid4())
-            rdb.sadd(user_key(userid), '')
-            return {'uuid': userid}, HTTP_CREATED
-        except redis.ConnectionError:
-            return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            rd.rdb.sadd(rd.user_key(userid), '')
+            return {'uuid': userid}, cnst.HTTP_CREATED
+        except rd.redis.ConnectionError:
+            return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-# As of Flask 1.1, the return statement will automatically jsonify a dictionary in the first return value.
-
-# status_code = flask.Response(status=201)
-# return status_code
-#
-# return Response("{'a':'b'}", status=201, mimetype='application/json')
-
-# notfound = 404
-# return xyz, notfound
-
-# return Response(json.dumps({'Error': 'Error in payload'}),
-# status=422,
-# mimetype="application/json")
-
-
-@api.route('/users/<userid>', methods=[HTTP_DELETE])
+@api.route('/users/<userid>', methods=[cnst.HTTP_DELETE])
 def delete_user(userid):
     try:
         # remove all model references for the user
-        models = list(rdb.smembers(user_key(userid)))
+        models = list(rd.rdb.smembers(rd.user_key(userid)))
         if models:
-            rdb.delete(*models)
+            rd.rdb.delete(*models)
         # and remove the user
-        rdb.delete(user_key(userid))
-        return "", HTTP_NO_CONTENT
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        rd.rdb.delete(rd.user_key(userid))
+        return "", cnst.HTTP_NO_CONTENT
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models', methods=[HTTP_GET])
+@api.route('/users/<userid>/models', methods=[cnst.HTTP_GET])
 def list_models(userid):
     try:
         l = []
-        keys = rdb.smembers(user_key(userid))
+        keys = rd.rdb.smembers(rd.user_key(userid))
 
         # the user may have multiple entries, e.g., model:xyz, antpos:abc
-        matches = [x for x in keys if tag_match(TAG_MODEL, x)]
+        matches = [x for x in keys if rd.tag_match(rd.TAG_MODEL, x)]
         for m in matches:
-            l.append({KW_MODELNAME: rdb.hget(m, KW_MODELNAME), KW_MODELID: strip_tag(m)})
-        return {'uuid': userid, 'models': l}, HTTP_OK
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            l.append({rd.KW_MODELNAME: rd.rdb.hget(m, rd.KW_MODELNAME), rd.KW_MODELID: rd.strip_tag(m)})
+        return {'uuid': userid, 'models': l}, cnst.HTTP_OK
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
 def get_model_json(modelid):
-    if not model_exists(modelid):
+    if not rd.model_exists(modelid):
         return None, None
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
-    name = rdb.hget(model_key(modelid), KW_MODELNAME)
-    data = rpickle.hget(model_key(modelid), KW_DATA)
+    name = rd.rdb.hget(rd.model_key(modelid), rd.KW_MODELNAME)
+    data = rd.rpickle.hget(rd.model_key(modelid), rd.KW_DATA)
 
     if data:
         # recall that json payload is pickled into a string
@@ -139,82 +124,82 @@ def get_model_json(modelid):
         return None, None
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_GET])
+@api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_GET])
 def model_get(userid, modelid):
     try:
-        if not user_exists(userid):
-            return "", HTTP_NOT_FOUND
+        if not rd.user_exists(userid):
+            return "", cnst.HTTP_NOT_FOUND
         (name, data) = get_model_json(modelid)
         if data is not None:
-            return {KW_MODELNAME: name, KW_DATA: data}, HTTP_OK
+            return {rd.KW_MODELNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
         else:
-            return "", HTTP_NOT_FOUND
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            return "", cnst.HTTP_NOT_FOUND
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_PUT])
+@api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_PUT])
 def model_update(userid, modelid):
     try:
-        if not user_exists(userid) or not model_exists(modelid):
-            return "", HTTP_NOT_FOUND
-        if not (request.is_json and request.json and KW_DATA in request.get_json()):
-            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
+        if not rd.user_exists(userid) or not rd.model_exists(modelid):
+            return "", cnst.HTTP_NOT_FOUND
+        if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
+            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
         req = request.get_json()
-        rdb.hset(model_key(modelid), KW_MODELNAME, req[KW_MODELNAME])
-        rpickle.hset(model_key(modelid), KW_DATA, pickle.dumps(req[KW_DATA]))
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, req[rd.KW_MODELNAME])
+        rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(req[rd.KW_DATA]))
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/models/<modelid>', methods=[HTTP_DELETE])
+@api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_DELETE])
 def model_delete(userid, modelid):
     try:
-        if not user_exists(userid) or not model_exists(modelid):
-            return "", HTTP_NOT_FOUND
+        if not rd.user_exists(userid) or not rd.model_exists(modelid):
+            return "", cnst.HTTP_NOT_FOUND
 
         # The model is stored in the user's set as "model:uuid"
-        rdb.srem(user_key(userid), model_key(modelid))
-        rdb.delete(model_key(modelid))
-        return "", HTTP_NO_CONTENT
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        rd.rdb.srem(rd.user_key(userid), rd.model_key(modelid))
+        rd.rdb.delete(rd.model_key(modelid))
+        return "", cnst.HTTP_NO_CONTENT
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
 # accepts:
 # {"modelname": "name of model"}
 # returns:
-# {KW_MODELID:modelid, "modelname": "name of model"}
-@api.route('/users/<userid>/models', methods=[HTTP_POST])
+# {rd.KW_MODELID:modelid, "modelname": "name of model"}
+@api.route('/users/<userid>/models', methods=["POST"])
 def model_create(userid):
     try:
         # this user isn't registered...
-        if not user_exists(userid):
-            return "", HTTP_NOT_FOUND
+        if not rd.user_exists(userid):
+            return "", cnst.HTTP_NOT_FOUND
 
-        if request.is_json and request.json and KW_MODELNAME in request.get_json() and KW_DATA in request.get_json():
+        if request.is_json and request.json and rd.KW_MODELNAME in request.get_json() and rd.KW_DATA in request.get_json():
             json = request.get_json()
             modelid = str(uuid.uuid4())
-            modelname = json[KW_MODELNAME]
+            modelname = json[rd.KW_MODELNAME]
 
             # if model name exists, return conflict error
-            if entryname_exists(userid, modelname, TAG_MODEL):
-                return {KW_ERROR: 'duplicate model name'}, HTTP_CONFLICT
+            if rd.entryname_exists(userid, modelname, rd.TAG_MODEL):
+                return {rd.KW_ERROR: 'duplicate model name'}, cnst.HTTP_CONFLICT
 
             # create the model
-            rdb.hset(model_key(modelid), KW_MODELNAME, modelname)
-            rpickle.hset(model_key(modelid), KW_DATA, pickle.dumps(json[KW_DATA]))
+            rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, modelname)
+            rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(json[rd.KW_DATA]))
 
             # add to the user's models
-            rdb.sadd(user_key(userid), model_key(modelid))
-            return {'userid': userid, KW_MODELID: modelid, KW_MODELNAME: modelname}, HTTP_CREATED
+            rd.rdb.sadd(rd.user_key(userid), rd.model_key(modelid))
+            return {'userid': userid, rd.KW_MODELID: modelid, rd.KW_MODELNAME: modelname}, cnst.HTTP_CREATED
         else:
-            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/antpos', methods=[HTTP_GET])
+@api.route('/users/<userid>/antpos', methods=[cnst.HTTP_GET])
 def list_antpos(userid):
     """
 
@@ -228,20 +213,20 @@ def list_antpos(userid):
     """
     try:
         l = []
-        keys = rdb.smembers(user_key(userid))
+        keys = rd.rdb.smembers(rd.user_key(userid))
 
         # the user may have multiple entries, e.g., model:xyz, antpos:abc
-        matches = [x for x in keys if tag_match(TAG_ANTPOS, x)]
+        matches = [x for x in keys if rd.tag_match(rd.TAG_ANTPOS, x)]
 
         for a in matches:
-            l.append({KW_ANTPOSNAME: rdb.hget(a, KW_ANTPOSNAME), KW_ANTPOSID: strip_tag(a)})
-        return {'uuid': userid, 'antpos': l}, HTTP_OK
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            l.append({rd.KW_ANTPOSNAME: rd.rdb.hget(a, rd.KW_ANTPOSNAME), rd.KW_ANTPOSID: rd.strip_tag(a)})
+        return {'uuid': userid, 'antpos': l}, cnst.HTTP_OK
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
 
-@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_GET])
+@api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_GET])
 def antpos_get(userid, antposid):
     """
 
@@ -255,18 +240,18 @@ def antpos_get(userid, antposid):
 
     """
     try:
-        if not user_exists(userid):
-            return "", HTTP_NOT_FOUND
-        (name, data) = get_antpos_json(antposid)
+        if not rd.user_exists(userid):
+            return "", cnst.HTTP_NOT_FOUND
+        (name, data) = rd.get_antpos_json(antposid)
         if data is not None:
-            return {KW_ANTPOSNAME: name, KW_DATA: data}, HTTP_OK
+            return {rd.KW_ANTPOSNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
         else:
-            return "", HTTP_NOT_FOUND
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            return "", cnst.HTTP_NOT_FOUND
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_PUT])
+@api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_PUT])
 def antpos_update(userid, antposid):
     """
 
@@ -280,18 +265,18 @@ def antpos_update(userid, antposid):
 
     """
     try:
-        if not user_exists(userid) or not antpos_exists(antposid):
-            return "", HTTP_NOT_FOUND
-        if not (request.is_json and request.json and KW_DATA in request.get_json()):
-            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
+        if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
+            return "", cnst.HTTP_NOT_FOUND
+        if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
+            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
         req = request.get_json()
-        rdb.hset(antpos_key(antposid), KW_ANTPOSNAME, req[KW_ANTPOSNAME])
-        rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(req[KW_DATA]))
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, req[rd.KW_ANTPOSNAME])
+        rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(req[rd.KW_DATA]))
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-@api.route('/users/<userid>/antpos/<antposid>', methods=[HTTP_DELETE])
+@api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_DELETE])
 def antpos_delete(userid, antposid):
     """
 
@@ -305,15 +290,15 @@ def antpos_delete(userid, antposid):
 
     """
     try:
-        if not user_exists(userid) or not antpos_exists(antposid):
-            return "", HTTP_NOT_FOUND
+        if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
+            return "", cnst.HTTP_NOT_FOUND
 
         # The antpos model is stored in the user's set as "antpos:uuid"
-        rdb.srem(user_key(userid), antpos_key(antposid))
-        rdb.delete(antpos_key(antposid))
-        return "", HTTP_NO_CONTENT
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+        rd.rdb.srem(rd.user_key(userid), rd.antpos_key(antposid))
+        rd.rdb.delete(rd.antpos_key(antposid))
+        return "", cnst.HTTP_NO_CONTENT
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
 def translate_and_validate_antenna_data(data):
@@ -365,7 +350,7 @@ def translate_and_validate_antenna_data(data):
     return array2d
 
 
-@api.route('/users/<userid>/antpos', methods=[HTTP_POST])
+@api.route('/users/<userid>/antpos', methods=["POST"])
 def antpos_create(userid):
     """
 
@@ -379,35 +364,35 @@ def antpos_create(userid):
     """
     try:
         # this user isn't registered...
-        if not user_exists(userid):
-            return "", HTTP_NOT_FOUND
+        if not rd.user_exists(userid):
+            return "", cnst.HTTP_NOT_FOUND
 
-        if request.is_json and request.json and KW_ANTPOSNAME in request.get_json() and KW_DATA in request.get_json():
+        if request.is_json and request.json and rd.KW_ANTPOSNAME in request.get_json() and rd.KW_DATA in request.get_json():
             json = request.get_json()
             antposid = str(uuid.uuid4())
-            antposname = json[KW_ANTPOSNAME]
+            antposname = json[rd.KW_ANTPOSNAME]
 
             # if antpos name exists, return conflict error
-            if entryname_exists(userid, antposname, TAG_ANTPOS):
-                return {KW_ERROR: 'duplicate antpos name'}, HTTP_CONFLICT
+            if rd.entryname_exists(userid, antposname, rd.TAG_ANTPOS):
+                return {rd.KW_ERROR: 'duplicate antpos name'}, cnst.HTTP_CONFLICT
 
             # create the antpos entry
-            rdb.hset(antpos_key(antposid), KW_ANTPOSNAME, antposname)
+            rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, antposname)
 
-            array2d = translate_and_validate_antenna_data(json[KW_DATA])
+            array2d = translate_and_validate_antenna_data(json[rd.KW_DATA])
             if array2d is None:
-                return {KW_ERROR: "CSV file is improperly formatted. Please see documentation."}, \
-                       HTTP_UNPROCESSABLE_ENTITY
+                return {rd.KW_ERROR: "CSV file is improperly formatted. Please see documentation."}, \
+                       cnst.HTTP_UNPROCESSABLE_ENTITY
 
-            rpickle.hset(antpos_key(antposid), KW_DATA, pickle.dumps(array2d))
+            rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(array2d))
 
             # add to the user's antpos entries
-            rdb.sadd(user_key(userid), antpos_key(antposid))
-            return {'userid': userid, KW_ANTPOSID: antposid, KW_ANTPOSNAME: antposname}, HTTP_CREATED
+            rd.rdb.sadd(rd.user_key(userid), rd.antpos_key(antposid))
+            return {'userid': userid, rd.KW_ANTPOSID: antposid, rd.KW_ANTPOSNAME: antposname}, cnst.HTTP_CREATED
         else:
-            return {KW_ERROR: 'missing request body or bad request'}, HTTP_BAD_REQUEST
-    except redis.ConnectionError:
-        return {KW_ERROR: "redis database unavailable"}, HTTP_INTERNAL_SERVER_ERROR
+            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
+    except rd.redis.ConnectionError:
+        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
 @api.route('/schema/<schemagroup>/descriptions')
@@ -426,7 +411,7 @@ def schema_descriptions(schemagroup):
     return get_schema_descriptions_json(schemagroup)
 
 
-@api.route('/customschema', methods=[HTTP_POST])
+@api.route('/customschema', methods=["POST"])
 def api_return():
     """
 
@@ -434,7 +419,7 @@ def api_return():
     -------
     A custom schema
     """
-    if request.method == HTTP_POST:
+    if request.method == "POST":
         lst = get_schema_groups()
 
         # we should be posted something like:
@@ -494,7 +479,7 @@ def get_schema_group(schemagroup):
     return get_schema_names_json(schemagroup)
 
 
-@api.route('/schema', methods=[HTTP_GET])
+@api.route('/schema', methods=[cnst.HTTP_GET])
 def list_all_schema_groups():
     """List all supported schema groups
 
@@ -512,178 +497,22 @@ def list_all_schema_groups():
     return jsonify(lst)
 
 
-@api.route("/test", methods=[HTTP_GET, HTTP_POST])
-def testtest():
-    if request.is_json and request.json:
-        thisjson = request.get_data()
 
-        # req = request.get_json()
-
-        schema = """
-{
-  "$schema": "http://json-schema.org/schema#",
-  "type": "object",
-  "properties": {
-    "schema": {
-      "type": "string"
-    },
-    "data": {
-      "type": "object",
-      "properties": {
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "hex_num": {
-              "type": "integer"
-            },
-            "separation": {
-              "type": "number"
-            },
-            "dl": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "dl",
-            "hex_num",
-            "separation"
-          ]
-        },
-        "beam": {
-          "type": "object",
-          "properties": {
-            "class": {
-              "type": "string"
-            },
-            "frequency": {
-              "type": "number"
-            },
-            "dish_size": {
-              "type": "number"
-            }
-          },
-          "required": [
-            "class",
-            "dish_size",
-            "frequency"
-          ]
-        },
-        "location": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                  "type": "number"
-                }
-            }
-        }
-      },
-      "required": [
-        "antenna",
-        "beam",
-        "latitude"
-      ]
-    },
-    "units": {
-      "type": "object",
-      "properties": {
-        "antenna": {
-          "type": "object",
-          "properties": {
-            "separation": {
-              "type": "string"
-            },
-            "dl": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "dl",
-            "separation"
-          ]
-        },
-        "beam": {
-          "type": "object",
-          "properties": {
-            "frequency": {
-              "type": "string",
-              "enum": [ "Hz", "Mhz" ]
-            }
-          },
-          "required": [
-            "frequency"
-          ]
-        },
-        "location": {
-          "type": "object",
-          "properties": {
-            "latitude": {
-              "type": "string", 
-              "enum": [ "deg", "rad" ]
-            }
-          },
-          "required": [
-            "latitude"
-          ]
-        }
-      },
-      "required": [
-        "antenna",
-        "beam",
-        "location"
-      ]
-    }
-  },
-  "required": [
-    "data",
-    "schema",
-    "units"
-  ]
-}
-    """
-        # print("type of schema=",type(schema))
-        # ss='{"hello":"there"}'
-        # sch=json.loads(ss)
-        sch = json.loads(schema)
-        v = models.Validator()
-        req_json = request.get_json()
-        if v.validate(sch, req_json):
-            print("json validated")
-        else:
-            print("json failed validation")
-
-        fact = models.Factory()
-        sensitivity = fact.go(req_json)
-        power_std = sensitivity.calculate_sensitivity_1d()
-
-        for v in sensitivity.k1d:
-            print("v.value=", v.value, ", type(v.value)=", type(v.value))
-        for v in power_std:
-            print("v.value=", v.value, ", type(v.value)=", type(v.value))
-        z = zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
-        print(z)
-        d = dict(z)
-        print("dict=", d)
-        print(json.dumps(d))
-        return json.dumps(d)
-
-    return jsonify("test succeeded.")
-
-
-@api.route("/21cm/model/<modelid>", methods=[HTTP_POST])
+@api.route("/21cm/model/<modelid>", methods=["POST"])
 def call_21cm_with_model(modelid):
     if request.is_json and request.json:
         req = request.get_json()
-        calc = req[KW_CALCULATION]
+        calc = req[rd.KW_CALCULATION]
         (name, data) = get_model_json(modelid)
         if name is None:
-            return {KW_ERROR: "Model does not exist", KW_MODELID: modelid}
-        data[KW_CALCULATION] = calc
-        return calculate(data)
+            return {rd.KW_ERROR: "Model does not exist", rd.KW_MODELID: modelid}
+        data[rd.KW_CALCULATION] = calc
+        return calc.calculate(data)
     else:
-        return {KW_ERROR: "Bad request body"}, HTTP_BAD_REQUEST
+        return {rd.KW_ERROR: "Bad request body"}, cnst.HTTP_BAD_REQUEST
 
 
-@api.route("/21cm", methods=[HTTP_POST])
+@api.route("/21cm", methods=["POST"])
 def call_21cm():
     """Make a computation request to the 21cmSense library
 
@@ -695,45 +524,7 @@ def call_21cm():
     if request.is_json and request.json:
         req = request.get_json()
 
-        return calculate(req)
+        return calc.calculate(req)
     else:
-        return {KW_ERROR: "request is not in json format"}, HTTP_BAD_REQUEST
+        return {rd.KW_ERROR: "request is not in json format"}, cnst.HTTP_BAD_REQUEST
 
-    # if request.is_json and request.json:
-    #     req = request.get_json()
-    #     return build_composite_schema(req)
-    # if 'calculation' not in req:
-    #     return json_error("error", "no calculation key found in json")
-    # else:
-    # key = req['calculation']
-    # calculation_factory = CalculationFactory()
-    # if calculation_factory.knows(key):
-    #     calc = calculation_factory.get(key)
-    #     return_json = handle_output(calc)
-    #     return return_json
-    # else:
-    #     return json_error("error", "unknown calculation type: " + key)
-
-
-@api.route("/21cm_default", methods=[HTTP_GET, HTTP_POST])
-def to_cm_if():
-    sensitivity = PowerSpectrum(
-        observation=Observation(
-            observatory=Observatory(
-                antpos=hera(hex_num=7, separation=14, dl=12.12, units="m"),
-                beam=GaussianBeam(frequency=135.0, dish_size=14),
-                latitude=38 * np.pi / 180.0
-            )
-        )
-    )
-    power_std = sensitivity.calculate_sensitivity_1d()
-    sens = [v.value for v in sensitivity.k1d]
-    powr = [v.value.tostring() for v in power_std]
-    for v in power_std:
-        print("v=", v.value, " and type=", type(v.value))
-    print('sens=', sens)
-    print('powr=', powr)
-    z = zip([v.value for v in sensitivity.k1d], [v.value for v in power_std])
-    print(z)
-    print(json.dumps(z))
-    return json.dumps(dict(z))

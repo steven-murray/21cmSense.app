@@ -10,30 +10,29 @@
 
 
 from functools import cache, cached_property
-
+from typing import Callable
 from app.api.schema import get_schema_names
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FactoryManager:
     """Class to manage methods for callbacks
-
-    Attributes
-    ----------
-    maplist : dict
-        Mapping of names to methods
     """
 
     def __init__(self, schemagroup):
         self.d = {}
-        if not schemagroup:
-            assert (schemagroup), "Factory manager initialized without a schema group name"
-        else:
-            self.schemagroup = schemagroup
+        assert schemagroup, "Factory manager initialized without a schema group name"
+        
+        self.schema_group = schemagroup
 
-        lookup_list = self.map_schema_to_methods(self.schemagroup)
+        self.schema_methods = {m.upper(): m for m in dir(self) if hasattr(m, 'schema_method')}
+        lookup_list = self.map_schema_to_methods(self.schema_group)
+
         self.add_all(lookup_list)
 
-    def add_all(self, maplist):
+    def add_all(self, **kwargs):
         """adds mappings from maplist, which contains (keyword, func) mappings
 
         Parameters
@@ -42,47 +41,17 @@ class FactoryManager:
             dict with (keyword, func) mappings
 
         """
-        for t in maplist:
-            self.add(t[0], t[1])
+        for k, v in kwargs.items():
+            self[k] = v
 
-    def add(self, key, f):
-        """Add single keyword, function mapping
+    def __setitem__(self, key, val):
+        self.d[key] = val
 
-        Parameters
-        ----------
-        key : string
-            key
-        f : function
-            function to map to
+    def __getitem__(self, key):
+        return self.d[key]
 
-        Returns
-        -------
-        FactoryManager
-            returns a reference to this object as a builder pattern
-        """
-        # if key not in self.d:
-        # allow updating/overwriting
-        self.d[key] = f
-        return self
-
-    def knows(self, key):
-        """Whether this object has a mapping for key
-
-        Parameters
-        ----------
-        key
-            key to check
-
-        Returns
-        -------
-        bool
-            true if mapping exists, false otherwise
-
-        """
-        if key in self.d:
-            return True
-        else:
-            return False
+    def __contains__(self, key):
+        return key in self.d
 
     def get(self, key):
         """Get function mapped to key
@@ -98,14 +67,10 @@ class FactoryManager:
             function mapped to key or None if no match on key
 
         """
-        if self.knows(key):
-            return self.d[key]
-        else:
-            return None
+        return self.d.get(key)
 
-    # @cached_property
     @cache
-    def map_schema_to_methods(self, schemagroup):
+    def map_schema_to_methods(self, schemagroup) -> dict[str, Callable]:
         """Map on-disk schema to class methods based on name
 
         Returns
@@ -113,42 +78,16 @@ class FactoryManager:
         list
             list of ("name", function) tuples for lookups
         """
-        lookup_list = []
+        lookup_list = {}
 
         schemas = get_schema_names(schemagroup)
-        for c in schemas:
-            print("Got schema=", c)
 
-        # find all of the methods in this class.  Nomenclature is '_name_of_schema_on_disk'
-        allmethods = {}
-        for m in dir(self):
-            if not m.startswith('__') and m.startswith('_'):
-                print("Got method=", m)
-                allmethods[m.upper()] = m
-
-        # lookfor = ["one_d_cut", "two_d_cut"]
-        # a list of schema names; we will look for methods matching these
-        lookfor = schemas
-        print("Going to look for methods matching these schema:", lookfor)
-        for s in lookfor:
-
+        for s in schemas:
             # transliterate "-" in schema to "_" in method and add leading underscore
             method_name = "_" + s.replace("-", "_").upper()
-            if method_name in allmethods:
-
-                # method = getattr(CalculationFactory, allmethods[method_name])
-                method = getattr(self, allmethods[method_name])
-                # self.add(s, method)
-                lookup_list.append((s, method))
-                print("Mapped group " + schemagroup + " method " + allmethods[method_name] + " to schema " + s)
-                allmethods.pop(method_name)
-
-            else:
-                print("Missing group " + schemagroup + " method for schema " + s)
-                # if method.__name__ in allmethods:
-                #     allmethods.remove(method.__name__)
-
-        for m in allmethods:
-            print("Missing group " + schemagroup + " schema for method " + m)
+            try:
+                lookup_list[s] = self.schema_methods[method_name]
+            except KeyError:
+                logger.error("Missing group " + schemagroup + " method for schema " + s)
 
         return lookup_list

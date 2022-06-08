@@ -14,12 +14,10 @@ def register_errorhandlers(app):
 
 def create_app():
     from .api import api as api_blueprint
-    from .interactive import interactive as interactive_blueprint
-
+    
     app = Flask(__name__)
     CORS(app)
     register_errorhandlers(app)
 
     app.register_blueprint(api_blueprint, url_prefix='/api-1.0')
-    app.register_blueprint(interactive_blueprint, url_prefix='/')
     return app

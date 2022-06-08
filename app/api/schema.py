@@ -20,8 +20,6 @@ from .util import DebugPrint
 
 from .exceptions import ValidationException
 
-debug = DebugPrint(0).debug_print
-
 
 def get_schema_names(schemagroup):
     """get a list of the schema names within a schema group
@@ -164,10 +162,7 @@ def load_schema(schemagroup: str, schemaname: str):
         Contents of requested schema file or None if file does not exist
 
     """
-    l = load_schema_generic('schema', schemagroup, schemaname)
-    debug("loaded schema=" + str(l), 9)
-    return l
-
+    return load_schema_generic('schema', schemagroup, schemaname)
 
 def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     """
@@ -189,7 +184,6 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     """
     try:
         p = SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
-        debug("going to load schema from path: " + p, 3)
         f = open(SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
         schema = json.load(f)
         f.close()
@@ -226,7 +220,6 @@ def build_composite_schema(schema: JSONDecoder):
         return json_error("error", "specified schema missing 'calculation' key")
 
     calculation_type = schema['calculation']
-    debug("Going to load schema for calculation " + calculation_type, 9)
 
     calc_schema = load_schema('calculation', calculation_type)
     if not calc_schema:
@@ -240,29 +233,6 @@ def build_composite_schema(schema: JSONDecoder):
             return json_error("error", "Missing required data component " + component)
         else:
             comp_schema_name = schema[component]
-        # if component not in schema['data']:
-        #     return json_error("error", "Missing required data component " + component)
-        # if 'schema' not in schema['data'][component]:
-        #     return json_error("error", "Missing schema identifier in data component " + component)
-        # else:
-        #     comp_schema_name = schema['data'][component]['schema']
-
-        # cs=build_schema_for_validation(schema['data'][component], schema['units'][component])
-
-        #
-        #
-        # Validation, save for later
-        # cs = build_schema_for_validation(component, schema['data'], schema['units'])
-        # print("Going to validate schema: ", cs)
-        # validation_schema = load_validation_schema(component, comp_schema_name)
-        # if not validation_schema:
-        #     return json_error("error",
-        #                       "Cannot locate validation schema for schema %s/%s" % (component, comp_schema_name))
-        # try:
-        #     jsonschema.validate(cs, validation_schema)
-        # except ValidationError:
-        #     return json_error("error", "Cannot validate schema %s/%s" % (component, comp_schema_name))
-        debug("Going to load component schema %s/%s" % (component, comp_schema_name), 3)
         newschema['data'][component] = load_schema(component, comp_schema_name)
         newschema['units'][component] = {}
 
@@ -365,7 +335,6 @@ class Validator:
         if not schema:
             schema = load_schema_generic('validation-schema', schemagroup, "default")
             if not schema:
-                debug("Cannot locate schema for %s/%s" % (schemagroup, schemaname), 1)
                 return None
         # print("DEBUG: returning validation schema:", schema)
         return schema
