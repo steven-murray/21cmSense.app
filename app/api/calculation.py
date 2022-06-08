@@ -8,16 +8,21 @@
 # This module contains routines for all supported calculations
 
 from flask import jsonify
+from pathlib import Path
+import jsonschema
+import importlib
 
 import pickle
 from hashlib import md5
 from .exceptions import CalculationException, ValidationException
 from .factorymanager import FactoryManager
 from .constants import *
+from . import redisfuncs as rd
 from .schema import Validator
 from .sensitivity import get_sensitivity
 from .util import filter_infinity, quantity_list_to_scalar
-
+from py21cmsense import PowerSpectrum
+import astropy.units as un
 
 def hash_json(thejson):
     """create a unique hash from json for fingerprinting / model identification for front end
@@ -57,6 +62,35 @@ def add_hash(thejson, d: dict) -> dict:
     d["modelID"] = hash_json(thejson)
     return d
 
+def json_to_power_spectrum(json: dict) -> PowerSpectrum:
+    """
+    Convert a dictionary created by a form into a PowerSpectrum object.
+
+    This is essentially the inverse of creating the schema (create_object_schema.py).
+    """
+    schema_path = Path(__file__).parent.parent / 'static/schema/object-schema.json'
+    with open(schema_path, 'r') as fl:
+        schema = json.load(fl)
+
+    # First validate the json against the schema.
+    jsonschema.validate(json, schema)
+
+    def construct_class(schema_dct: dict):
+        module = importlib.import_module('.'.join(schema_dct['className'].split('.')[:-1]))
+        cls = getattr(module, schema_dct['className'].split('.')[-1])
+
+        kw = {}
+        for k, v in schema_dct['properties'].items():
+            if 'unit' in v:
+                kw[k] = json[k] * un.Unit(v['unit'])
+            elif 'className' in v:
+                kw[k] = construct_class(v)  # recurse into object.
+            else:
+                kw[k] = v
+
+        return cls(**kw)
+
+    return construct_class(schema)
 
 def add_calculation_type(thejson, d: dict) -> dict:
     """Add the calculation type requested (and returned)
@@ -76,7 +110,7 @@ def add_calculation_type(thejson, d: dict) -> dict:
         Format: "calculation": "name_of_calculation"
 
     """
-    d[KW_CALCULATION] = thejson[KW_CALCULATION]
+    d[rd.KW_CALCULATION] = thejson[rd.KW_CALCULATION]
     return d
 
 
@@ -116,17 +150,17 @@ def calculate(thejson):
 
     print("JSON SCHEMA VALIDATED")
 
-    print("Going to run calculation " + thejson[KW_CALCULATION] + " on schema ", thejson)
+    print("Going to run calculation " + thejson[rd.KW_CALCULATION] + " on schema ", thejson)
 
     # get proper function for this calculation
-    calculator = CalculationFactory().get(thejson[KW_CALCULATION])
+    calculator = CalculationFactory().get(thejson[rd.KW_CALCULATION])
     if calculator is None:
-        return {KW_ERROR: "Unknown calculation", KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
+        return {rd.KW_ERROR: "Unknown calculation", rd.KW_CALCULATION: thejson[rd.KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
 
     try:
         results = calculator(thejson)
     except (CalculationException, Exception) as e:
-        return {KW_ERROR: str(e), KW_CALCULATION: thejson[KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
+        return {rd.KW_ERROR: str(e), rd.KW_CALCULATION: thejson[rd.KW_CALCULATION]}, HTTP_UNPROCESSABLE_ENTITY
 
 
     add_hash(thejson, results)
@@ -142,7 +176,7 @@ def calculate(thejson):
 #
 class CalculationFactory(FactoryManager):
     def __init__(self):
-        super().__init__(KW_CALCULATION)
+        super().__init__(rd.KW_CALCULATION)
         # CalculationFactory.calcs = self.add('1D-cut-of-2D-sensitivity', one_d_cut).add(
 
         #        self.add('1D-cut-of-2D-sensitivity', one_d_cut).\
@@ -232,12 +266,6 @@ class CalculationFactory(FactoryManager):
         add_matplotlib_plot_type('pcolormesh', d)
         return d
 
-        #
-        # plt.scatter(x, y, c=c)
-        # cbar = plt.colorbar();
-        # cbar.set_label("Number of baselines in group", fontsize=15)
-        # plt.tight_layout();
-
     def _antenna_positions(self, thejson):
         """Antenna position
 
@@ -265,27 +293,6 @@ class CalculationFactory(FactoryManager):
         d.update(labels)
         add_matplotlib_plot_type('scatter', d)
         return d
-
-    # baselines_distributions= [[[   0.    0.    0.]
-    #   [  14.    0.    0.]
-    #   [  28.    0.    0.]
-    #   ...
-    #   [ 112.  -84.    0.]
-    #   [ 126.   84.    0.]
-    #   [ 126.  -84.    0.]]
-    #
-    #  [[ -14.    0.    0.]
-    #   [   0.    0.    0.]
-    #   [  14.    0.    0.]
-    #   ...
-
-    # baselines_distributions[:,:,0]= [[   0.   14.   28. ...  112.  126.  126.]
-    # [ -14.    0.   14. ...   98.  112.  112.]
-    # [ -28.  -14.    0. ...   84.   98.   98.]
-    # ...
-    # [-112.  -98.  -84. ...    0.   14.   14.]
-    # [-126. -112.  -98. ...  -14.    0.    0.]
-    # [-126. -112.  -98. ...  -14.    0.    0.]] m
 
     def _baselines_distributions(self, thejson):
         """Baselines distributions

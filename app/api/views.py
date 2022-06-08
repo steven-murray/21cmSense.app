@@ -129,7 +129,7 @@ def model_get(userid, modelid):
     try:
         if not rd.user_exists(userid):
             return "", cnst.HTTP_NOT_FOUND
-        (name, data) = get_model_json(modelid)
+        name, data = get_model_json(modelid)
         if data is not None:
             return {rd.KW_MODELNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
         else:
@@ -166,10 +166,6 @@ def model_delete(userid, modelid):
         return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
 
 
-# accepts:
-# {"modelname": "name of model"}
-# returns:
-# {rd.KW_MODELID:modelid, "modelname": "name of model"}
 @api.route('/users/<userid>/models', methods=["POST"])
 def model_create(userid):
     try:
@@ -187,8 +183,9 @@ def model_create(userid):
                 return {rd.KW_ERROR: 'duplicate model name'}, cnst.HTTP_CONFLICT
 
             # create the model
+            pspec = calc.json_to_power_spectrum(json[rd.KW_DATA]),
             rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, modelname)
-            rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(json[rd.KW_DATA]))
+            rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(pspec))
 
             # add to the user's models
             rd.rdb.sadd(rd.user_key(userid), rd.model_key(modelid))
@@ -409,28 +406,6 @@ def schema_descriptions(schemagroup):
 
     """
     return get_schema_descriptions_json(schemagroup)
-
-
-@api.route('/customschema', methods=["POST"])
-def api_return():
-    """
-
-    Returns
-    -------
-    A custom schema
-    """
-    if request.method == "POST":
-        lst = get_schema_groups()
-
-        # we should be posted something like:
-        # { "location": "location.json", "beam": "GaussianBeam.json", "antenna": "hera.json" }
-
-        if request.is_json and request.json:
-            req = request.get_json()
-            for schema_group in lst:
-                if schema_group in req:
-                    print("json return for component %s=" % schema_group, req[schema_group]);
-            return build_composite_schema(req)
 
 
 @api.route('/schema/<schemagroup>/get/<schemaname>')
