@@ -20,12 +20,11 @@ TAG_ANTPOS = 'antpos'
 
 # keywords used in JSON requests and responses
 KW_DATA = 'data'
-
 KW_MODELID = 'modelid'
 KW_MODELNAME = 'modelname'
-
 KW_ID = 'id'
 KW_NAME = 'name'
+KW_MODELPARAMS = 'modelparams'
 
 KW_ANTPOSID = 'antposid'
 KW_ANTPOSNAME = 'antposname'
@@ -152,6 +151,13 @@ def tag_match(tag: str, key: str) -> bool:
     t = key.split(":")
     return len(t) == 2 and t[0] == tag
 
+
+def get_all_data_for_user(userid, tag=None) -> list:
+    keys = rdb.smembers(user_key(userid))
+
+    # the user may have multiple entries, e.g., model:xyz, antpos:abc
+    if tag is not None:
+        return [x for x in keys if tag_match(tag, x)]
 
 
 def get_antpos_json(antposid):

@@ -20,7 +20,17 @@ from .schema import build_composite_schema, get_schema_descriptions_json, get_sc
 from . import redisfuncs as rd
 from . import constants as cnst
 import pickle
+from py21cmsense import PowerSpectrum
+from typing import Tuple
 
+def ensure_redis_available(fnc):
+    def inner(*args, **kwargs):
+        try:
+            return fnc(*args, **kwargs)
+        except rd.redis.ConnectionError:
+            return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+
+    return inner
 
 @api.route('/')
 def welcome():
@@ -49,6 +59,7 @@ def ping():
 
 
 @api.route('/users', methods=["POST"])
+@ensure_redis_available
 def create_user():
     """create a user for tracking models
 
@@ -70,133 +81,129 @@ def create_user():
         }
 
     """
-    if request.method == "POST":
-        try:
-            userid = str(uuid.uuid4())
-            rd.rdb.sadd(rd.user_key(userid), '')
-            return {'uuid': userid}, cnst.HTTP_CREATED
-        except rd.redis.ConnectionError:
-            return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    userid = str(uuid.uuid4())
+    rd.rdb.sadd(rd.user_key(userid), '')
+    return {'uuid': userid}, cnst.HTTP_CREATED
 
 
 @api.route('/users/<userid>', methods=[cnst.HTTP_DELETE])
+@ensure_redis_available
 def delete_user(userid):
-    try:
-        # remove all model references for the user
-        models = list(rd.rdb.smembers(rd.user_key(userid)))
-        if models:
-            rd.rdb.delete(*models)
-        # and remove the user
-        rd.rdb.delete(rd.user_key(userid))
-        return "", cnst.HTTP_NO_CONTENT
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    # remove all model references for the user
+    models = list(rd.rdb.smembers(rd.user_key(userid)))
+    if models:
+        rd.rdb.delete(*models)
+    # and remove the user
+    rd.rdb.delete(rd.user_key(userid))
+    return "", cnst.HTTP_NO_CONTENT
 
 
 @api.route('/users/<userid>/models', methods=[cnst.HTTP_GET])
+@ensure_redis_available
 def list_models(userid):
-    try:
-        l = []
-        keys = rd.rdb.smembers(rd.user_key(userid))
+    l = []
+    keys = rd.rdb.smembers(rd.user_key(userid))
 
-        # the user may have multiple entries, e.g., model:xyz, antpos:abc
-        matches = [x for x in keys if rd.tag_match(rd.TAG_MODEL, x)]
-        for m in matches:
-            l.append({rd.KW_MODELNAME: rd.rdb.hget(m, rd.KW_MODELNAME), rd.KW_MODELID: rd.strip_tag(m)})
-        return {'uuid': userid, 'models': l}, cnst.HTTP_OK
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    # the user may have multiple entries, e.g., model:xyz, antpos:abc
+    matches = [x for x in keys if rd.tag_match(rd.TAG_MODEL, x)]
+    for m in matches:
+        l.append({rd.KW_MODELNAME: rd.rdb.hget(m, rd.KW_MODELNAME), rd.KW_MODELID: rd.strip_tag(m)})
+    return {'uuid': userid, 'models': l}, cnst.HTTP_OK
+    
+class NonExistentModel(RuntimeError):
+    pass
 
-
-def get_model_json(modelid):
+def get_model_data(modelid) -> Tuple[str, PowerSpectrum, dict]:
     if not rd.model_exists(modelid):
-        return None, None
+        raise NonExistentModel()
+
     # request for a model. Note we can't use hmget because pickled data cannot automatically
     # be utf-8 decoded
     name = rd.rdb.hget(rd.model_key(modelid), rd.KW_MODELNAME)
     data = rd.rpickle.hget(rd.model_key(modelid), rd.KW_DATA)
+    params = rd.rpickle.hget(rd.model_key(modelid), rd.KW_MODELPARAMS)
 
-    if data:
-        # recall that json payload is pickled into a string
-        data = pickle.loads(data)
-        return name, data
-    else:
-        return None, None
+    data = pickle.loads(data)
+    params = pickle.loads(params)
+
+    return name, data, params
 
 
 @api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_GET])
+@ensure_redis_available
 def model_get(userid, modelid):
+    if not rd.user_exists(userid):
+        return "", cnst.HTTP_NOT_FOUND
+ 
     try:
-        if not rd.user_exists(userid):
-            return "", cnst.HTTP_NOT_FOUND
-        name, data = get_model_json(modelid)
-        if data is not None:
-            return {rd.KW_MODELNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
-        else:
-            return "", cnst.HTTP_NOT_FOUND
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
-
+        name, pspec, params = get_model_data(modelid)
+        return {rd.KW_MODELNAME: name, rd.KW_DATA: pspec, rd.KW_MODELPARAMS: params}, cnst.HTTP_OK
+    except NonExistentModel:
+        return "", cnst.HTTP_NOT_FOUND
+    
 
 @api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_PUT])
+@ensure_redis_available
 def model_update(userid, modelid):
-    try:
-        if not rd.user_exists(userid) or not rd.model_exists(modelid):
-            return "", cnst.HTTP_NOT_FOUND
-        if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
-            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
-        req = request.get_json()
-        rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, req[rd.KW_MODELNAME])
-        rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(req[rd.KW_DATA]))
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    if not rd.user_exists(userid) or not rd.model_exists(modelid):
+        return "", cnst.HTTP_NOT_FOUND
+    if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
+        return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
+    
+    json = request.get_json()
+
+    name, old_pspec, old_params = get_model_data(modelid)
+        
+    pspec = calc.update_pspec_from_json(old_pspec, json[rd.KW_DATA], old_params)
+
+    rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, json[rd.KW_MODELNAME])
+    rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(pspec))
+    rd.rpickle.hset(rd.model_key(modelid), rd.KW_MODELPARAMS, pickle.dumps(json[rd.KW_DATA]))
+    
 
 
 @api.route('/users/<userid>/models/<modelid>', methods=[cnst.HTTP_DELETE])
+@ensure_redis_available
 def model_delete(userid, modelid):
-    try:
-        if not rd.user_exists(userid) or not rd.model_exists(modelid):
-            return "", cnst.HTTP_NOT_FOUND
+    if not rd.user_exists(userid) or not rd.model_exists(modelid):
+        return "", cnst.HTTP_NOT_FOUND
 
-        # The model is stored in the user's set as "model:uuid"
-        rd.rdb.srem(rd.user_key(userid), rd.model_key(modelid))
-        rd.rdb.delete(rd.model_key(modelid))
-        return "", cnst.HTTP_NO_CONTENT
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
-
+    # The model is stored in the user's set as "model:uuid"
+    rd.rdb.srem(rd.user_key(userid), rd.model_key(modelid))
+    rd.rdb.delete(rd.model_key(modelid))
+    return "", cnst.HTTP_NO_CONTENT
+    
 
 @api.route('/users/<userid>/models', methods=["POST"])
+@ensure_redis_available
 def model_create(userid):
-    try:
-        # this user isn't registered...
-        if not rd.user_exists(userid):
-            return "", cnst.HTTP_NOT_FOUND
+    # this user isn't registered...
+    if not rd.user_exists(userid):
+        return "", cnst.HTTP_NOT_FOUND
 
-        if request.is_json and request.json and rd.KW_MODELNAME in request.get_json() and rd.KW_DATA in request.get_json():
-            json = request.get_json()
-            modelid = str(uuid.uuid4())
-            modelname = json[rd.KW_MODELNAME]
+    if request.is_json and request.json and rd.KW_MODELNAME in request.get_json() and rd.KW_DATA in request.get_json():
+        json = request.get_json()
+        modelid = str(uuid.uuid4())
+        modelname = json[rd.KW_MODELNAME]
 
-            # if model name exists, return conflict error
-            if rd.entryname_exists(userid, modelname, rd.TAG_MODEL):
-                return {rd.KW_ERROR: 'duplicate model name'}, cnst.HTTP_CONFLICT
+        # if model name exists, return conflict error
+        if rd.entryname_exists(userid, modelname, rd.TAG_MODEL):
+            return {rd.KW_ERROR: 'duplicate model name'}, cnst.HTTP_CONFLICT
 
-            # create the model
-            pspec = calc.json_to_power_spectrum(json[rd.KW_DATA]),
-            rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, modelname)
-            rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(pspec))
+        # create the model
+        pspec = calc.json_to_power_spectrum(json[rd.KW_DATA]),
+        rd.rdb.hset(rd.model_key(modelid), rd.KW_MODELNAME, modelname)
+        rd.rpickle.hset(rd.model_key(modelid), rd.KW_DATA, pickle.dumps(pspec))
 
-            # add to the user's models
-            rd.rdb.sadd(rd.user_key(userid), rd.model_key(modelid))
-            return {'userid': userid, rd.KW_MODELID: modelid, rd.KW_MODELNAME: modelname}, cnst.HTTP_CREATED
-        else:
-            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+        # add to the user's models
+        rd.rdb.sadd(rd.user_key(userid), rd.model_key(modelid))
+        return {'userid': userid, rd.KW_MODELID: modelid, rd.KW_MODELNAME: modelname}, cnst.HTTP_CREATED
+    else:
+        return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
 
 
 @api.route('/users/<userid>/antpos', methods=[cnst.HTTP_GET])
+@ensure_redis_available
 def list_antpos(userid):
     """
 
@@ -208,22 +215,20 @@ def list_antpos(userid):
     -------
 
     """
-    try:
-        l = []
-        keys = rd.rdb.smembers(rd.user_key(userid))
+    l = []
+    keys = rd.rdb.smembers(rd.user_key(userid))
 
-        # the user may have multiple entries, e.g., model:xyz, antpos:abc
-        matches = [x for x in keys if rd.tag_match(rd.TAG_ANTPOS, x)]
+    # the user may have multiple entries, e.g., model:xyz, antpos:abc
+    matches = [x for x in keys if rd.tag_match(rd.TAG_ANTPOS, x)]
 
-        for a in matches:
-            l.append({rd.KW_ANTPOSNAME: rd.rdb.hget(a, rd.KW_ANTPOSNAME), rd.KW_ANTPOSID: rd.strip_tag(a)})
-        return {'uuid': userid, 'antpos': l}, cnst.HTTP_OK
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    for a in matches:
+        l.append({rd.KW_ANTPOSNAME: rd.rdb.hget(a, rd.KW_ANTPOSNAME), rd.KW_ANTPOSID: rd.strip_tag(a)})
+    return {'uuid': userid, 'antpos': l}, cnst.HTTP_OK
 
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_GET])
+@ensure_redis_available
 def antpos_get(userid, antposid):
     """
 
@@ -236,19 +241,17 @@ def antpos_get(userid, antposid):
     -------
 
     """
-    try:
-        if not rd.user_exists(userid):
-            return "", cnst.HTTP_NOT_FOUND
-        (name, data) = rd.get_antpos_json(antposid)
-        if data is not None:
-            return {rd.KW_ANTPOSNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
-        else:
-            return "", cnst.HTTP_NOT_FOUND
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    if not rd.user_exists(userid):
+        return "", cnst.HTTP_NOT_FOUND
+    (name, data) = rd.get_antpos_json(antposid)
+    if data is not None:
+        return {rd.KW_ANTPOSNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
+    else:
+        return "", cnst.HTTP_NOT_FOUND
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_PUT])
+@ensure_redis_available
 def antpos_update(userid, antposid):
     """
 
@@ -261,19 +264,17 @@ def antpos_update(userid, antposid):
     -------
 
     """
-    try:
-        if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
-            return "", cnst.HTTP_NOT_FOUND
-        if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
-            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
-        req = request.get_json()
-        rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, req[rd.KW_ANTPOSNAME])
-        rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(req[rd.KW_DATA]))
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
+        return "", cnst.HTTP_NOT_FOUND
+    if not (request.is_json and request.json and rd.KW_DATA in request.get_json()):
+        return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
+    req = request.get_json()
+    rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, req[rd.KW_ANTPOSNAME])
+    rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(req[rd.KW_DATA]))
 
 
 @api.route('/users/<userid>/antpos/<antposid>', methods=[cnst.HTTP_DELETE])
+@ensure_redis_available
 def antpos_delete(userid, antposid):
     """
 
@@ -286,16 +287,13 @@ def antpos_delete(userid, antposid):
     -------
 
     """
-    try:
-        if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
-            return "", cnst.HTTP_NOT_FOUND
+    if not rd.user_exists(userid) or not rd.antpos_exists(antposid):
+        return "", cnst.HTTP_NOT_FOUND
 
-        # The antpos model is stored in the user's set as "antpos:uuid"
-        rd.rdb.srem(rd.user_key(userid), rd.antpos_key(antposid))
-        rd.rdb.delete(rd.antpos_key(antposid))
-        return "", cnst.HTTP_NO_CONTENT
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+    # The antpos model is stored in the user's set as "antpos:uuid"
+    rd.rdb.srem(rd.user_key(userid), rd.antpos_key(antposid))
+    rd.rdb.delete(rd.antpos_key(antposid))
+    return "", cnst.HTTP_NO_CONTENT
 
 
 def translate_and_validate_antenna_data(data):
@@ -348,6 +346,7 @@ def translate_and_validate_antenna_data(data):
 
 
 @api.route('/users/<userid>/antpos', methods=["POST"])
+@ensure_redis_available
 def antpos_create(userid):
     """
 
@@ -359,37 +358,34 @@ def antpos_create(userid):
     -------
 
     """
-    try:
-        # this user isn't registered...
-        if not rd.user_exists(userid):
-            return "", cnst.HTTP_NOT_FOUND
+    # this user isn't registered...
+    if not rd.user_exists(userid):
+        return "", cnst.HTTP_NOT_FOUND
 
-        if request.is_json and request.json and rd.KW_ANTPOSNAME in request.get_json() and rd.KW_DATA in request.get_json():
-            json = request.get_json()
-            antposid = str(uuid.uuid4())
-            antposname = json[rd.KW_ANTPOSNAME]
+    if request.is_json and request.json and rd.KW_ANTPOSNAME in request.get_json() and rd.KW_DATA in request.get_json():
+        json = request.get_json()
+        antposid = str(uuid.uuid4())
+        antposname = json[rd.KW_ANTPOSNAME]
 
-            # if antpos name exists, return conflict error
-            if rd.entryname_exists(userid, antposname, rd.TAG_ANTPOS):
-                return {rd.KW_ERROR: 'duplicate antpos name'}, cnst.HTTP_CONFLICT
+        # if antpos name exists, return conflict error
+        if rd.entryname_exists(userid, antposname, rd.TAG_ANTPOS):
+            return {rd.KW_ERROR: 'duplicate antpos name'}, cnst.HTTP_CONFLICT
 
-            # create the antpos entry
-            rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, antposname)
+        # create the antpos entry
+        rd.rdb.hset(rd.antpos_key(antposid), rd.KW_ANTPOSNAME, antposname)
 
-            array2d = translate_and_validate_antenna_data(json[rd.KW_DATA])
-            if array2d is None:
-                return {rd.KW_ERROR: "CSV file is improperly formatted. Please see documentation."}, \
-                       cnst.HTTP_UNPROCESSABLE_ENTITY
+        array2d = translate_and_validate_antenna_data(json[rd.KW_DATA])
+        if array2d is None:
+            return {rd.KW_ERROR: "CSV file is improperly formatted. Please see documentation."}, \
+                    cnst.HTTP_UNPROCESSABLE_ENTITY
 
-            rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(array2d))
+        rd.rpickle.hset(rd.antpos_key(antposid), rd.KW_DATA, pickle.dumps(array2d))
 
-            # add to the user's antpos entries
-            rd.rdb.sadd(rd.user_key(userid), rd.antpos_key(antposid))
-            return {'userid': userid, rd.KW_ANTPOSID: antposid, rd.KW_ANTPOSNAME: antposname}, cnst.HTTP_CREATED
-        else:
-            return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
-    except rd.redis.ConnectionError:
-        return {rd.KW_ERROR: "rd.redis database unavailable"}, cnst.HTTP_INTERNAL_SERVER_ERROR
+        # add to the user's antpos entries
+        rd.rdb.sadd(rd.user_key(userid), rd.antpos_key(antposid))
+        return {'userid': userid, rd.KW_ANTPOSID: antposid, rd.KW_ANTPOSNAME: antposname}, cnst.HTTP_CREATED
+    else:
+        return {rd.KW_ERROR: 'missing request body or bad request'}, cnst.HTTP_BAD_REQUEST
 
 
 @api.route('/schema/<schemagroup>/descriptions')

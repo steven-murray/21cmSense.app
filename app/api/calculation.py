@@ -23,6 +23,7 @@ from .sensitivity import get_sensitivity
 from .util import filter_infinity, quantity_list_to_scalar
 from py21cmsense import PowerSpectrum
 import astropy.units as un
+import numpy as np
 
 def hash_json(thejson):
     """create a unique hash from json for fingerprinting / model identification for front end
@@ -91,6 +92,41 @@ def json_to_power_spectrum(json: dict) -> PowerSpectrum:
         return cls(**kw)
 
     return construct_class(schema)
+
+def update_pspec_from_json(old_pspec: PowerSpectrum, json: dict, old_json: dict) -> PowerSpectrum:
+    schema_path = Path(__file__).parent.parent / 'static/schema/object-schema.json'
+    with open(schema_path, 'r') as fl:
+        schema = json.load(fl)
+
+    # First validate the json against the schema.
+    jsonschema.validate(json, schema)
+
+
+    def update_obj(obj, schema_dct: dict):
+        # module = importlib.import_module('.'.join(schema_dct['className'].split('.')[:-1]))
+        # cls = getattr(module, schema_dct['className'].split('.')[-1])
+
+        kw = {}
+        objs = {}
+        for k, v in schema_dct['properties'].items():
+            if 'className' in v:
+                new_obj = update_obj(getattr(obj,k), v)
+                if new_obj != getattr(obj, k):
+                    objs[k] = new_obj
+            elif not np.all(json[k] == old_json[k]):
+                if 'unit' in v:
+                    kw[k] = json[k] * un.Unit(v['unit'])
+                else:
+                    kw[k] = v
+
+        if objs or kw:
+            return obj.clone(**kw, **objs)
+        else:
+            return obj
+
+    return update_obj(old_pspec, schema)
+
+
 
 def add_calculation_type(thejson, d: dict) -> dict:
     """Add the calculation type requested (and returned)
