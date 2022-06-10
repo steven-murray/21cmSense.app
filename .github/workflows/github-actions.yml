@@ -2,12 +2,12 @@
 
 on:
   push:
-    branches: 
+    branches:
       - master
       - dev
       - sprint10-lclindbe
   pull_request:
-    branches: 
+    branches:
       - master
       - dev
 
@@ -15,11 +15,11 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v2
     - uses: supercharge/redis-github-action@1.2.0
-      with: 
+      with:
         redis-version: 6
 
     - name: Set up Python
@@ -46,21 +46,21 @@ jobs:
         pip install flake8 pytest
         pip install flake8 pytest pytest-cov
         pip install -r requirements.txt
-    
+
 #     - name: Lint with flake8
 #       run: |
 #         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
     - name: Stage 21cmSense
-      run: git clone https://github.com/steven-murray/21cmSense && cd 21cmSense && python ./setup.py install 
-  
+      run: git clone https://github.com/steven-murray/21cmSense && cd 21cmSense && python ./setup.py install
+
     # - name: Upload artifact for deployment jobs
     #   uses: actions/upload-artifact@v2
     #   with:
     #     name: python-app
     #     path: |
-    #       . 
+    #       .
     #       !node_modules/
     #       !venv/
     - name: redis
@@ -75,7 +75,7 @@ jobs:
     - name: Test with pytest
       run: |
         pytest
-    - name: Build Coverage File 
+    - name: Build Coverage File
       run: |
         pytest --cache-clear --cov=app tests/ > pytest-coverage.txt
     - name: pytest-coverage-commentator

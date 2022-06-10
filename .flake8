@@ -1,0 +1,21 @@
+[flake8]
+ignore =
+    E203
+    E266
+    E501
+    W503
+    F403
+    F401
+    N803  # Naming upper/lowercase -- too hard right now.
+    N806  # Naming upper/lowercase -- too hard right now.
+    N802  # Naming upper/lowercase -- too hard right now.
+    D401  # Docstring in imperative mood. This should *not* be the case for @property's, but can't ignore them atm.
+    E800  # TODO: remove this... commented out code
+    D     # ignore documentation things for now
+    RST   # ignore rst errors for now
+max-line-length = 88
+max-complexity = 40
+docstring-convention=numpy
+per-file-ignores =
+    tests/*:D,T
+    run-app.py:T

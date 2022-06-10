@@ -2,7 +2,7 @@ FROM python:3.8-slim-buster
 
 RUN mkdir /21cmSense-server
 WORKDIR /21cmSense-server
-COPY . . 
+COPY . .
 
 ENV REDIS_URL "redis"
 ENV FLASK_APP "app"

@@ -29,4 +29,3 @@ cases, these will always be "antenna", "beam", and "location".
 A schema named 2D-sensitivity will map to a method called _2d_sensitivity.  The comparison is case-insensitive.
 
 3. Upon restart, the disk files will be scanned and automatically matched to calculation methods.
-

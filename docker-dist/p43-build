@@ -1,8 +1,8 @@
 #!/bin/bash
 ################################################
-# 
+#
 # Project 43 Docker Build script
-# 
+#
 # Docker configuration file is in p43/Dockerfile
 #
 ################################################
@@ -68,5 +68,3 @@ if [ "$SSHARG" ]; then
 else
     docker build -t p43 ${NOCACHE} $BRANCHARG ${DIR}
 fi
-
-

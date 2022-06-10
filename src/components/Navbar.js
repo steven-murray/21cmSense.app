@@ -6,20 +6,20 @@ import './Navbar.css';
 function Navbar() {
 	const [click, setClick] = useState(false);
 	//const [button, setButton] = useState(true);
-   
+
 	const handleClick = () => setClick(!click);
 	const closeMobileMenu = () => setClick(false);
-   
+
 	// const showButton = () => {
 	//     setButton(true);
 	// };
-   
+
 	// useEffect(() => {
 	//   showButton();
 	// }, []);
-   
+
 	// window.addEventListener('resize', showButton);
-   
+
 	return (
 	  <>
 	    <nav className='navbar'>
@@ -29,11 +29,11 @@ function Navbar() {
 		   </Link>
 		   <div className='menu-icon' onClick={handleClick}>
 			<i className={click ? 'fas fa-times' : 'fas fa-bars'} />
-		   </div>		   
+		   </div>
 		 </div>
 	    </nav>
 	  </>
 	);
    }
-   
+
    export default Navbar;

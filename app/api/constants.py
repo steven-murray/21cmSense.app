@@ -9,7 +9,7 @@
 
 
 # relative path of schema directory
-SCHEMA_REL_DIR = 'app/static/'
+SCHEMA_REL_DIR = "app/static/"
 
 # HTTP response (status) codes
 HTTP_OK = 200
