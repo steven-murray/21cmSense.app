@@ -414,7 +414,7 @@ class The21cmSense extends React.Component {
 
   plot_model(event) {
     console.log(this)
-    this.setstate(currentState => ({
+    this.setState(currentState => ({
       plot_params: { ...currentState.plot_params, "modelid": this.state._models.find(model => model.modelname == event.target.value).modelid },
     }))
     const requestOptions = {
@@ -435,7 +435,7 @@ class The21cmSense extends React.Component {
 
   plot_calc(event) {
     console.log(this)
-    this.setstate(currentState => ({
+    this.setState(currentState => ({
       plot_params: { ...currentState.plot_params, "calc_name": event.target.value },
     }))
     const requestOptions = {
