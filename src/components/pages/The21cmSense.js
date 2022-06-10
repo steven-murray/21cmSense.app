@@ -168,7 +168,10 @@ class The21cmSense extends React.Component {
       _models: [],
       calc: [],
       pmodel: [],
-
+      plot_params: {
+        calc_name: "",
+        modelids: "",
+      },
       HexNumber: '',
       Separation: '',
       DishSize: '',
@@ -410,24 +413,20 @@ class The21cmSense extends React.Component {
 
   plot_model(event) {
     console.log(this)
+    this.setstate(currentState => ({
+      plot_params: { ...currentState.plot_params, "calc_name": event.target.value },
+    }))
     const requestOptions = {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
+      body: json.stringify(this.state.plot_params)
     };
     fetch(
-      env.REACT_APP_API_URL + "/api-1.0/21cm_default", requestOptions
+      env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
     ).then(response => response.json()).then(
       values => {
-        console.log(values)
-        const new_data = [
-          {
-            x: values.x,
-            y: values.y
-          },
-          { type: "scatter" }
-        ];
         this.setState({
-          data: new_data
+          data: values
         });
       }
     )
