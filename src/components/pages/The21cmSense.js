@@ -420,7 +420,7 @@ class The21cmSense extends React.Component {
     const requestOptions = {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
-      body: json.stringify(this.state.plot_params)
+      body: JSON.stringify(this.state.plot_params)
     };
     fetch(
       env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
@@ -441,7 +441,7 @@ class The21cmSense extends React.Component {
     const requestOptions = {
       method: 'POST',
       headers: { "Content-Type": "application/json" },
-      body: json.stringify(this.state.plot_params)
+      body: JSON.stringify(this.state.plot_params)
     };
     fetch(
       env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
