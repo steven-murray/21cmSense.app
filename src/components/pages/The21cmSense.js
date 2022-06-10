@@ -79,78 +79,6 @@ const saveCSV = () => {
     "example.csv"
   );
 };
-//{group, schemaName}
-// const Graph = ({group, schemaName}) => {
-//   let json;
-//   group = "calculations"
-//   schemaName = "baselines-distributions"
-//   let url=env.REACT_APP_API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
-
-//   fetch(env.REACT_APP_API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
-//   .then((jsonplot) => {
-
-//     json=jsonplot;
-//     {
-//       var data=[];
-
-//       for(let i=0;i<json.x.length;i++)
-//       {
-//           data.push({
-//               x:json.x[i],
-//               y:json.y[i],
-//               mode:'markers',
-//               type:'scatter',
-//               marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
-//           });
-//       }
-//       var Xmax=[];
-//       var Xmin=[];
-//       var Ymax=[];
-//       var Ymin=[];
-//       json.x.forEach(x=>{
-//           Xmax.push(Math.max.apply(null,x));
-//           Xmin.push(Math.min.apply(null,x));
-//       });
-//       json.y.forEach(x=>{
-//           Ymax.push(Math.max.apply(null,x));
-//           Ymin.push(Math.min.apply(null,x));
-//       });
-//       var layout = {
-//           xaxis: {
-//               range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
-//               showgrid:false,
-//               showline:true,
-//               linecolor: 'black',
-//               linewidth: 2,
-//               mirror: true,
-//               zeroline:false,
-//               title:json.xlabel
-//           },
-//           yaxis: {
-//               range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
-//               showgrid:false,
-//               showline:true,
-//               zeroline:false,
-//               linecolor: 'black',
-//               linewidth: 2,
-//               mirror: true,
-//               title:json.ylabel
-//           },
-//           title:'BaseLine Graph',
-//           showlegend:false
-//       };
-//       Plot.newPlot('myDiv', data, layout);
-//   }
-//   });
-
-//   return (
-// 		<div id="myDiv">
-// 	   </div>,
-//        Graph={Graph}
-// 	);
-
-// };
-
 
 class The21cmSense extends React.Component {
 
@@ -168,7 +96,10 @@ class The21cmSense extends React.Component {
       _models: [],
       calc: [],
       pmodel: [],
-
+      plot_params: {
+        calc_name: "",
+        modelid: "",
+      },
       HexNumber: '',
       Separation: '',
       DishSize: '',
@@ -177,10 +108,98 @@ class The21cmSense extends React.Component {
       SeperationUnits: '',
       DishSizeUnits: '',
       FrequencyUnits: '',
-      LatitudeUnits: ''
+      LatitudeUnits: '',
+      data: [{
+
+        x: [
+          0.16499818112915432,
+          0.21999757483887245,
+          0.27499696854859057,
+          0.3299963622583087,
+          0.38499575596802676,
+          0.4399951496777449,
+          0.494994543387463,
+          0.5499939370971811,
+          0.6049933308068992,
+          0.6599927245166173,
+          0.7149921182263353,
+          0.7699915119360535,
+          0.8249909056457716,
+          0.8799902993554898,
+          0.9349896930652078,
+          0.9899890867749259,
+          1.044988480484644,
+          1.0999878741943623,
+          1.1549872679040805,
+          1.2099866616137984,
+          1.2649860553235166,
+          1.3199854490332348,
+          1.3749848427429527,
+          1.429984236452671,
+          1.484983630162389,
+          1.5399830238721073,
+          1.5949824175818252,
+          1.6499818112915434,
+          1.7049812050012616,
+          1.7599805987109796,
+          1.8149799924206977,
+          1.869979386130416,
+          1.9249787798401339,
+          1.979978173549852,
+          2.03497756725957,
+          2.089976960969288,
+          2.1449763546790064,
+          2.1999757483887246
+        ],
+        y: [
+          12.912515880728177,
+          19.45343904564521,
+          32.12647074134198,
+          53.013664937540476,
+          83.31495300123542,
+          123.67964944268913,
+          175.49621222887464,
+          240.19132213905047,
+          319.1999168689312,
+          413.95492397302746,
+          525.8878375169154,
+          656.4319695994517,
+          807.0276489658172,
+          979.0957080145427,
+          1174.0676374001425,
+          1393.3749279239394,
+          1638.449070527133,
+          1910.7215562728404,
+          2211.628099178302,
+          2542.6116481449676,
+          2905.0880134032686,
+          3300.488686407197,
+          3730.2451586434754,
+          4195.788921624284,
+          4698.551466881734,
+          5239.964285963664,
+          5821.458870430374,
+          6444.466711852103,
+          7110.41930180706,
+          7820.775293156087,
+          8576.945273414734,
+          9380.354476553095,
+          10232.434394225167,
+          11134.61651807939,
+          12088.332339759538,
+          13095.013350905463,
+          14156.091043153674,
+          15272.996908137862
+        ],
+      },
+      { type: 'scatter' },
+      ],
+      layout: { width: 1000, height: 750, title: 'Sensitivity Plot' },
     }
 
     this.plusSubmit = this.plusSubmit.bind(this);
+    this.plot_model = this.plot_model.bind(this)
+    this.plot_calc = this.plot_calc.bind(this)
   }
 
   componentDidMount() {
@@ -312,12 +331,55 @@ class The21cmSense extends React.Component {
 
   plusSubmit() {
 
-     console.log("I submitted.");
-     const { user } = this.state;
 
-     if (user !== "") {
-        this.getmodels(user);
-     }
+    console.log("I submitted.");
+    const { user } = this.state;
+
+    if (user !== "") {
+      this.getmodels(user);
+    }
+  }
+
+  plot_model(event) {
+    console.log(this)
+    this.setState(currentState => ({
+      plot_params: { ...currentState.plot_params, "modelid": this.state._models.find(model => model.modelname == event.target.value).modelid },
+    }))
+    const requestOptions = {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(this.state.plot_params)
+    };
+    fetch(
+      env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
+    ).then(response => response.json()).then(
+      values => {
+        this.setState({
+          data: values
+        });
+      }
+    )
+  }
+
+  plot_calc(event) {
+    console.log(this)
+    this.setState(currentState => ({
+      plot_params: { ...currentState.plot_params, "calc_name": event.target.value },
+    }))
+    const requestOptions = {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(this.state.plot_params)
+    };
+    fetch(
+      env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
+    ).then(response => response.json()).then(
+      values => {
+        this.setState({
+          data: values
+        });
+      }
+    )
   }
 
   render() {
@@ -334,149 +396,6 @@ class The21cmSense extends React.Component {
         </div>
       );
     });
-    //{group, schemaName}
-    // const Graph = (group, schemaName) => {
-    //   let json;
-    //   //let url=env.REACT_APP_API_URL + "/api-1.0/schema/"+{group}+"/get/"+{schemaName};
-
-    //   fetch(env.REACT_APP_API_URL + '/api-1.0/schema/'+group+'/get/'+schemaName).then((resplot) => resplot.json())
-    //   .then((jsonplot) => {
-
-    //     json=jsonplot;
-    //     if(schemaName === "baselines-distributions")
-    //     {
-
-    //       var database=[];
-
-    //       for(let i=0;i<json.x.length;i++)
-    //       {
-    //           database.push({
-    //               x:json.x[i],
-    //               y:json.y[i],
-    //               mode:'markers',
-    //               type:'scatter',
-    //               marker:{size:12,symbol:"circle", color:"blue",opacity:0.1,},
-    //           });
-    //       }
-    //       var Xmax=[];
-    //       var Xmin=[];
-    //       var Ymax=[];
-    //       var Ymin=[];
-    //       json.x.forEach(x=>{
-    //           Xmax.push(Math.max.apply(null,x));
-    //           Xmin.push(Math.min.apply(null,x));
-    //       });
-    //       json.y.forEach(x=>{
-    //           Ymax.push(Math.max.apply(null,x));
-    //           Ymin.push(Math.min.apply(null,x));
-    //       });
-    //       var layoutbase = {
-    //           xaxis: {
-    //               range: [Math.min.apply(null,Xmin)-10,Math.max.apply(null,Xmax)+10 ],
-    //               showgrid:false,
-    //               showline:true,
-    //               linecolor: 'black',
-    //               linewidth: 2,
-    //               mirror: true,
-    //               zeroline:false,
-    //               title:json.xlabel
-    //           },
-    //           yaxis: {
-    //               range: [Math.min.apply(null,Ymin)-10,Math.max.apply(null,Ymax)+10],
-    //               showgrid:false,
-    //               showline:true,
-    //               zeroline:false,
-    //               linecolor: 'black',
-    //               linewidth: 2,
-    //               mirror: true,
-    //               title:json.ylabel
-    //           },
-    //           title:'BaseLine Graph',
-    //           showlegend:false
-    //       };
-    //       Plotly.restyle('myDiv', database, layoutbase);
-    //   }
-
-    //     else if(schemaName === '1D-cut-of-2D-sensitivity' || schemaName === '1D-noise-cut-of-2D-sensitivity' || schemaName === '1D-sample-variance-cut-of-2D-sensitivity' || schemaName === '2D-sensitivity' || schemaName === '2D-sensitivity-vs-k' || schemaName === '2D-sensitivity-vs-z')// add logic to the data is of sensitivity
-    //     {
-    //         var trace1 = {
-    //             x: json.x,
-    //             y: json.y,
-    //             type:'scatter',
-    //             line: {
-    //                 color: 'rgb(55, 128, 191)',
-    //                 width: 3
-    //             }
-    //         };
-    //         var layoutsense = {
-    //             xaxis: {
-    //                 range: [0,Math.round(Math.max.apply(null,json.x)+1) ],
-    //                 title:json.xlabel,
-    //                 showline:true,
-    //                 linecolor: 'black',
-    //                 linewidth: 2,
-    //                 mirror: true
-    //             },
-    //             yaxis: {
-    //                 range: [0,Math.round(Math.max.apply(null,json.y)/100)*100],
-    //                 title:"\u03B4\u0394"+"2".sup()+"21".sub(),showline:true,
-    //                 linecolor: 'black',
-    //                 linewidth: 2,
-    //                 mirror: true
-    //             },
-    //             title:'Sensitivity Graph',
-    //             showlegend:false
-    //         };
-    //         var datasense=[trace1];
-    //         Plotly.restyle('myDiv', datasense, layoutsense);
-
-    //     }
-    //     else if(schemaName === 'k-vs-redshift-plot')//logic for heatmap
-    //     {
-    //         var datak=[];
-    //         for(let i=0;i<json.x.length;i++)
-    //         {
-    //             datak.push({
-    //                 x:json.x[i],
-    //                 y:json.y[i],
-    //                 mode:'markers',
-    //                 type:'histogram2d',
-    //                 colorscale : [['0' , 'rgb(0,225,100)'],['1', 'rgb(100,0,200)']],
-    //             });
-    //         }
-    //         var layoutshift = {
-    //             xaxis: {
-    //                 showgrid:true,
-    //                 showline:true,
-    //                 linecolor: 'black',
-    //                 linewidth: 2,
-    //                 mirror: true,
-    //                 title:json.xlabel
-    //             },
-    //             yaxis: {
-    //                 showgrid:true,
-    //                 showline:true,
-    //                 linecolor: 'black',
-    //                 linewidth: 2,
-    //                 mirror: true,
-    //                 title:json.ylabel
-    //             },
-    //             title:'Heatmap Graph',
-    //             showlegend:false
-    //         };
-    //         Plotly.restyle('myDiv', datak, layoutshift)
-
-    //     }
-    //   });
-
-    //   return (
-    //     <div id="myDiv">
-    //     </div>,
-    //     Graph = {Graph}
-    //   );
-
-    // };
-
 
     return (
 
@@ -487,7 +406,7 @@ class The21cmSense extends React.Component {
 
           <Panel shaded >
             <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Model <GiInfo title="create,edit, or delete" /> </label>
-            <Container triggerText="+" onSubmit={this.plusSubmit} buttonClass="btn btn-primary"/>
+            <Container triggerText="+" onSubmit={this.plusSubmit} buttonClass="btn btn-primary" />
             {/* <button style={{ float: 'right', fontWeight: 'bold', fontSize: 18 }} title="New Model" > + </button> */}
             <br></br><br></br>
 
@@ -520,103 +439,20 @@ class The21cmSense extends React.Component {
               <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Plot <GiInfo title="Plots for all created model" /></label>
               <br></br><br></br>
               <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Calculation </label>
-              <select name="Calculation"  >
+              <select name="Calculation" onChange={this.plot_calc} >
                 {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
               </select>
               <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Models </label>
-              <select name="models">
+              <select name="models" onChange={this.plot_model}>
                 {this.state._models.map(dataIn => <option value={dataIn.modelname}>{dataIn.modelname}</option>)}
               </select>
               <br></br><br></br>
 
               <Plot
+                divId="plotly-div"
 
-                data={[{
-
-                  x: [
-                    0.16499818112915432,
-                    0.21999757483887245,
-                    0.27499696854859057,
-                    0.3299963622583087,
-                    0.38499575596802676,
-                    0.4399951496777449,
-                    0.494994543387463,
-                    0.5499939370971811,
-                    0.6049933308068992,
-                    0.6599927245166173,
-                    0.7149921182263353,
-                    0.7699915119360535,
-                    0.8249909056457716,
-                    0.8799902993554898,
-                    0.9349896930652078,
-                    0.9899890867749259,
-                    1.044988480484644,
-                    1.0999878741943623,
-                    1.1549872679040805,
-                    1.2099866616137984,
-                    1.2649860553235166,
-                    1.3199854490332348,
-                    1.3749848427429527,
-                    1.429984236452671,
-                    1.484983630162389,
-                    1.5399830238721073,
-                    1.5949824175818252,
-                    1.6499818112915434,
-                    1.7049812050012616,
-                    1.7599805987109796,
-                    1.8149799924206977,
-                    1.869979386130416,
-                    1.9249787798401339,
-                    1.979978173549852,
-                    2.03497756725957,
-                    2.089976960969288,
-                    2.1449763546790064,
-                    2.1999757483887246
-                  ],
-                  y: [
-                    12.912515880728177,
-                    19.45343904564521,
-                    32.12647074134198,
-                    53.013664937540476,
-                    83.31495300123542,
-                    123.67964944268913,
-                    175.49621222887464,
-                    240.19132213905047,
-                    319.1999168689312,
-                    413.95492397302746,
-                    525.8878375169154,
-                    656.4319695994517,
-                    807.0276489658172,
-                    979.0957080145427,
-                    1174.0676374001425,
-                    1393.3749279239394,
-                    1638.449070527133,
-                    1910.7215562728404,
-                    2211.628099178302,
-                    2542.6116481449676,
-                    2905.0880134032686,
-                    3300.488686407197,
-                    3730.2451586434754,
-                    4195.788921624284,
-                    4698.551466881734,
-                    5239.964285963664,
-                    5821.458870430374,
-                    6444.466711852103,
-                    7110.41930180706,
-                    7820.775293156087,
-                    8576.945273414734,
-                    9380.354476553095,
-                    10232.434394225167,
-                    11134.61651807939,
-                    12088.332339759538,
-                    13095.013350905463,
-                    14156.091043153674,
-                    15272.996908137862
-                  ],
-                },
-                { type: 'scatter' },
-                ]}
-                layout={{ width: 1000, height: 750, title: 'Sensitivity Plot' }}
+                data={this.state.data}
+                layout={this.state.layout}
 
 
               />
