@@ -9,25 +9,27 @@
 # on-disk schema mapping to supported calculation methods in the code.
 
 
+import logging
 from functools import cache, cached_property
 from typing import Callable
+
 from app.api.schema import get_schema_names
-import logging
 
 logger = logging.getLogger(__name__)
 
 
 class FactoryManager:
-    """Class to manage methods for callbacks
-    """
+    """Class to manage methods for callbacks"""
 
     def __init__(self, schemagroup):
         self.d = {}
         assert schemagroup, "Factory manager initialized without a schema group name"
-        
+
         self.schema_group = schemagroup
 
-        self.schema_methods = {m.upper(): m for m in dir(self) if hasattr(m, 'schema_method')}
+        self.schema_methods = {
+            m.upper(): m for m in dir(self) if hasattr(m, "schema_method")
+        }
         lookup_list = self.map_schema_to_methods(self.schema_group)
 
         self.add_all(lookup_list)

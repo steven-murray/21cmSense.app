@@ -1,9 +1,11 @@
 """
 Module containing custom exceptions for improved error handling
 """
-class CalculationException(Exception):
+
+
+class CalculationError(Exception):
     pass
 
 
-class ValidationException(Exception):
+class ValidationError(Exception):
     pass

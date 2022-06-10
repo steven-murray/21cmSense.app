@@ -9,9 +9,9 @@
 
 import numpy
 
+
 def get_unit_string(obj_with_unit):
     return obj_with_unit.unit.to_string()
-
 
 
 def filter_infinity(list1: list, list2: list):
@@ -32,7 +32,9 @@ def filter_infinity(list1: list, list2: list):
         ( newlist1, newlist2 )
 
     """
-    return zip(*(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2))))
+    return zip(
+        *(filter(lambda t: t[0] != numpy.inf and t[1] != numpy.inf, zip(list1, list2)))
+    )
 
 
 def quantity_list_to_scalar(lst: list):

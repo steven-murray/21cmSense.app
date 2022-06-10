@@ -34,5 +34,5 @@ jobs:
             git clone git@github.com:steven-murray/21cmSense-app.git --config core.sshCommand="ssh -i ~/.ssh/github_id_ed25519"
             cd SER401-Project43
             git pull origin master
-            git status 
-            ls 
+            git status
+            ls

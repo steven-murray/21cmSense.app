@@ -8,6 +8,7 @@
 # This module contains json schema support and validation
 
 import json
+import logging
 import os
 from json import JSONDecodeError, JSONDecoder
 
@@ -15,10 +16,10 @@ import jsonschema
 from flask import current_app, jsonify
 
 from .constants import SCHEMA_REL_DIR
-from .json_util import json_error
-from .util import DebugPrint
-
 from .exceptions import ValidationException
+from .json_util import json_error
+
+logger = logging.getLogger(__name__)
 
 
 def get_schema_names(schemagroup):
@@ -35,10 +36,10 @@ def get_schema_names(schemagroup):
 
     """
     try:
-        dirs = os.listdir(current_app.root_path + '/static/schema/' + schemagroup)
+        dirs = os.listdir(current_app.root_path + "/static/schema/" + schemagroup)
     except FileNotFoundError:
         return None
-    schemas = [dir.replace('.json', '') for dir in dirs]
+    schemas = [d.replace(".json", "") for d in dirs]
     return schemas
 
 
@@ -95,10 +96,10 @@ def get_schema_descriptions_json(schemagroup):
 
     for schema_name in get_schema_names(schemagroup):
         try:
-            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json", 'r')
+            f = open("app/static/schema/" + schemagroup + "/" + schema_name + ".json")
             sch = json.load(f)
             f.close()
-            d[schema_name] = sch['description']
+            d[schema_name] = sch["description"]
 
         # issue with json.load()
         except JSONDecodeError:
@@ -127,7 +128,7 @@ def get_schema_groups():
         List of available schema groups
 
     """
-    dirs = os.listdir(current_app.root_path + '/static/schema')
+    dirs = os.listdir(current_app.root_path + "/static/schema")
     return dirs
 
 
@@ -142,7 +143,7 @@ def get_schema_groups_json():
     """
     d = get_schema_groups()
     j = {}
-    j['required'] = list(d)
+    j["required"] = list(d)
     return jsonify(j)
 
 
@@ -162,7 +163,8 @@ def load_schema(schemagroup: str, schemaname: str):
         Contents of requested schema file or None if file does not exist
 
     """
-    return load_schema_generic('schema', schemagroup, schemaname)
+    return load_schema_generic("schema", schemagroup, schemaname)
+
 
 def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     """
@@ -184,14 +186,12 @@ def load_schema_generic(schemadir: str, schemagroup: str, schemaname: str):
     """
     try:
         p = SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json"
-        f = open(SCHEMA_REL_DIR + schemadir + "/" + schemagroup + "/" + schemaname + ".json", 'r')
-        schema = json.load(f)
-        f.close()
-    except (JSONDecodeError, IOError) as e:
-        print("error=", e)
-        return None
-    else:
+        with open(p) as fl:
+            schema = json.load(fl)
         return schema
+
+    except (JSONDecodeError, OSError) as e:
+        logger.error(e)
 
 
 def build_composite_schema(schema: JSONDecoder):
@@ -216,33 +216,34 @@ def build_composite_schema(schema: JSONDecoder):
 
     """
     # get calculation type
-    if 'calculation' not in schema:
+    if "calculation" not in schema:
         return json_error("error", "specified schema missing 'calculation' key")
 
-    calculation_type = schema['calculation']
+    calculation_type = schema["calculation"]
 
-    calc_schema = load_schema('calculation', calculation_type)
+    calc_schema = load_schema("calculation", calculation_type)
     if not calc_schema:
-        return json_error("error", "Cannot find requested calculation schema " + calculation_type)
+        return json_error(
+            "error", "Cannot find requested calculation schema " + calculation_type
+        )
 
     newschema = {"calculation": calculation_type, "data": {}, "units": {}}
     # if not jsonschema.validate(calc_schema, load_validation_schema('calculation', calculation_type)):
     #     return json_error("error", "Schema failed validation")
-    for component in calc_schema['required']:
+    for component in calc_schema["required"]:
         if component not in schema:
             return json_error("error", "Missing required data component " + component)
         else:
             comp_schema_name = schema[component]
-        newschema['data'][component] = load_schema(component, comp_schema_name)
-        newschema['units'][component] = {}
+        newschema["data"][component] = load_schema(component, comp_schema_name)
+        newschema["units"][component] = {}
 
     return jsonify(newschema)
     # d[schema_name] = sch['description']
 
 
 class Validator:
-    """Validate a submitted JSON schema prior to using for calculation
-    """
+    """Validate a submitted JSON schema prior to using for calculation"""
 
     def __init__(self, thejson):
         self.thejson = thejson
@@ -262,7 +263,7 @@ class Validator:
         Raises ValidationException if validation fails
         """
 
-        required = {'calculation', 'data', 'units'}
+        required = {"calculation", "data", "units"}
         supplied = set(self.thejson.keys())
 
         # sections provided but not allowed
@@ -296,22 +297,30 @@ class Validator:
         -----
         If returning false, also sets 'error' to True and errorMsg to a message
         """
-        data = self.thejson['data']
-        units = self.thejson['units']
-        for schemagroup in ['antenna', 'beam', 'location']:
+        data = self.thejson["data"]
+        units = self.thejson["units"]
+        for schemagroup in ["antenna", "beam", "location"]:
             j = self.build_schema_for_validation(schemagroup, data, units)
-            if 'schema' not in data[schemagroup]:
-                raise ValidationException("Schema group section %s missing 'schema' keyword" % schemagroup)
+            if "schema" not in data[schemagroup]:
+                raise ValidationException(
+                    "Schema group section %s missing 'schema' keyword" % schemagroup
+                )
 
-            schemaname = data[schemagroup]['schema']
+            schemaname = data[schemagroup]["schema"]
 
             validation_schema = self.load_validation_schema(schemagroup, schemaname)
             if validation_schema is None:
                 raise ValidationException(
-                    "Validation schema not found for schema group=" + schemagroup + ", schema=" + schemaname)
+                    "Validation schema not found for schema group="
+                    + schemagroup
+                    + ", schema="
+                    + schemaname
+                )
 
             if not self.validate(validation_schema, j):
-                raise ValidationException("Error validating schemagroup section %s" % schemagroup)
+                raise ValidationException(
+                    "Error validating schemagroup section %s" % schemagroup
+                )
 
         return True
 
@@ -331,9 +340,9 @@ class Validator:
             The requested validation schema, or None if not found
 
         """
-        schema = load_schema_generic('validation-schema', schemagroup, schemaname)
+        schema = load_schema_generic("validation-schema", schemagroup, schemaname)
         if not schema:
-            schema = load_schema_generic('validation-schema', schemagroup, "default")
+            schema = load_schema_generic("validation-schema", schemagroup, "default")
             if not schema:
                 return None
         # print("DEBUG: returning validation schema:", schema)
@@ -357,7 +366,10 @@ class Validator:
             a dictionary (json) suitable for validating
 
         """
-        return {'data': {schemagroup: data_json[schemagroup]}, 'units': {schemagroup: units_json[schemagroup]}}
+        return {
+            "data": {schemagroup: data_json[schemagroup]},
+            "units": {schemagroup: units_json[schemagroup]},
+        }
 
     # schema must be in JSON and compatible with provided schema rules
     def validate(self, schema, suppliedjson):
@@ -374,12 +386,9 @@ class Validator:
             True if validates, False otherwise
 
         """
-        # sch=json.loads(schema)
-        # f = open("app/static/validation-schema/hera-validation.json", 'r')
-        # sch = json.load(f)
-        # print("Schema=",sch)
         try:
             jsonschema.validate(instance=suppliedjson, schema=schema)
             return True
         except jsonschema.ValidationError as e:
+            logger.error(e)
             return False

@@ -50,4 +50,3 @@ ENTRYPOINT [ "./docker-run-app.sh" ]
 # Flask app can use parameters --port=8080 --bind-address=1.2.3.4
 # but this container uses nginx and WSGI
 #CMD [ "" ]
-

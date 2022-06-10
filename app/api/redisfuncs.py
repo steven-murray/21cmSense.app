@@ -13,24 +13,24 @@ import pickle
 import redis
 
 # tags used for redis namespaces
-TAG_USER = 'user'
-TAG_MODEL = 'model'
-TAG_ANTPOS = 'antpos'
+TAG_USER = "user"
+TAG_MODEL = "model"
+TAG_ANTPOS = "antpos"
 
 
 # keywords used in JSON requests and responses
-KW_DATA = 'data'
-KW_MODELID = 'modelid'
-KW_MODELNAME = 'modelname'
-KW_ID = 'id'
-KW_NAME = 'name'
-KW_MODELPARAMS = 'modelparams'
+KW_DATA = "data"
+KW_MODELID = "modelid"
+KW_MODELNAME = "modelname"
+KW_ID = "id"
+KW_NAME = "name"
+KW_MODELPARAMS = "modelparams"
 
-KW_ANTPOSID = 'antposid'
-KW_ANTPOSNAME = 'antposname'
+KW_ANTPOSID = "antposid"
+KW_ANTPOSNAME = "antposname"
 
-KW_CALCULATION = 'calculation'
-KW_ERROR = 'error'
+KW_CALCULATION = "calculation"
+KW_ERROR = "error"
 
 
 # persistent redis database connection with automatic UTF-8 decoding
@@ -38,6 +38,7 @@ rdb = redis.Redis(decode_responses=True)
 
 # automatic UTF-8 decoding is not compatible with pickled strings.
 rpickle = redis.Redis(decode_responses=False)
+
 
 # returns a redis key (namespace:identifier)
 def user_key(userid: str) -> str:
@@ -58,13 +59,16 @@ def antpos_key(antposid: str) -> str:
 def user_exists(userid):
     return rdb.exists(user_key(userid))
 
+
 # does model with provided modelid exist?
 def model_exists(modelid):
     return rdb.exists(model_key(modelid))
 
+
 # does antpos data with provided antposid exist?
 def antpos_exists(antposid):
     return rdb.exists(antpos_key(antposid))
+
 
 def entryname_exists(userid, entryname, namespace) -> bool:
     """Whether a redis hash object of namespace 'namespace' and the
@@ -105,11 +109,11 @@ def get_tag(key: str) -> str:
     str
         data portion only
     """
-    k = key.split(':')
+    k = key.split(":")
     if len(k) == 2:
         return k[0]
     else:
-        return 'INVALID'
+        return "INVALID"
 
 
 def strip_tag(key: str) -> str:
@@ -125,7 +129,7 @@ def strip_tag(key: str) -> str:
     str
         data portion only
     """
-    k = key.split(':')
+    k = key.split(":")
     if len(k) == 2:
         return k[1]
     else:
@@ -174,5 +178,3 @@ def get_antpos_json(antposid):
         return name, data
     else:
         return None, None
-
-

@@ -311,13 +311,13 @@ class The21cmSense extends React.Component {
   }
 
   plusSubmit() {
-     
+
      console.log("I submitted.");
      const { user } = this.state;
 
      if (user !== "") {
         this.getmodels(user);
-     }      
+     }
   }
 
   render() {
@@ -495,9 +495,9 @@ class The21cmSense extends React.Component {
               {resume}
             </div>
           </Panel>
-          
+
           <br></br>
-          
+
           <Panel shaded >
             <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Download Data</label>
             <br></br><br></br>

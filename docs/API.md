@@ -5,7 +5,7 @@
 ## Create a new User ID
 **POST** `/users`
 
-Response: 
+Response:
 ``201 Created``
 
 Return:
@@ -173,7 +173,7 @@ Body:
 ```
 
 Notes:
-The CSV file shall be comma separated, UTF-8 encoded with either 
+The CSV file shall be comma separated, UTF-8 encoded with either
 two or three floating point numbers per line.  All lines with two
 values will have the third (missing) value replaced with 0.0.
 
@@ -497,7 +497,7 @@ Return:
 		"dl" : float
 		"dl_units": string
 		# since we will not pass a Quantity, need separate units for separation and dl (default is the same)
-		# "units" : string code for astropy.units.Unit 
+		# "units" : string code for astropy.units.Unit
   }
 }
 ```

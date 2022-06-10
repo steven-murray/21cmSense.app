@@ -11,7 +11,7 @@
 This is a web-application that provides a user-interface to the popuar [21cmSense code](https://github.com/steven-murray/21cmSense).
 21cmSense is a sensitivity calculator for 21cm radio telescopes observing the first
 billion years of the Universe.
-		
+
 ## Getting Up and Running
 ### Pre-requisites
 
@@ -65,8 +65,8 @@ optional arguments:
 > `-d` detaches the container after run
 
 
-To build a docker container for running the application, using `nginx` as a webserver 
-utilizing the `wsgi` interface to the python code, please see the [README](docker-dist/README.md) in the 
+To build a docker container for running the application, using `nginx` as a webserver
+utilizing the `wsgi` interface to the python code, please see the [README](docker-dist/README.md) in the
 docker-dist directory.
 
 

@@ -19,7 +19,7 @@ Initially, only the `hera` antenna type is supported.
 The `beam` directory contains schema for different beam configurations.  Initially,
 only GaussianBeam beam types are supported.
 4. locations
-The `location` directory contains schema for different methods of specifying 
+The `location` directory contains schema for different methods of specifying
 geographic location.  Currently, only latitude location types are supported.
 
 # File contents
