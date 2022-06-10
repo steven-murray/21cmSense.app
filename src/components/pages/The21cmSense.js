@@ -170,7 +170,7 @@ class The21cmSense extends React.Component {
       pmodel: [],
       plot_params: {
         calc_name: "",
-        modelids: "",
+        modelid: "",
       },
       HexNumber: '',
       Separation: '',
@@ -271,6 +271,7 @@ class The21cmSense extends React.Component {
 
     this.plusSubmit = this.plusSubmit.bind(this);
     this.plot_model = this.plot_model.bind(this)
+    this.plot_calc = this.plot_calc.bind(this)
   }
 
   componentDidMount() {
@@ -414,6 +415,27 @@ class The21cmSense extends React.Component {
   plot_model(event) {
     console.log(this)
     this.setstate(currentState => ({
+      plot_params: { ...currentState.plot_params, "modelid": this.state._models.find(model => model.modelname == event.target.value).modelid },
+    }))
+    const requestOptions = {
+      method: 'POST',
+      headers: { "Content-Type": "application/json" },
+      body: json.stringify(this.state.plot_params)
+    };
+    fetch(
+      env.REACT_APP_API_URL + "/api-1.0/21cm", requestOptions
+    ).then(response => response.json()).then(
+      values => {
+        this.setState({
+          data: values
+        });
+      }
+    )
+  }
+
+  plot_calc(event) {
+    console.log(this)
+    this.setstate(currentState => ({
       plot_params: { ...currentState.plot_params, "calc_name": event.target.value },
     }))
     const requestOptions = {
@@ -430,11 +452,6 @@ class The21cmSense extends React.Component {
         });
       }
     )
-
-
-
-
-
   }
 
   render() {
@@ -494,7 +511,7 @@ class The21cmSense extends React.Component {
               <label style={{ fontWeight: 'bold', fontSize: 24, fontFamily: 'Times New Roman' }}> Plot <GiInfo title="Plots for all created model" /></label>
               <br></br><br></br>
               <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Calculation </label>
-              <select name="Calculation" onChange={this.plot_model} >
+              <select name="Calculation" onChange={this.plot_calc} >
                 {this.state.calc.map(o => <option value={o.value}>{o}</option>)}
               </select>
               <label style={{ fontSize: 21, fontFamily: 'Rockwell', width: 100 }}> Models </label>
