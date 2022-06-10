@@ -42,6 +42,7 @@ def ensure_redis_available(fnc):
     return inner
 =======
 import binascii
+
 import numpy as np
 from astropy import units
 from flask import current_app, json, request
@@ -49,13 +50,14 @@ from flask import current_app, json, request
 from . import api, models
 from .calculation import *
 from .models import *
+from .redisfuncs import *
 from .schema import (
     build_composite_schema,
     get_schema_descriptions_json,
     get_schema_groups,
     get_schema_names_json,
 )
-from .redisfuncs import *
+
 >>>>>>> update default 21cm calc to use units; black fmt
 
 
