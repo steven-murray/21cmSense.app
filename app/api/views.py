@@ -368,13 +368,11 @@ def translate_and_validate_antenna_data(data):
     # use the csv reader to parse it
     reader = csv.reader(ln)
     for line in reader:
-
         # we must either have two or three values. All two-value lines have a third
         # value of 0.0 added
         if len(line) < 2 or len(line) > 3:
             return None
         try:
-
             # convert all string values to float
             numline = [float(x) for x in line]
             if len(numline) == 2:
