@@ -86,7 +86,6 @@ def entryname_exists(userid, entryname, namespace) -> bool:
     """
     entries = rdb.smembers(user_key(userid))
     for m in entries:
-
         # ensure entry's tag matches and its name matches.  If the namespace is
         # e.g., 'model' then we expect the 'name' to be a field called 'modelname'.
         # this is done to eliminate constant switching between 'name' in the database
