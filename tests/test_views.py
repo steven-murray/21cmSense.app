@@ -23,7 +23,7 @@ def test_main():
 
 
 def test_ping():
-    page = client.get(APIPATH + "/ping")
+    page = client.get(f"{APIPATH}/ping")
     html = page.data.decode()
 
     assert """{"pong":""}""" in html
@@ -31,9 +31,9 @@ def test_ping():
 
 
 def test_list_all_schema_groups():
-    page = client.get(APIPATH + "/schema")
+    page = client.get(f"{APIPATH}/schema")
     json = page.get_json()
-    assert type(json) == list
+    assert isinstance(json, list)
     assert page.status_code == 200
 
 
@@ -41,24 +41,24 @@ def test_list_all_schema_groups():
 #  "GaussianBeam"
 # ]
 def test_get_schema_group():
-    page = client.get(APIPATH + "/schema")
+    page = client.get(f"{APIPATH}/schema")
     json = page.get_json()
     for group in json:
-        schema_page = client.get(APIPATH + f"/schema/{group}")
+        schema_page = client.get(f"{APIPATH}/schema/{group}")
         schema_json = schema_page.get_json()
-        assert type(schema_json) == list
+        assert isinstance(schema_json, list)
     assert page.status_code == 200
 
 
 def test_get_schema(client):
-    page = client.get(APIPATH + "/schema/beam/get/GaussianBeam")
+    page = client.get(f"{APIPATH}/schema/beam/get/GaussianBeam")
     json = page.get_json()
     assert json["schema"] == "GaussianBeam"
     assert page.status_code == 200
 
 
 def test_get_nonexistent_schema():
-    page = client.get(APIPATH + "/schema/beam/get/NoSuchSchema")
+    page = client.get(f"{APIPATH}/schema/beam/get/NoSuchSchema")
     assert page.status_code == 404
 
 
@@ -67,7 +67,7 @@ def test_get_nonexistent_schema():
 )
 def test_get_nonexistent_schema_group_case_insensitive_fs(client):
     # there is no such group as "Beam" (it is "beam")
-    page = client.get(APIPATH + "/schema/Beam/get/GaussianBeam")
+    page = client.get(f"{APIPATH}/schema/Beam/get/GaussianBeam")
     assert page.status_code == 200
 
 
@@ -76,7 +76,7 @@ def test_get_nonexistent_schema_group_case_insensitive_fs(client):
 )
 def test_get_nonexistent_schema_group_case_sensitive_fs(client):
     # there is no such group as "Beam" (it is "beam")
-    page = client.get(APIPATH + "/schema/Beam/get/GaussianBeam")
+    page = client.get(f"{APIPATH}/schema/Beam/get/GaussianBeam")
     assert page.status_code == 404
 
 
