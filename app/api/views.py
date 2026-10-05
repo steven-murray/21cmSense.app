@@ -284,7 +284,7 @@ def antpos_get(userid, antposid):
     """
     if not rd.user_exists(userid):
         return "", cnst.HTTP_NOT_FOUND
-    (name, data) = rd.get_antpos_json(antposid)
+    name, data = rd.get_antpos_json(antposid)
     if data is not None:
         return {rd.KW_ANTPOSNAME: name, rd.KW_DATA: data}, cnst.HTTP_OK
     else:
