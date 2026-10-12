@@ -257,7 +257,7 @@ class CalculationFactory(FactoryManager):
         }
         sensitivity = get_sensitivity(thejson)
         power_std = sensitivity.calculate_sensitivity_1d()
-        (xseries, yseries) = filter_infinity(
+        xseries, yseries = filter_infinity(
             sensitivity.k1d.value.tolist(), power_std.value.tolist()
         )
         d = {
@@ -289,7 +289,7 @@ class CalculationFactory(FactoryManager):
         power_std_thermal = sensitivity.calculate_sensitivity_1d(
             thermal=True, sample=False
         )
-        (xseries, yseries) = filter_infinity(
+        xseries, yseries = filter_infinity(
             sensitivity.k1d.value.tolist(), power_std_thermal.value.tolist()
         )
         d = {
@@ -368,7 +368,7 @@ class CalculationFactory(FactoryManager):
         sensitivity = get_sensitivity(thejson)
         observatory = sensitivity.observation.observatory
 
-        (xseries, yseries) = filter_infinity(
+        xseries, yseries = filter_infinity(
             observatory.antpos[:, 0], observatory.antpos[:, 1]
         )
         xunit = xseries[0].unit.to_string()
