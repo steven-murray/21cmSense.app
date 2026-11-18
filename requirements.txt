@@ -4,7 +4,7 @@ Flask-Cors==3.0.10
 git+https://github.com/steven-murray/21cmSense
 
 # for wsgi nginx proxying
-gunicorn==20.1.0
+gunicorn==22.0.0
 ### Requirements
 # project reqs
 jsonschema==4.2.1
